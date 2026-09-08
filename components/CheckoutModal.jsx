@@ -1,0 +1,192 @@
+"use client";
+
+import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { useLang } from "@/context/LangContext";
+import { useCart } from "@/context/CartContext";
+import { buildWhatsAppOrderUrl } from "@/lib/whatsapp";
+
+export default function CheckoutModal() {
+  const { lang, t } = useLang();
+  const { items, subtotal, deliveryFee, total, isCheckoutOpen, setCheckoutOpen, clearCart } =
+    useCart();
+
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [method, setMethod] = useState("delivery");
+  const [address, setAddress] = useState("");
+  const [comment, setComment] = useState("");
+  const [error, setError] = useState("");
+
+  const close = () => setCheckoutOpen(false);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!name.trim() || !phone.trim()) {
+      setError(t("checkout_required"));
+      return;
+    }
+    setError("");
+
+    const url = buildWhatsAppOrderUrl({
+      lang,
+      customer: { name, phone, method, address, comment },
+      items,
+      subtotal,
+      deliveryFee,
+      total,
+    });
+
+    window.open(url, "_blank", "noopener,noreferrer");
+    clearCart();
+    close();
+    setName("");
+    setPhone("");
+    setAddress("");
+    setComment("");
+  };
+
+  return (
+    <AnimatePresence>
+      {isCheckoutOpen && (
+        <>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={close}
+            className="fixed inset-0 z-[60] bg-ink/55 backdrop-blur-sm"
+          />
+          <motion.div
+            initial={{ opacity: 0, y: 24, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 24, scale: 0.98 }}
+            transition={{ type: "spring", damping: 28, stiffness: 320 }}
+            className="fixed inset-x-4 top-1/2 z-[60] mx-auto max-h-[88vh] max-w-md -translate-y-1/2 overflow-y-auto rounded-2xl bg-white p-6 shadow-lift sm:inset-x-auto"
+          >
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="font-serif text-xl font-bold text-ink">{t("checkout_title")}</h3>
+              <button
+                onClick={close}
+                className="flex h-8 w-8 items-center justify-center rounded-full text-ink-soft hover:bg-cream"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="flex flex-col gap-3.5">
+              <div className="flex gap-2 rounded-full bg-cream p-1">
+                {[
+                  { key: "delivery", label: t("checkout_method_delivery") },
+                  { key: "pickup", label: t("checkout_method_pickup") },
+                ].map((m) => (
+                  <button
+                    type="button"
+                    key={m.key}
+                    onClick={() => setMethod(m.key)}
+                    className={`flex-1 rounded-full py-2 text-sm font-medium transition-colors ${
+                      method === m.key ? "bg-gold text-ink" : "text-ink-soft"
+                    }`}
+                  >
+                    {m.label}
+                  </button>
+                ))}
+              </div>
+
+              <Field label={t("checkout_name")}>
+                <input
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder={t("checkout_name_placeholder")}
+                  className="input"
+                  required
+                />
+              </Field>
+
+              <Field label={t("checkout_phone")}>
+                <input
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="+7 900 000-00-00"
+                  type="tel"
+                  className="input"
+                  required
+                />
+              </Field>
+
+              {method === "delivery" && (
+                <Field label={t("checkout_address")}>
+                  <input
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    placeholder={t("checkout_address_placeholder")}
+                    className="input"
+                  />
+                </Field>
+              )}
+
+              <Field label={t("checkout_comment")}>
+                <textarea
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  placeholder={t("checkout_comment_placeholder")}
+                  rows={2}
+                  className="input resize-none"
+                />
+              </Field>
+
+              {error && <p className="text-sm text-red-500">{error}</p>}
+
+              <div className="mt-1 flex items-center justify-between rounded-xl bg-cream px-4 py-3">
+                <span className="text-sm text-ink-soft">{t("cart_total")}</span>
+                <span className="text-lg font-semibold text-gold">{total} ₽</span>
+              </div>
+
+              <button
+                type="submit"
+                className="mt-1 flex w-full items-center justify-center gap-2 rounded-full bg-[#25D366] py-3 text-sm font-semibold text-white transition-transform hover:scale-[1.01] active:scale-[0.98]"
+              >
+                <WhatsAppIcon /> {t("checkout_submit")}
+              </button>
+              <p className="text-center text-[0.72rem] text-ink-soft">
+                {t("checkout_disclaimer")}
+              </p>
+            </form>
+          </motion.div>
+        </>
+      )}
+      <style jsx global>{`
+        .input {
+          width: 100%;
+          border-radius: 0.75rem;
+          border: 1px solid rgba(201, 169, 110, 0.25);
+          padding: 0.6rem 0.85rem;
+          font-size: 0.85rem;
+          outline: none;
+          transition: border-color 0.2s;
+          background: #fdfcf8;
+        }
+        .input:focus {
+          border-color: #c9a96e;
+        }
+      `}</style>
+    </AnimatePresence>
+  );
+}
+
+function Field({ label, children }) {
+  return (
+    <label className="flex flex-col gap-1">
+      <span className="text-[0.75rem] font-medium text-ink-soft">{label}</span>
+      {children}
+    </label>
+  );
+}
+
+function WhatsAppIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12.04 2c-5.52 0-10 4.48-10 10 0 1.77.46 3.44 1.27 4.89L2 22l5.25-1.38A9.94 9.94 0 0 0 12.04 22c5.52 0 10-4.48 10-10s-4.48-10-10-10zm0 18.2a8.2 8.2 0 0 1-4.18-1.14l-.3-.18-3.12.82.83-3.04-.2-.31A8.2 8.2 0 1 1 20.24 12a8.2 8.2 0 0 1-8.2 8.2zm4.5-6.13c-.25-.12-1.47-.72-1.7-.8-.23-.08-.4-.12-.56.12-.17.25-.64.8-.79.96-.14.17-.29.19-.54.06-.25-.12-1.04-.38-1.98-1.22-.73-.65-1.23-1.46-1.37-1.7-.14-.25-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.15.16-.25.25-.42.08-.17.04-.31-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.41-.42-.56-.42-.14-.01-.31-.01-.48-.01-.17 0-.43.06-.66.31-.23.25-.86.84-.86 2.04 0 1.2.88 2.36 1 2.53.12.17 1.74 2.66 4.22 3.73.59.25 1.05.4 1.41.52.59.19 1.13.16 1.55.1.47-.07 1.47-.6 1.68-1.18.21-.58.21-1.08.15-1.18-.06-.1-.23-.16-.48-.28z" />
+    </svg>
+  );
+}
