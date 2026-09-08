@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { getItem } from "@/lib/menu";
+import { useMenu } from "@/context/MenuContext";
 
 const CartContext = createContext(null);
 const STORAGE_KEY = "chaihana_cart_v1";
@@ -9,6 +9,7 @@ const FREE_DELIVERY_FROM = 2000;
 const DELIVERY_FEE = 100;
 
 export function CartProvider({ children }) {
+  const { getItem } = useMenu();
   // lines: { [itemId]: qty }
   const [lines, setLines] = useState({});
   const [isCartOpen, setCartOpen] = useState(false);
@@ -63,7 +64,7 @@ export function CartProvider({ children }) {
         return { ...dish, qty };
       })
       .filter(Boolean);
-  }, [lines]);
+  }, [lines, getItem]);
 
   const itemCount = useMemo(() => items.reduce((sum, it) => sum + it.qty, 0), [items]);
 

@@ -3,13 +3,12 @@
 import { useEffect, useRef, useState } from "react";
 import { useLang } from "@/context/LangContext";
 import { useCart } from "@/context/CartContext";
-import { CATEGORIES } from "@/lib/menu";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 
-export default function Nav() {
+export default function Nav({ categories = [] }) {
   const { t, lang } = useLang();
   const { itemCount, setCartOpen } = useCart();
-  const [activeId, setActiveId] = useState(CATEGORIES[0]?.id);
+  const [activeId, setActiveId] = useState(categories[0]?.id);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const navScrollRef = useRef(null);
@@ -23,7 +22,7 @@ export default function Nav() {
   }, []);
 
   useEffect(() => {
-    const sections = CATEGORIES.map((c) => document.getElementById(c.id)).filter(Boolean);
+    const sections = categories.map((c) => document.getElementById(c.id)).filter(Boolean);
     if (!sections.length) return;
 
     const observer = new IntersectionObserver(
@@ -96,7 +95,7 @@ export default function Nav() {
           ref={navScrollRef}
           className="no-scrollbar hidden flex-1 items-center gap-1 overflow-x-auto md:flex"
         >
-          {CATEGORIES.map((cat) => (
+          {categories.map((cat) => (
             <button
               key={cat.id}
               ref={(el) => (linkRefs.current[cat.id] = el)}
@@ -125,7 +124,7 @@ export default function Nav() {
       {mobileOpen && (
         <div className="border-t border-gold/10 bg-cream px-4 pb-3 pt-1 md:hidden">
           <div className="flex flex-col">
-            {CATEGORIES.map((cat) => (
+            {categories.map((cat) => (
               <button
                 key={cat.id}
                 onClick={() => scrollToSection(cat.id)}

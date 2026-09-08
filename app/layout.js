@@ -15,6 +15,12 @@ import "@fontsource/playfair-display/cyrillic-700.css";
 import "./globals.css";
 import { LangProvider } from "@/context/LangContext";
 import { CartProvider } from "@/context/CartContext";
+import { MenuProvider } from "@/context/MenuContext";
+import { readMenuCategories } from "@/lib/menu-server";
+
+// The menu is editable at runtime via /admin, so this layout (and everything
+// under it) must be rendered per-request rather than baked in at build time.
+export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Чайхана Райхан — Доставка восточной кухни | Москва",
@@ -36,11 +42,15 @@ export const viewport = {
 };
 
 export default function RootLayout({ children }) {
+  const categories = readMenuCategories();
+
   return (
     <html lang="ru">
       <body className="font-sans">
         <LangProvider>
-          <CartProvider>{children}</CartProvider>
+          <MenuProvider categories={categories}>
+            <CartProvider>{children}</CartProvider>
+          </MenuProvider>
         </LangProvider>
       </body>
     </html>

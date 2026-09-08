@@ -3,11 +3,12 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useLang } from "@/context/LangContext";
 import { useCart } from "@/context/CartContext";
-import { getItem, localized } from "@/lib/menu";
+import { useMenu } from "@/context/MenuContext";
 
 export default function Toast() {
   const { lang, t } = useLang();
   const { lastAdded } = useCart();
+  const { getItem, localized } = useMenu();
   const item = lastAdded ? getItem(lastAdded) : null;
 
   return (

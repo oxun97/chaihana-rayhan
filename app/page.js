@@ -5,7 +5,7 @@ import Footer from "@/components/Footer";
 import CartDrawer from "@/components/CartDrawer";
 import CheckoutModal from "@/components/CheckoutModal";
 import Toast from "@/components/Toast";
-import { CATEGORIES } from "@/lib/menu";
+import { readMenuCategories } from "@/lib/menu-server";
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -47,17 +47,19 @@ const jsonLd = {
 };
 
 export default function HomePage() {
+  const categories = readMenuCategories();
+
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <Nav />
+      <Nav categories={categories} />
       <Toast />
       <main>
         <Hero />
-        {CATEGORIES.map((cat) => (
+        {categories.map((cat) => (
           <MenuSection key={cat.id} category={cat} />
         ))}
       </main>
