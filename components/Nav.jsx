@@ -69,8 +69,11 @@ export default function Nav({ categories = [] }) {
       <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-2.5">
         <a
           href="#top"
-          className="shrink-0 whitespace-nowrap font-serif text-base font-bold text-ink sm:text-lg"
+          className="flex shrink-0 items-center gap-1.5 whitespace-nowrap font-serif text-base font-bold text-ink sm:text-lg"
         >
+          <span className="text-gold" aria-hidden="true">
+            ✦
+          </span>
           {(() => {
             const words = t("hero_title").split(" ");
             const last = words.pop();

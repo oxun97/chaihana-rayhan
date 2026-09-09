@@ -4,6 +4,11 @@ import { motion } from "framer-motion";
 import { useLang } from "@/context/LangContext";
 import { RESTAURANT_PHONE_DISPLAY, RESTAURANT_PHONE_TEL } from "@/lib/whatsapp";
 
+function scrollToMenu() {
+  const el = document.querySelector("main section[id]");
+  if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 68, behavior: "smooth" });
+}
+
 export default function Hero() {
   const { t } = useLang();
   const titleWords = t("hero_title").split(" ");
@@ -13,10 +18,11 @@ export default function Hero() {
   return (
     <section
       id="top"
-      className="relative flex min-h-[92vh] items-center justify-center overflow-hidden bg-ink"
+      className="relative flex min-h-[100dvh] items-center justify-center overflow-hidden bg-ink sm:min-h-[92vh]"
     >
-      {/* Decorative animated background */}
-      <div className="absolute inset-0 animate-heroZoom bg-[radial-gradient(ellipse_at_top_left,rgba(201,169,110,0.22),transparent_55%),radial-gradient(ellipse_at_bottom_right,rgba(201,169,110,0.16),transparent_55%)]" />
+      {/* Layered Eastern ornament: lattice texture + soft gold glows */}
+      <div className="pattern-lattice-lg absolute inset-0 animate-drift opacity-[0.05]" />
+      <div className="absolute inset-0 animate-heroZoom bg-[radial-gradient(ellipse_at_top_left,rgba(201,169,110,0.22),transparent_55%),radial-gradient(ellipse_at_bottom_right,rgba(31,111,107,0.22),transparent_55%)]" />
       <div
         className="absolute inset-0 opacity-[0.07]"
         style={{
@@ -26,6 +32,8 @@ export default function Hero() {
         }}
       />
       <div className="absolute inset-0 bg-gradient-to-b from-ink/10 via-ink/40 to-ink" />
+      {/* Vignette frame — evokes a portal/iwan without needing a photo asset */}
+      <div className="pointer-events-none absolute inset-3 rounded-[2rem] border border-gold/20 sm:inset-6 sm:rounded-[2.5rem]" />
 
       <div className="relative z-10 mx-auto max-w-2xl px-6 py-24 text-center">
         <motion.div
@@ -49,6 +57,18 @@ export default function Hero() {
           <span className="text-gold-light">{titleLast}</span>
         </motion.h1>
 
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.35 }}
+          className="mx-auto mt-4 flex items-center justify-center gap-3 text-gold/60"
+          aria-hidden="true"
+        >
+          <span className="h-px w-10 bg-gold/40" />
+          <StarMark />
+          <span className="h-px w-10 bg-gold/40" />
+        </motion.div>
+
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -59,17 +79,10 @@ export default function Hero() {
         </motion.p>
 
         <motion.div
-          initial={{ opacity: 0, scaleX: 0 }}
-          animate={{ opacity: 1, scaleX: 1 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="mx-auto my-6 h-[3px] w-14 rounded-full bg-gold"
-        />
-
-        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.75 }}
-          className="flex flex-wrap items-center justify-center gap-3"
+          className="mt-8 flex flex-wrap items-center justify-center gap-3"
         >
           <a
             href={`tel:${RESTAURANT_PHONE_TEL}`}
@@ -78,10 +91,7 @@ export default function Hero() {
             {RESTAURANT_PHONE_DISPLAY}
           </a>
           <button
-            onClick={() => {
-              const el = document.querySelector("main section[id]");
-              if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 68, behavior: "smooth" });
-            }}
+            onClick={scrollToMenu}
             className="rounded-full border-2 border-gold bg-gold px-7 py-2.5 text-[1.05rem] font-semibold text-ink transition-all duration-300 hover:bg-gold-light"
           >
             📱 {t("nav_order_online")}
@@ -94,13 +104,18 @@ export default function Hero() {
         animate={{ opacity: 0.65, y: [0, 8, 0] }}
         transition={{ opacity: { delay: 1.2 }, y: { duration: 2.4, repeat: Infinity } }}
         className="absolute bottom-8 left-1/2 z-10 -translate-x-1/2 cursor-pointer text-[0.72rem] tracking-[0.2em] text-white"
-        onClick={() => {
-          const el = document.querySelector("main section[id]");
-          if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 68, behavior: "smooth" });
-        }}
+        onClick={scrollToMenu}
       >
         ▼ {t("scroll_to_menu")}
       </motion.div>
     </section>
+  );
+}
+
+function StarMark() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 0l2.6 8.2L23 11l-8.4 2.8L12 22l-2.6-8.2L1 11l8.4-2.8L12 0z" />
+    </svg>
   );
 }

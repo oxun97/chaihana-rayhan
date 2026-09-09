@@ -284,31 +284,47 @@ export default function AdminPage() {
         {activeCategory && (
           <main className="flex-1 rounded-2xl bg-white p-4 shadow-soft sm:p-5">
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-gold/10 pb-4">
-              <div className="flex flex-wrap gap-2">
-                {LANGS.map((lang) => (
-                  <label key={lang} className="flex items-center gap-1.5 text-xs text-ink-soft">
-                    {i18n.ui[lang]?.label}:
-                    <input
-                      value={activeCategory.title[lang] || ""}
-                      onChange={(e) =>
-                        setCategories((prev) =>
-                          updateCategory(prev, activeCategory.id, (c) => ({
-                            ...c,
-                            title: { ...c.title, [lang]: e.target.value },
-                          }))
-                        )
-                      }
-                      className="admin-input w-36"
-                    />
-                  </label>
-                ))}
-              </div>
+              <PhotoUpload
+                label="Фото категории"
+                currentSrc={activeCategory.imageSrc}
+                target="category"
+                categoryId={activeCategory.id}
+                onUploaded={(path, url) =>
+                  setCategories((prev) =>
+                    updateCategory(prev, activeCategory.id, (c) => ({
+                      ...c,
+                      image: path,
+                      imageSrc: url,
+                    }))
+                  )
+                }
+              />
               <button
                 onClick={() => handleDeleteCategory(activeCategory.id)}
                 className="text-xs text-red-400 hover:text-red-600"
               >
                 Удалить категорию
               </button>
+            </div>
+
+            <div className="mb-4 flex flex-wrap gap-2 border-b border-gold/10 pb-4">
+              {LANGS.map((lang) => (
+                <label key={lang} className="flex items-center gap-1.5 text-xs text-ink-soft">
+                  {i18n.ui[lang]?.label}:
+                  <input
+                    value={activeCategory.title[lang] || ""}
+                    onChange={(e) =>
+                      setCategories((prev) =>
+                        updateCategory(prev, activeCategory.id, (c) => ({
+                          ...c,
+                          title: { ...c.title, [lang]: e.target.value },
+                        }))
+                      )
+                    }
+                    className="admin-input w-36"
+                  />
+                </label>
+              ))}
             </div>
 
             <div className="mb-3 flex items-center gap-3">
@@ -331,6 +347,7 @@ export default function AdminPage() {
                 <DishRow
                   key={item.id}
                   item={item}
+                  categoryId={activeCategory.id}
                   expanded={expandedItemId === item.id}
                   onToggle={() =>
                     setExpandedItemId((id) => (id === item.id ? null : item.id))
@@ -369,10 +386,17 @@ export default function AdminPage() {
   );
 }
 
-function DishRow({ item, expanded, onToggle, onDelete, onChange }) {
+function DishRow({ item, categoryId, expanded, onToggle, onDelete, onChange }) {
   return (
     <li className="rounded-xl border border-gold/10">
       <div className="flex items-center gap-3 px-3 py-2.5">
+        {item.imgSrc ? (
+          <img src={item.imgSrc} alt="" className="h-9 w-9 shrink-0 rounded-lg object-cover" />
+        ) : (
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-cream text-sm text-ink-soft/40">
+            🍽️
+          </div>
+        )}
         <button onClick={onToggle} className="flex flex-1 items-center gap-3 text-left">
           <span className="min-w-0 flex-1 truncate text-sm font-medium text-ink">
             {item.name.ru || <em className="text-ink-soft">без названия</em>}
@@ -389,6 +413,15 @@ function DishRow({ item, expanded, onToggle, onDelete, onChange }) {
 
       {expanded && (
         <div className="flex flex-col gap-3 border-t border-gold/10 px-3 py-3">
+          <PhotoUpload
+            label="Фото блюда"
+            currentSrc={item.imgSrc}
+            target="dish"
+            categoryId={categoryId}
+            itemId={item.id}
+            onUploaded={(path, url) => onChange((it) => ({ ...it, img: path, imgSrc: url }))}
+          />
+
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {LANGS.map((lang) => (
               <label key={lang} className="flex flex-col gap-1 text-xs text-ink-soft">
@@ -482,6 +515,61 @@ function DishRow({ item, expanded, onToggle, onDelete, onChange }) {
         </div>
       )}
     </li>
+  );
+}
+
+function PhotoUpload({ label, currentSrc, target, categoryId, itemId, onUploaded }) {
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState("");
+  const inputId = `upload-${target}-${categoryId}-${itemId || "cover"}`;
+
+  async function handleFile(e) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    setUploading(true);
+    setError("");
+    try {
+      const form = new FormData();
+      form.append("file", file);
+      form.append("target", target);
+      form.append("categoryId", categoryId);
+      if (itemId) form.append("itemId", itemId);
+      const res = await fetch("/api/admin/upload", { method: "POST", body: form });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Ошибка загрузки");
+      onUploaded(data.path, data.url);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  return (
+    <div className="flex items-center gap-2.5">
+      {currentSrc ? (
+        <img src={currentSrc} alt="" className="h-10 w-10 rounded-lg object-cover" />
+      ) : (
+        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-cream text-[0.6rem] text-ink-soft/50">
+          нет фото
+        </div>
+      )}
+      <label
+        htmlFor={inputId}
+        className="cursor-pointer rounded-full border border-gold/40 px-3 py-1.5 text-xs font-medium text-ink-soft hover:border-gold hover:text-gold"
+      >
+        {uploading ? "Загрузка…" : label}
+      </label>
+      <input
+        id={inputId}
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        onChange={handleFile}
+        className="hidden"
+      />
+      {error && <span className="text-xs text-red-500">{error}</span>}
+    </div>
   );
 }
 

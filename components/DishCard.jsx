@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { useLang } from "@/context/LangContext";
 import { useCart } from "@/context/CartContext";
 import { localized } from "@/lib/menu";
@@ -65,13 +66,25 @@ export default function DishCard({ item, categoryId, index }) {
 
   return (
     <div
-      className="group flex flex-col gap-2.5 rounded-2xl bg-white p-3 opacity-0 shadow-soft transition-all duration-300 [animation-fill-mode:forwards] hover:-translate-y-0.5 hover:shadow-card animate-fadeUp"
+      className="group flex flex-col gap-2.5 rounded-2xl border-t-2 border-t-gold/50 bg-white p-3 opacity-0 shadow-soft transition-all duration-300 [animation-fill-mode:forwards] hover:-translate-y-0.5 hover:shadow-card animate-fadeUp"
       style={{ animationDelay: `${Math.min(index * 45, 400)}ms` }}
     >
-      <div className="relative aspect-[3/2] w-full overflow-hidden rounded-xl bg-gradient-to-br from-cream to-gold-light/30">
-        <div className="flex h-full w-full items-center justify-center text-5xl opacity-70 transition-transform duration-500 group-hover:scale-110">
-          {emoji}
-        </div>
+      <div className="pattern-lattice-soft relative aspect-[3/2] w-full overflow-hidden rounded-xl bg-gradient-to-br from-cream to-gold-light/20">
+        {item.imgSrc ? (
+          <Image
+            src={item.imgSrc}
+            alt={name}
+            fill
+            sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 22vw"
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center">
+            <div className="medallion flex h-14 w-14 items-center justify-center rounded-full bg-cream text-2xl transition-transform duration-500 group-hover:scale-110">
+              {emoji}
+            </div>
+          </div>
+        )}
         {item.price >= 3000 && (
           <span className="absolute left-2 top-2 rounded-full bg-ink/85 px-2 py-0.5 text-[0.62rem] font-medium tracking-wide text-gold-light backdrop-blur-sm">
             {t("made_to_order_note")}

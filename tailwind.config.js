@@ -20,6 +20,18 @@ module.exports = {
           soft: "#7a6f5a",
         },
         bg: "#fdfcf8",
+        // Uzbek majolica-tile teal and terracotta ceramics, used sparingly
+        // alongside gold for accents and category identity.
+        teal: {
+          DEFAULT: "#1f6f6b",
+          light: "#4fa89f",
+          dark: "#134a47",
+        },
+        terracotta: {
+          DEFAULT: "#c1613f",
+          light: "#e1926c",
+          dark: "#96462a",
+        },
       },
       fontFamily: {
         serif: ["'Playfair Display'", "Georgia", "serif"],
@@ -46,11 +58,16 @@ module.exports = {
           "0%": { backgroundPosition: "-200% 0" },
           "100%": { backgroundPosition: "200% 0" },
         },
+        drift: {
+          "0%": { backgroundPosition: "0 0" },
+          "100%": { backgroundPosition: "120px 120px" },
+        },
       },
       animation: {
         heroZoom: "heroZoom 20s ease-in-out infinite alternate",
         fadeUp: "fadeUp 0.7s cubic-bezier(0.16,1,0.3,1) forwards",
         shimmer: "shimmer 2.5s linear infinite",
+        drift: "drift 60s linear infinite",
       },
     },
   },
