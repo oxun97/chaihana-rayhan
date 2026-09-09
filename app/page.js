@@ -47,7 +47,14 @@ const jsonLd = {
 };
 
 export default async function HomePage() {
-  const categories = await readMenuCategories();
+  let categories = [];
+  let menuError = false;
+  try {
+    categories = await readMenuCategories();
+  } catch (e) {
+    console.error("Failed to load menu from the database:", e);
+    menuError = true;
+  }
 
   return (
     <>
@@ -59,9 +66,19 @@ export default async function HomePage() {
       <Toast />
       <main>
         <Hero />
-        {categories.map((cat) => (
-          <MenuSection key={cat.id} category={cat} />
-        ))}
+        {menuError ? (
+          <div className="mx-auto max-w-xl px-4 py-16 text-center">
+            <p className="font-serif text-lg font-semibold text-ink">
+              Меню временно недоступно
+            </p>
+            <p className="mt-2 text-sm text-ink-soft">
+              Пожалуйста, позвоните нам, чтобы сделать заказ, или попробуйте обновить
+              страницу через несколько минут.
+            </p>
+          </div>
+        ) : (
+          categories.map((cat) => <MenuSection key={cat.id} category={cat} />)
+        )}
       </main>
       <Footer />
       <CartDrawer />

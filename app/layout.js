@@ -42,7 +42,12 @@ export const viewport = {
 };
 
 export default async function RootLayout({ children }) {
-  const categories = await readMenuCategories();
+  let categories = [];
+  try {
+    categories = await readMenuCategories();
+  } catch (e) {
+    console.error("Failed to load menu from the database:", e);
+  }
 
   return (
     <html lang="ru">
