@@ -20,9 +20,6 @@ yarn-error.log*
 # local env files
 .env*.local
 
-# menu editor's rolling backup (runtime data, not source)
-/data/menu.backup.json
-
 # vercel
 .vercel
 

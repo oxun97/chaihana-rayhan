@@ -41,8 +41,8 @@ export const viewport = {
   themeColor: "#2a2419",
 };
 
-export default function RootLayout({ children }) {
-  const categories = readMenuCategories();
+export default async function RootLayout({ children }) {
+  const categories = await readMenuCategories();
 
   return (
     <html lang="ru">

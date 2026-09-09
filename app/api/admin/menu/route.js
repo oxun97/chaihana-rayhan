@@ -2,12 +2,12 @@ import { NextResponse } from "next/server";
 import { readMenuCategories, writeMenuCategories } from "@/lib/menu-server";
 
 // Never cache: this endpoint always reflects the current contents of
-// data/menu.json, which the admin panel edits directly on disk.
+// the menu database, which the admin panel edits.
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    const categories = readMenuCategories();
+    const categories = await readMenuCategories();
     return NextResponse.json({ categories });
   } catch (e) {
     return NextResponse.json({ error: "Не удалось прочитать меню." }, { status: 500 });
@@ -64,7 +64,7 @@ export async function PUT(request) {
   }
 
   try {
-    writeMenuCategories(categories);
+    await writeMenuCategories(categories);
     return NextResponse.json({ ok: true });
   } catch (e) {
     return NextResponse.json({ error: "Не удалось сохранить меню на сервере." }, { status: 500 });

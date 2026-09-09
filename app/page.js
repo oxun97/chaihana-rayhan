@@ -46,8 +46,8 @@ const jsonLd = {
   },
 };
 
-export default function HomePage() {
-  const categories = readMenuCategories();
+export default async function HomePage() {
+  const categories = await readMenuCategories();
 
   return (
     <>
