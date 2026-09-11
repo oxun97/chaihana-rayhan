@@ -23,6 +23,7 @@ import { readMenuCategories } from "@/lib/menu-server";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
+  metadataBase: new URL(process.env.SITE_URL || "https://chaihana-rayhan.ru"),
   title: "Чайхана Райхан — Доставка восточной кухни | Москва",
   description:
     "Чайхана Райхан — доставка восточной кухни в Москве. Плов, шашлык, лагман, манты, салаты и десерты. Заказ онлайн или по телефону.",

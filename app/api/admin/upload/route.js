@@ -1,10 +1,9 @@
-import fs from "fs";
-import path from "path";
 import { NextResponse } from "next/server";
+import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
 export const dynamic = "force-dynamic";
 
-const PUBLIC_DIR = path.join(process.cwd(), "public");
+const MENU_IMAGES_BUCKET = "menu-images";
 const MAX_SIZE = 8 * 1024 * 1024; // 8 MB
 const ALLOWED_TYPES = {
   "image/jpeg": "jpg",
@@ -13,11 +12,13 @@ const ALLOWED_TYPES = {
 };
 
 function slugify(text) {
-  return (text || "")
-    .toString()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "") || "photo";
+  return (
+    (text || "")
+      .toString()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "") || "photo"
+  );
 }
 
 export async function POST(request) {
@@ -50,28 +51,31 @@ export async function POST(request) {
   }
 
   const ext = ALLOWED_TYPES[file.type];
-  let relPath;
+  // Cache-bust the object key itself (rather than relying on a "?v=" query
+  // string) so the CDN in front of Supabase Storage never serves a stale
+  // cached image after a re-upload.
+  const stamp = Date.now().toString(36);
+  let objectKey;
   if (target === "category") {
-    relPath = path.posix.join("images", "categories", `${categoryId}.${ext}`);
+    objectKey = `categories/${categoryId}-${stamp}.${ext}`;
   } else {
     if (!itemId) {
       return NextResponse.json({ error: "Не указано блюдо." }, { status: 400 });
     }
-    relPath = path.posix.join("images", "dishes", categoryId, `${itemId}.${ext}`);
-  }
-
-  const destPath = path.join(PUBLIC_DIR, relPath);
-  if (!destPath.startsWith(PUBLIC_DIR)) {
-    return NextResponse.json({ error: "Некорректный путь." }, { status: 400 });
+    objectKey = `dishes/${categoryId}/${itemId}-${stamp}.${ext}`;
   }
 
   try {
-    fs.mkdirSync(path.dirname(destPath), { recursive: true });
+    const supabase = getSupabaseAdmin();
     const buffer = Buffer.from(await file.arrayBuffer());
-    fs.writeFileSync(destPath, buffer);
+    const { error: uploadError } = await supabase.storage
+      .from(MENU_IMAGES_BUCKET)
+      .upload(objectKey, buffer, { contentType: file.type, upsert: true });
+    if (uploadError) throw uploadError;
+
+    const { data } = supabase.storage.from(MENU_IMAGES_BUCKET).getPublicUrl(objectKey);
+    return NextResponse.json({ ok: true, path: objectKey, url: data.publicUrl });
   } catch (e) {
     return NextResponse.json({ error: "Не удалось сохранить файл на сервере." }, { status: 500 });
   }
-
-  return NextResponse.json({ ok: true, path: relPath, url: `/${relPath}?v=${Date.now()}` });
 }
