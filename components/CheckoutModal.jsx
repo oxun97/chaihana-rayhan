@@ -86,9 +86,9 @@ export default function CheckoutModal() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 24, scale: 0.98 }}
             transition={{ type: "spring", damping: 28, stiffness: 320 }}
-            className="fixed inset-x-4 top-1/2 z-[60] mx-auto max-h-[88vh] max-w-md -translate-y-1/2 overflow-y-auto rounded-2xl bg-white p-6 shadow-lift sm:inset-x-auto"
+            className="fixed inset-x-4 top-1/2 z-[60] mx-auto flex max-h-[88vh] max-w-md -translate-y-1/2 flex-col overflow-hidden rounded-2xl bg-white shadow-lift sm:inset-x-auto"
           >
-            <div className="mb-4 flex items-center justify-between">
+            <div className="flex shrink-0 items-center justify-between px-6 pb-4 pt-6">
               <h3 className="font-serif text-xl font-bold text-ink">{t("checkout_title")}</h3>
               <button
                 onClick={close}
@@ -98,7 +98,16 @@ export default function CheckoutModal() {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="flex flex-col gap-3.5">
+            {/* Only this section scrolls — the total/submit footer below
+                stays pinned so the order button is always reachable, even
+                when the form is taller than the viewport (long labels,
+                delivery address field, mobile browser chrome eating into
+                the visible height, etc.). */}
+            <form
+              id="checkout-form"
+              onSubmit={handleSubmit}
+              className="flex min-h-0 flex-1 flex-col gap-3.5 overflow-y-auto px-6"
+            >
               <div className="flex gap-2 rounded-full bg-cream p-1">
                 {[
                   { key: "delivery", label: t("checkout_method_delivery") },
@@ -161,22 +170,29 @@ export default function CheckoutModal() {
 
               {error && <p className="text-sm text-red-500">{error}</p>}
 
-              <div className="mt-1 flex items-center justify-between rounded-xl bg-cream px-4 py-3">
+              {/* Bottom padding so the last field never sits flush against
+                  the pinned footer below. */}
+              <div className="pb-1" />
+            </form>
+
+            <div className="shrink-0 border-t border-gold/10 px-6 pb-6 pt-4">
+              <div className="flex items-center justify-between rounded-xl bg-cream px-4 py-3">
                 <span className="text-sm text-ink-soft">{t("cart_total")}</span>
                 <span className="text-lg font-semibold text-gold">{total} ₽</span>
               </div>
 
               <button
                 type="submit"
+                form="checkout-form"
                 disabled={submitting}
-                className="mt-1 flex w-full items-center justify-center gap-2 rounded-full bg-[#25D366] py-3 text-sm font-semibold text-white transition-transform hover:scale-[1.01] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+                className="mt-3 flex w-full items-center justify-center gap-2 rounded-full bg-[#25D366] py-3 text-sm font-semibold text-white transition-transform hover:scale-[1.01] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <WhatsAppIcon /> {submitting ? t("checkout_submitting") : t("checkout_submit")}
               </button>
-              <p className="text-center text-[0.72rem] text-ink-soft">
+              <p className="mt-2 text-center text-[0.72rem] text-ink-soft">
                 {t("checkout_disclaimer")}
               </p>
-            </form>
+            </div>
           </motion.div>
         </>
       )}
