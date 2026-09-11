@@ -17,29 +17,53 @@ export default function CheckoutModal() {
   const [address, setAddress] = useState("");
   const [comment, setComment] = useState("");
   const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   const close = () => setCheckoutOpen(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!name.trim() || !phone.trim()) {
       setError(t("checkout_required"));
       return;
     }
     setError("");
+    setSubmitting(true);
+
+    const customer = { name, phone, method, address, comment };
+
+    // Persisting the order is best-effort: WhatsApp is the guaranteed
+    // delivery channel to the restaurant, so a database hiccup must never
+    // block the order from going out — it just won't have an order number.
+    let orderNumber = null;
+    try {
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ customer, items, lang }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        orderNumber = data.order?.order_number ?? null;
+      }
+    } catch (e) {
+      /* offline or API unreachable — still send via WhatsApp below */
+    }
 
     const url = buildWhatsAppOrderUrl({
       lang,
-      customer: { name, phone, method, address, comment },
+      customer,
       items,
       subtotal,
       deliveryFee,
       total,
+      orderNumber,
     });
 
     window.open(url, "_blank", "noopener,noreferrer");
     clearCart();
     close();
+    setSubmitting(false);
     setName("");
     setPhone("");
     setAddress("");
@@ -144,9 +168,10 @@ export default function CheckoutModal() {
 
               <button
                 type="submit"
-                className="mt-1 flex w-full items-center justify-center gap-2 rounded-full bg-[#25D366] py-3 text-sm font-semibold text-white transition-transform hover:scale-[1.01] active:scale-[0.98]"
+                disabled={submitting}
+                className="mt-1 flex w-full items-center justify-center gap-2 rounded-full bg-[#25D366] py-3 text-sm font-semibold text-white transition-transform hover:scale-[1.01] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
               >
-                <WhatsAppIcon /> {t("checkout_submit")}
+                <WhatsAppIcon /> {submitting ? t("checkout_submitting") : t("checkout_submit")}
               </button>
               <p className="text-center text-[0.72rem] text-ink-soft">
                 {t("checkout_disclaimer")}
