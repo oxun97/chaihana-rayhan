@@ -141,6 +141,7 @@ export default function AdminPage() {
             weight: "",
             icons: [],
             img: "",
+            featured: false,
           },
         ],
       }))
@@ -402,6 +403,7 @@ function DishRow({ item, categoryId, expanded, onToggle, onDelete, onChange }) {
         )}
         <button onClick={onToggle} className="flex flex-1 items-center gap-3 text-left">
           <span className="min-w-0 flex-1 truncate text-sm font-medium text-ink">
+            {item.featured && <span className="mr-1" title="В популярных">⭐</span>}
             {item.name.ru || <em className="text-ink-soft">без названия</em>}
           </span>
           <span className="shrink-0 text-sm font-semibold text-gold">{item.price} ₽</span>
@@ -491,6 +493,15 @@ function DishRow({ item, categoryId, expanded, onToggle, onDelete, onChange }) {
               />
             </label>
           </div>
+
+          <label className="flex items-center gap-1.5 text-xs font-medium text-ink-soft">
+            <input
+              type="checkbox"
+              checked={!!item.featured}
+              onChange={() => onChange((it) => ({ ...it, featured: !it.featured }))}
+            />
+            ⭐ Показывать в «Популярных блюдах» на главной
+          </label>
 
           <div className="flex flex-wrap gap-3">
             {ICONS.map((icon) => {

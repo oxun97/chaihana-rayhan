@@ -6,8 +6,12 @@
   html {
     scroll-behavior: smooth;
   }
+  /* The public storefront is dark by default (Luxury Oriental redesign).
+     /admin and /courier override this with their own light bg-cream
+     wrapper divs (min-h-screen), so this default never shows through
+     there except briefly on iOS overscroll bounce. */
   body {
-    @apply bg-bg text-ink-text antialiased;
+    @apply bg-night text-parchment antialiased;
   }
   ::selection {
     @apply bg-gold/30;
@@ -38,15 +42,15 @@
    the root of Central Asian majolica-tile and girih ornament — reused at
    different scales/colors/opacities as a subtle textile-like texture. */
 .pattern-lattice {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cg fill='none' stroke='%23c9a96e' stroke-width='1'%3E%3Ccircle cx='0' cy='0' r='20'/%3E%3Ccircle cx='60' cy='0' r='20'/%3E%3Ccircle cx='0' cy='60' r='20'/%3E%3Ccircle cx='60' cy='60' r='20'/%3E%3Ccircle cx='30' cy='30' r='20'/%3E%3C/g%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cg fill='none' stroke='%23c89b3c' stroke-width='1'%3E%3Ccircle cx='0' cy='0' r='20'/%3E%3Ccircle cx='60' cy='0' r='20'/%3E%3Ccircle cx='0' cy='60' r='20'/%3E%3Ccircle cx='60' cy='60' r='20'/%3E%3Ccircle cx='30' cy='30' r='20'/%3E%3C/g%3E%3C/svg%3E");
   background-size: 60px 60px;
 }
 .pattern-lattice-soft {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cg fill='none' stroke='%23c9a96e' stroke-width='1' stroke-opacity='0.35'%3E%3Ccircle cx='0' cy='0' r='20'/%3E%3Ccircle cx='60' cy='0' r='20'/%3E%3Ccircle cx='0' cy='60' r='20'/%3E%3Ccircle cx='60' cy='60' r='20'/%3E%3Ccircle cx='30' cy='30' r='20'/%3E%3C/g%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cg fill='none' stroke='%23c89b3c' stroke-width='1' stroke-opacity='0.35'%3E%3Ccircle cx='0' cy='0' r='20'/%3E%3Ccircle cx='60' cy='0' r='20'/%3E%3Ccircle cx='0' cy='60' r='20'/%3E%3Ccircle cx='60' cy='60' r='20'/%3E%3Ccircle cx='30' cy='30' r='20'/%3E%3C/g%3E%3C/svg%3E");
   background-size: 60px 60px;
 }
 .pattern-lattice-lg {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 60 60'%3E%3Cg fill='none' stroke='%23c9a96e' stroke-width='1'%3E%3Ccircle cx='0' cy='0' r='20'/%3E%3Ccircle cx='60' cy='0' r='20'/%3E%3Ccircle cx='0' cy='60' r='20'/%3E%3Ccircle cx='60' cy='60' r='20'/%3E%3Ccircle cx='30' cy='30' r='20'/%3E%3C/g%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 60 60'%3E%3Cg fill='none' stroke='%23c89b3c' stroke-width='1'%3E%3Ccircle cx='0' cy='0' r='20'/%3E%3Ccircle cx='60' cy='0' r='20'/%3E%3Ccircle cx='0' cy='60' r='20'/%3E%3Ccircle cx='60' cy='60' r='20'/%3E%3Ccircle cx='30' cy='30' r='20'/%3E%3C/g%3E%3C/svg%3E");
   background-size: 120px 120px;
 }
 
@@ -54,18 +58,20 @@
    used as a decorative divider between sections instead of a plain line. */
 .ornament-divider {
   height: 14px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='14' viewBox='0 0 56 14'%3E%3Cpath d='M0 14 C0 5 6 0 14 0 C22 0 22 9 28 9 C34 9 34 0 42 0 C50 0 56 5 56 14 Z' fill='%23c9a96e'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='14' viewBox='0 0 56 14'%3E%3Cpath d='M0 14 C0 5 6 0 14 0 C22 0 22 9 28 9 C34 9 34 0 42 0 C50 0 56 5 56 14 Z' fill='%23c89b3c'/%3E%3C/svg%3E");
   background-repeat: repeat-x;
   background-size: 56px 14px;
 }
 
-/* Double-ring medallion frame for dish photo placeholders / category icons. */
+/* Double-ring medallion frame for dish photo placeholders / category icons
+   on the dark storefront theme — inner ring matches the surface card
+   color, outer ring is a soft gold halo. */
 .medallion {
   position: relative;
-  border: 1px solid rgba(201, 169, 110, 0.55);
+  border: 1px solid rgba(200, 155, 60, 0.55);
   box-shadow:
-    0 0 0 4px rgba(250, 248, 243, 0.9),
-    0 0 0 5px rgba(201, 169, 110, 0.35);
+    0 0 0 4px rgba(21, 21, 21, 0.9),
+    0 0 0 5px rgba(200, 155, 60, 0.35);
 }
 
 /* Custom scrollbar (matches brand) */
@@ -77,6 +83,6 @@
   background: #faf8f3;
 }
 ::-webkit-scrollbar-thumb {
-  background: #c9a96e;
+  background: #c89b3c;
   border-radius: 4px;
 }

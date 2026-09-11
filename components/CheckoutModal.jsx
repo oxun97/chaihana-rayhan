@@ -75,24 +75,26 @@ export default function CheckoutModal() {
       {isCheckoutOpen && (
         <>
           <motion.div
+            key="backdrop"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={close}
-            className="fixed inset-0 z-[60] bg-ink/55 backdrop-blur-sm"
+            className="fixed inset-0 z-[60] bg-night/70 backdrop-blur-sm"
           />
           <motion.div
+            key="panel"
             initial={{ opacity: 0, y: 24, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 24, scale: 0.98 }}
             transition={{ type: "spring", damping: 28, stiffness: 320 }}
-            className="fixed inset-x-4 top-1/2 z-[60] mx-auto flex max-h-[88vh] max-w-md -translate-y-1/2 flex-col overflow-hidden rounded-2xl bg-white shadow-lift sm:inset-x-auto"
+            className="fixed inset-x-4 top-1/2 z-[60] mx-auto flex max-h-[88vh] max-w-md -translate-y-1/2 flex-col overflow-hidden rounded-2xl border border-gold/15 bg-surface shadow-lift sm:inset-x-auto"
           >
             <div className="flex shrink-0 items-center justify-between px-6 pb-4 pt-6">
-              <h3 className="font-serif text-xl font-bold text-ink">{t("checkout_title")}</h3>
+              <h3 className="font-serif text-xl font-bold text-parchment">{t("checkout_title")}</h3>
               <button
                 onClick={close}
-                className="flex h-8 w-8 items-center justify-center rounded-full text-ink-soft hover:bg-cream"
+                className="flex h-8 w-8 items-center justify-center rounded-full text-parchment-soft hover:bg-white/5"
               >
                 ✕
               </button>
@@ -108,7 +110,7 @@ export default function CheckoutModal() {
               onSubmit={handleSubmit}
               className="flex min-h-0 flex-1 flex-col gap-3.5 overflow-y-auto px-6"
             >
-              <div className="flex gap-2 rounded-full bg-cream p-1">
+              <div className="flex gap-2 rounded-full bg-night p-1">
                 {[
                   { key: "delivery", label: t("checkout_method_delivery") },
                   { key: "pickup", label: t("checkout_method_pickup") },
@@ -118,7 +120,7 @@ export default function CheckoutModal() {
                     key={m.key}
                     onClick={() => setMethod(m.key)}
                     className={`flex-1 rounded-full py-2 text-sm font-medium transition-colors ${
-                      method === m.key ? "bg-gold text-ink" : "text-ink-soft"
+                      method === m.key ? "bg-gold text-night" : "text-parchment-soft"
                     }`}
                   >
                     {m.label}
@@ -176,8 +178,8 @@ export default function CheckoutModal() {
             </form>
 
             <div className="shrink-0 border-t border-gold/10 px-6 pb-6 pt-4">
-              <div className="flex items-center justify-between rounded-xl bg-cream px-4 py-3">
-                <span className="text-sm text-ink-soft">{t("cart_total")}</span>
+              <div className="flex items-center justify-between rounded-xl bg-night px-4 py-3">
+                <span className="text-sm text-parchment-soft">{t("cart_total")}</span>
                 <span className="text-lg font-semibold text-gold">{total} ₽</span>
               </div>
 
@@ -189,7 +191,7 @@ export default function CheckoutModal() {
               >
                 <WhatsAppIcon /> {submitting ? t("checkout_submitting") : t("checkout_submit")}
               </button>
-              <p className="mt-2 text-center text-[0.72rem] text-ink-soft">
+              <p className="mt-2 text-center text-[0.72rem] text-parchment-soft">
                 {t("checkout_disclaimer")}
               </p>
             </div>
@@ -200,15 +202,19 @@ export default function CheckoutModal() {
         .input {
           width: 100%;
           border-radius: 0.75rem;
-          border: 1px solid rgba(201, 169, 110, 0.25);
+          border: 1px solid rgba(200, 155, 60, 0.25);
           padding: 0.6rem 0.85rem;
           font-size: 0.85rem;
           outline: none;
           transition: border-color 0.2s;
-          background: #fdfcf8;
+          background: #0b0b0b;
+          color: #f5e6c8;
+        }
+        .input::placeholder {
+          color: rgba(245, 230, 200, 0.45);
         }
         .input:focus {
-          border-color: #c9a96e;
+          border-color: #c89b3c;
         }
       `}</style>
     </AnimatePresence>
@@ -218,7 +224,7 @@ export default function CheckoutModal() {
 function Field({ label, children }) {
   return (
     <label className="flex flex-col gap-1">
-      <span className="text-[0.75rem] font-medium text-ink-soft">{label}</span>
+      <span className="text-[0.75rem] font-medium text-parchment-soft">{label}</span>
       {children}
     </label>
   );

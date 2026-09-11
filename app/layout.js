@@ -16,6 +16,7 @@ import "./globals.css";
 import { LangProvider } from "@/context/LangContext";
 import { CartProvider } from "@/context/CartContext";
 import { MenuProvider } from "@/context/MenuContext";
+import { FavoritesProvider } from "@/context/FavoritesContext";
 import { readMenuCategories } from "@/lib/menu-server";
 
 // The menu is editable at runtime via /admin, so this layout (and everything
@@ -39,7 +40,7 @@ export const metadata = {
 export const viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#2a2419",
+  themeColor: "#0b0b0b",
 };
 
 export default async function RootLayout({ children }) {
@@ -55,7 +56,9 @@ export default async function RootLayout({ children }) {
       <body className="font-sans">
         <LangProvider>
           <MenuProvider categories={categories}>
-            <CartProvider>{children}</CartProvider>
+            <FavoritesProvider>
+              <CartProvider>{children}</CartProvider>
+            </FavoritesProvider>
           </MenuProvider>
         </LangProvider>
       </body>
