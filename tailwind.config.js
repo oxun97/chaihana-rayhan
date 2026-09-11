@@ -9,10 +9,14 @@ module.exports = {
     extend: {
       colors: {
         gold: {
-          DEFAULT: "#c9a96e",
-          light: "#e8d5a3",
-          dark: "#a9895a",
+          DEFAULT: "#c89b3c",
+          light: "#e0bd6f",
+          dark: "#9c771f",
         },
+        // Light-theme tokens — used by the internal /admin and /courier
+        // back-office panels only. Keep these as a light theme: they're
+        // out of scope for the storefront's dark "Luxury Oriental" redesign
+        // and rely on this exact light-bg/dark-text contrast.
         cream: "#faf8f3",
         ink: {
           DEFAULT: "#2a2419",
@@ -20,17 +24,29 @@ module.exports = {
           soft: "#7a6f5a",
         },
         bg: "#fdfcf8",
-        // Uzbek majolica-tile teal and terracotta ceramics, used sparingly
-        // alongside gold for accents and category identity.
+        // Dark-theme tokens — the public storefront (Header, Hero, menu,
+        // cart, footer). "night" is the page ground, "surface" is card
+        // backgrounds, "parchment" is the light text color on that ground.
+        night: "#0b0b0b",
+        surface: {
+          DEFAULT: "#151515",
+          light: "#1e1e1e",
+        },
+        parchment: {
+          DEFAULT: "#f5e6c8",
+          soft: "rgba(245,230,200,0.62)",
+        },
+        // Uzbek majolica-tile teal, used sparingly alongside gold for
+        // category identity.
         teal: {
           DEFAULT: "#1f6f6b",
           light: "#4fa89f",
           dark: "#134a47",
         },
         terracotta: {
-          DEFAULT: "#c1613f",
-          light: "#e1926c",
-          dark: "#96462a",
+          DEFAULT: "#c9573d",
+          light: "#e18063",
+          dark: "#9c3f28",
         },
       },
       fontFamily: {

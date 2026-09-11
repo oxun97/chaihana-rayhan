@@ -1,101 +1,115 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { Star } from "lucide-react";
 import { useLang } from "@/context/LangContext";
-import { RESTAURANT_PHONE_DISPLAY, RESTAURANT_PHONE_TEL } from "@/lib/whatsapp";
+import { RESTAURANT_PHONE_TEL } from "@/lib/whatsapp";
 
 function scrollToMenu() {
-  const el = document.querySelector("main section[id]");
-  if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 68, behavior: "smooth" });
+  const el = document.getElementById("menu-top");
+  if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 76, behavior: "smooth" });
 }
 
 export default function Hero() {
   const { t } = useLang();
-  const titleWords = t("hero_title").split(" ");
-  const titleLast = titleWords.pop();
-  const titleRest = titleWords.join(" ");
 
   return (
     <section
       id="top"
-      className="relative flex min-h-[100dvh] items-center justify-center overflow-hidden bg-ink sm:min-h-[92vh]"
+      className="relative flex min-h-[100dvh] items-center overflow-hidden bg-night pt-20 sm:min-h-[92vh]"
     >
-      {/* Layered Eastern ornament: lattice texture + soft gold glows */}
       <div className="pattern-lattice-lg absolute inset-0 animate-drift opacity-[0.05]" />
-      <div className="absolute inset-0 animate-heroZoom bg-[radial-gradient(ellipse_at_top_left,rgba(201,169,110,0.22),transparent_55%),radial-gradient(ellipse_at_bottom_right,rgba(31,111,107,0.22),transparent_55%)]" />
-      <div
-        className="absolute inset-0 opacity-[0.07]"
-        style={{
-          backgroundImage:
-            "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='84' viewBox='0 0 84 84'%3E%3Cg fill='none' stroke='%23c9a96e' stroke-width='1'%3E%3Ccircle cx='42' cy='42' r='28'/%3E%3Ccircle cx='42' cy='42' r='18'/%3E%3Cpath d='M42 4v76M4 42h76M13 13l58 58M71 13L13 71'/%3E%3C/g%3E%3C/svg%3E\")",
-          backgroundSize: "84px 84px",
-        }}
-      />
-      <div className="absolute inset-0 bg-gradient-to-b from-ink/10 via-ink/40 to-ink" />
-      {/* Vignette frame — evokes a portal/iwan without needing a photo asset */}
-      <div className="pointer-events-none absolute inset-3 rounded-[2rem] border border-gold/20 sm:inset-6 sm:rounded-[2.5rem]" />
+      <div className="absolute inset-0 animate-heroZoom bg-[radial-gradient(ellipse_at_top_left,rgba(200,155,60,0.18),transparent_55%),radial-gradient(ellipse_at_bottom_right,rgba(201,87,61,0.16),transparent_55%)]" />
+      <div className="pointer-events-none absolute inset-3 rounded-[2rem] border border-gold/15 sm:inset-6 sm:rounded-[2.5rem]" />
 
-      <div className="relative z-10 mx-auto max-w-2xl px-6 py-24 text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className="mb-5 inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-4 py-1.5 text-xs tracking-wide text-gold-light"
-        >
-          <span>★ 4.8</span>
-          <span className="opacity-50">•</span>
-          <span>156 отзывов</span>
-        </motion.div>
-
-        <motion.h1
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-          className="text-shadow-hero font-serif text-4xl font-bold leading-tight text-white sm:text-5xl md:text-6xl"
-        >
-          {titleRest ? `${titleRest} ` : ""}
-          <span className="text-gold-light">{titleLast}</span>
-        </motion.h1>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.35 }}
-          className="mx-auto mt-4 flex items-center justify-center gap-3 text-gold/60"
-          aria-hidden="true"
-        >
-          <span className="h-px w-10 bg-gold/40" />
-          <StarMark />
-          <span className="h-px w-10 bg-gold/40" />
-        </motion.div>
-
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.55 }}
-          className="mt-3 text-sm uppercase tracking-[0.35em] text-white/70"
-        >
-          {t("hero_subtitle")}
-        </motion.p>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.75 }}
-          className="mt-8 flex flex-wrap items-center justify-center gap-3"
-        >
-          <a
-            href={`tel:${RESTAURANT_PHONE_TEL}`}
-            className="rounded-full border-2 border-gold px-7 py-2.5 text-[1.05rem] text-white transition-all duration-300 hover:bg-gold hover:text-ink"
+      <div className="relative z-10 mx-auto grid w-full max-w-6xl gap-10 px-6 py-16 lg:grid-cols-2 lg:items-center lg:gap-6 lg:py-24">
+        <div className="text-center lg:text-left">
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-xs font-semibold uppercase tracking-[0.3em] text-gold"
           >
-            {RESTAURANT_PHONE_DISPLAY}
-          </a>
-          <button
-            onClick={scrollToMenu}
-            className="rounded-full border-2 border-gold bg-gold px-7 py-2.5 text-[1.05rem] font-semibold text-ink transition-all duration-300 hover:bg-gold-light"
+            {t("hero_eyebrow")}
+          </motion.p>
+
+          <motion.h1
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+            className="mt-3 font-serif text-4xl font-bold leading-tight text-parchment sm:text-5xl lg:text-6xl"
           >
-            📱 {t("nav_order_online")}
-          </button>
+            {t("hero_title")}
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.2 }}
+            className="mt-2 font-serif text-xl text-gold-light sm:text-2xl"
+          >
+            {t("hero_subtitle")}
+          </motion.p>
+
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.7, delay: 0.35 }}
+            className="mx-auto mt-4 max-w-md text-sm leading-relaxed text-parchment-soft lg:mx-0"
+          >
+            {t("hero_description")}
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.45 }}
+            className="mt-4 flex items-center justify-center gap-2 text-sm text-parchment-soft lg:justify-start"
+          >
+            <span className="flex items-center gap-1 text-gold">
+              <Star size={15} fill="currentColor" /> 4.8
+            </span>
+            <span className="opacity-50">•</span>
+            <span>156 отзывов</span>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.55 }}
+            className="mt-8 flex flex-wrap items-center justify-center gap-3 lg:justify-start"
+          >
+            <button
+              onClick={scrollToMenu}
+              className="rounded-full bg-terracotta px-7 py-3 text-sm font-semibold text-white shadow-lift transition-transform hover:scale-[1.03] active:scale-95"
+            >
+              {t("hero_cta_menu")} →
+            </button>
+            <a
+              href={`tel:${RESTAURANT_PHONE_TEL}`}
+              className="rounded-full border-2 border-gold/50 px-7 py-3 text-sm font-semibold text-parchment transition-colors hover:border-gold hover:text-gold"
+            >
+              {t("nav_order_online")}
+            </a>
+          </motion.div>
+        </div>
+
+        {/* No real dish photography yet — a warm gold/terracotta glow with
+            the brand's lattice ornament stands in for the hero food shot
+            until real photos are uploaded via /admin. */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.94 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.9, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+          className="relative mx-auto aspect-square w-full max-w-md lg:max-w-none"
+        >
+          <div className="pattern-lattice-soft absolute inset-6 rounded-[3rem] border border-gold/20 bg-gradient-to-br from-surface via-surface to-terracotta-dark/40" />
+          <div className="absolute inset-0 rounded-[3rem] bg-[radial-gradient(circle_at_50%_50%,rgba(200,155,60,0.28),transparent_60%)]" />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="medallion flex h-28 w-28 items-center justify-center rounded-full bg-surface text-5xl sm:h-36 sm:w-36">
+              🍚
+            </div>
+          </div>
         </motion.div>
       </div>
 
@@ -103,19 +117,11 @@ export default function Hero() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 0.65, y: [0, 8, 0] }}
         transition={{ opacity: { delay: 1.2 }, y: { duration: 2.4, repeat: Infinity } }}
-        className="absolute bottom-8 left-1/2 z-10 -translate-x-1/2 cursor-pointer text-[0.72rem] tracking-[0.2em] text-white"
+        className="absolute bottom-6 left-1/2 z-10 hidden -translate-x-1/2 cursor-pointer text-[0.72rem] tracking-[0.2em] text-parchment-soft sm:block"
         onClick={scrollToMenu}
       >
         ▼ {t("scroll_to_menu")}
       </motion.div>
     </section>
-  );
-}
-
-function StarMark() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M12 0l2.6 8.2L23 11l-8.4 2.8L12 22l-2.6-8.2L1 11l8.4-2.8L12 0z" />
-    </svg>
   );
 }

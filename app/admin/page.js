@@ -141,6 +141,7 @@ export default function AdminPage() {
             weight: "",
             icons: [],
             img: "",
+            featured: false,
           },
         ],
       }))
@@ -205,6 +206,9 @@ export default function AdminPage() {
     <div className="min-h-screen bg-cream">
       <header className="sticky top-0 z-10 flex flex-wrap items-center gap-3 border-b border-gold/15 bg-cream/95 px-4 py-3 backdrop-blur-md sm:px-6">
         <h1 className="font-serif text-lg font-bold text-ink">Админ-панель — Чайхана Райхан</h1>
+        <a href="/admin/orders" className="text-xs text-ink-soft underline hover:text-gold">
+          Заказы
+        </a>
         <a href="/" className="text-xs text-ink-soft underline hover:text-gold">
           Открыть сайт
         </a>
@@ -399,6 +403,7 @@ function DishRow({ item, categoryId, expanded, onToggle, onDelete, onChange }) {
         )}
         <button onClick={onToggle} className="flex flex-1 items-center gap-3 text-left">
           <span className="min-w-0 flex-1 truncate text-sm font-medium text-ink">
+            {item.featured && <span className="mr-1" title="В популярных">⭐</span>}
             {item.name.ru || <em className="text-ink-soft">без названия</em>}
           </span>
           <span className="shrink-0 text-sm font-semibold text-gold">{item.price} ₽</span>
@@ -479,15 +484,24 @@ function DishRow({ item, categoryId, expanded, onToggle, onDelete, onChange }) {
               />
             </label>
             <label className="flex flex-1 min-w-[200px] flex-col gap-1 text-xs text-ink-soft">
-              Путь к фото
+              Ключ файла в хранилище
               <input
                 value={item.img || ""}
                 onChange={(e) => onChange((it) => ({ ...it, img: e.target.value }))}
-                placeholder="images/dishes/…/название.jpg"
+                placeholder="dishes/salaty/salaty-1-abc123.jpg"
                 className="admin-input"
               />
             </label>
           </div>
+
+          <label className="flex items-center gap-1.5 text-xs font-medium text-ink-soft">
+            <input
+              type="checkbox"
+              checked={!!item.featured}
+              onChange={() => onChange((it) => ({ ...it, featured: !it.featured }))}
+            />
+            ⭐ Показывать в «Популярных блюдах» на главной
+          </label>
 
           <div className="flex flex-wrap gap-3">
             {ICONS.map((icon) => {

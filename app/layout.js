@@ -16,6 +16,7 @@ import "./globals.css";
 import { LangProvider } from "@/context/LangContext";
 import { CartProvider } from "@/context/CartContext";
 import { MenuProvider } from "@/context/MenuContext";
+import { FavoritesProvider } from "@/context/FavoritesContext";
 import { readMenuCategories } from "@/lib/menu-server";
 
 // The menu is editable at runtime via /admin, so this layout (and everything
@@ -23,6 +24,7 @@ import { readMenuCategories } from "@/lib/menu-server";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
+  metadataBase: new URL(process.env.SITE_URL || "https://chaihana-rayhan.ru"),
   title: "Чайхана Райхан — Доставка восточной кухни | Москва",
   description:
     "Чайхана Райхан — доставка восточной кухни в Москве. Плов, шашлык, лагман, манты, салаты и десерты. Заказ онлайн или по телефону.",
@@ -38,7 +40,7 @@ export const metadata = {
 export const viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#2a2419",
+  themeColor: "#0b0b0b",
 };
 
 export default async function RootLayout({ children }) {
@@ -54,7 +56,9 @@ export default async function RootLayout({ children }) {
       <body className="font-sans">
         <LangProvider>
           <MenuProvider categories={categories}>
-            <CartProvider>{children}</CartProvider>
+            <FavoritesProvider>
+              <CartProvider>{children}</CartProvider>
+            </FavoritesProvider>
           </MenuProvider>
         </LangProvider>
       </body>
