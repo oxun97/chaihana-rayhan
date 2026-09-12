@@ -206,6 +206,9 @@ export default function AdminPage() {
     <div className="min-h-screen bg-cream">
       <header className="sticky top-0 z-10 flex flex-wrap items-center gap-3 border-b border-gold/15 bg-cream/95 px-4 py-3 backdrop-blur-md sm:px-6">
         <h1 className="font-serif text-lg font-bold text-ink">Админ-панель — Чайхана Райхан</h1>
+        <a href="/admin/dashboard" className="text-xs text-ink-soft underline hover:text-gold">
+          Дашборд
+        </a>
         <a href="/admin/orders" className="text-xs text-ink-soft underline hover:text-gold">
           Заказы
         </a>

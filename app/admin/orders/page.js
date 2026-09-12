@@ -133,6 +133,9 @@ export default function AdminOrdersPage() {
         <a href="/admin" className="text-xs text-ink-soft underline hover:text-gold">
           Меню
         </a>
+        <a href="/admin/dashboard" className="text-xs text-ink-soft underline hover:text-gold">
+          Дашборд
+        </a>
         <a href="/" className="text-xs text-ink-soft underline hover:text-gold">
           Открыть сайт
         </a>
