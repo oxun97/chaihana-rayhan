@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 const STATUS_LABELS = {
   new: "Новый",
@@ -42,6 +42,10 @@ export default function AdminOrdersPage() {
   const [filter, setFilter] = useState("all");
   const [couriers, setCouriers] = useState([]);
   const [busyId, setBusyId] = useState(null);
+  // React's `busy` state only blocks new clicks after the next render commits
+  // — a fast double-tap can fire two requests before that happens. This ref
+  // is a synchronous lock that closes that race window immediately.
+  const requestInFlight = useRef(false);
 
   const loadOrders = () => {
     const qs = filter === "all" ? "" : `?status=${filter}`;
@@ -74,6 +78,8 @@ export default function AdminOrdersPage() {
   }, []);
 
   async function changeStatus(orderId, status) {
+    if (requestInFlight.current) return;
+    requestInFlight.current = true;
     setBusyId(orderId);
     try {
       const res = await fetch(`/api/admin/orders/${orderId}`, {
@@ -82,16 +88,26 @@ export default function AdminOrdersPage() {
         body: JSON.stringify({ status }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      loadOrders();
+      if (!res.ok) {
+        // A "cannot move from X to X" error means this order already
+        // reached that status via an earlier click (or another tab/admin) —
+        // not something the admin needs an alert for, just refresh.
+        if (!/cannot move order/i.test(data.error || "")) {
+          alert(data.error || "Не удалось изменить статус.");
+        }
+      }
     } catch (e) {
       alert(e.message || "Не удалось изменить статус.");
     } finally {
+      requestInFlight.current = false;
       setBusyId(null);
+      loadOrders();
     }
   }
 
   async function assignCourier(orderId, courierId) {
+    if (requestInFlight.current) return;
+    requestInFlight.current = true;
     setBusyId(orderId);
     try {
       const res = await fetch(`/api/admin/orders/${orderId}`, {
@@ -101,11 +117,12 @@ export default function AdminOrdersPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      loadOrders();
     } catch (e) {
       alert(e.message || "Не удалось назначить курьера.");
     } finally {
+      requestInFlight.current = false;
       setBusyId(null);
+      loadOrders();
     }
   }
 
