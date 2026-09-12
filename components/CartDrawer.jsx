@@ -41,7 +41,7 @@ export default function CartDrawer() {
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
             transition={{ type: "spring", damping: 32, stiffness: 320 }}
-            className="fixed inset-x-0 bottom-0 z-50 flex max-h-[85vh] flex-col rounded-t-2xl border border-gold/15 bg-surface shadow-lift sm:inset-x-auto sm:right-4 sm:bottom-4 sm:max-h-[80vh] sm:w-[380px] sm:rounded-2xl lg:hidden"
+            className="cart-drawer-panel fixed inset-x-0 bottom-0 z-50 flex flex-col rounded-t-2xl border border-gold/15 bg-surface shadow-lift sm:inset-x-auto sm:right-4 sm:bottom-4 sm:w-[380px] sm:rounded-2xl lg:hidden"
           >
             <div className="flex items-center justify-between border-b border-gold/10 px-5 py-4">
               <h3 className="flex items-center gap-2 font-serif text-lg font-bold text-parchment">
@@ -144,6 +144,30 @@ export default function CartDrawer() {
           </motion.div>
         </>
       )}
+      <style jsx global>{`
+        /* vh is computed against the layout viewport, which on mobile can
+           be taller than what's actually visible with the address bar
+           showing. dvh tracks the real visible viewport; vh stays as a
+           fallback for browsers that don't support dvh yet. */
+        .cart-drawer-panel {
+          max-height: 85vh;
+        }
+        @media (min-width: 640px) {
+          .cart-drawer-panel {
+            max-height: 80vh;
+          }
+        }
+        @supports (height: 100dvh) {
+          .cart-drawer-panel {
+            max-height: 85dvh;
+          }
+          @media (min-width: 640px) {
+            .cart-drawer-panel {
+              max-height: 80dvh;
+            }
+          }
+        }
+      `}</style>
     </AnimatePresence>
   );
 }

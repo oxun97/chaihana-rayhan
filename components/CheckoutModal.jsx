@@ -88,7 +88,7 @@ export default function CheckoutModal() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 24, scale: 0.98 }}
             transition={{ type: "spring", damping: 28, stiffness: 320 }}
-            className="fixed inset-x-4 top-1/2 z-[60] mx-auto flex max-h-[88vh] max-w-md -translate-y-1/2 flex-col overflow-hidden rounded-2xl border border-gold/15 bg-surface shadow-lift sm:inset-x-auto"
+            className="checkout-panel fixed inset-x-4 top-1/2 z-[60] mx-auto flex max-w-md -translate-y-1/2 flex-col overflow-hidden rounded-2xl border border-gold/15 bg-surface shadow-lift sm:inset-x-auto"
           >
             <div className="flex shrink-0 items-center justify-between px-6 pb-4 pt-6">
               <h3 className="font-serif text-xl font-bold text-parchment">{t("checkout_title")}</h3>
@@ -199,6 +199,20 @@ export default function CheckoutModal() {
         </>
       )}
       <style jsx global>{`
+        .checkout-panel {
+          /* vh is computed against the layout viewport, which on mobile
+             can be taller than what's actually visible once the browser's
+             address bar is showing — that pushed the pinned total/submit
+             footer below the real screen edge. dvh tracks the visible
+             viewport instead; vh above stays as a fallback for browsers
+             that don't support dvh yet. */
+          max-height: 88vh;
+        }
+        @supports (height: 100dvh) {
+          .checkout-panel {
+            max-height: 88dvh;
+          }
+        }
         .input {
           width: 100%;
           border-radius: 0.75rem;
