@@ -5,11 +5,13 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useLang } from "@/context/LangContext";
 import { useCart } from "@/context/CartContext";
 import { buildWhatsAppOrderUrl } from "@/lib/whatsapp";
+import { useVisualViewportHeight } from "@/lib/useVisualViewportHeight";
 
 export default function CheckoutModal() {
   const { lang, t } = useLang();
   const { items, subtotal, deliveryFee, total, isCheckoutOpen, setCheckoutOpen, clearCart } =
     useCart();
+  const viewportHeight = useVisualViewportHeight();
 
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -89,6 +91,7 @@ export default function CheckoutModal() {
             exit={{ opacity: 0, y: 24, scale: 0.98 }}
             transition={{ type: "spring", damping: 28, stiffness: 320 }}
             className="checkout-panel fixed inset-x-4 top-1/2 z-[60] mx-auto flex max-w-md -translate-y-1/2 flex-col overflow-hidden rounded-2xl border border-gold/15 bg-surface shadow-lift sm:inset-x-auto"
+            style={viewportHeight ? { maxHeight: Math.round(viewportHeight * 0.88) } : undefined}
           >
             <div className="flex shrink-0 items-center justify-between px-6 pb-4 pt-6">
               <h3 className="font-serif text-xl font-bold text-parchment">{t("checkout_title")}</h3>

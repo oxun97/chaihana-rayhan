@@ -5,11 +5,13 @@ import { X, Minus, Plus } from "lucide-react";
 import { useLang } from "@/context/LangContext";
 import { useCart } from "@/context/CartContext";
 import { localized } from "@/lib/menu";
+import { useVisualViewportHeight } from "@/lib/useVisualViewportHeight";
 
 // The mobile/tablet cart — a slide-up sheet. Hidden at lg+, where
 // CartSidebar shows the cart permanently in the page layout instead.
 export default function CartDrawer() {
   const { lang, t } = useLang();
+  const viewportHeight = useVisualViewportHeight();
   const {
     items,
     itemCount,
@@ -42,6 +44,7 @@ export default function CartDrawer() {
             exit={{ y: "100%" }}
             transition={{ type: "spring", damping: 32, stiffness: 320 }}
             className="cart-drawer-panel fixed inset-x-0 bottom-0 z-50 flex flex-col rounded-t-2xl border border-gold/15 bg-surface shadow-lift sm:inset-x-auto sm:right-4 sm:bottom-4 sm:w-[380px] sm:rounded-2xl lg:hidden"
+            style={viewportHeight ? { maxHeight: Math.round(viewportHeight * 0.85) } : undefined}
           >
             <div className="flex items-center justify-between border-b border-gold/10 px-5 py-4">
               <h3 className="flex items-center gap-2 font-serif text-lg font-bold text-parchment">
