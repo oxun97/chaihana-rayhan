@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { X, Minus, Plus } from "lucide-react";
 import { useLang } from "@/context/LangContext";
@@ -25,10 +26,31 @@ export default function CartDrawer() {
     setCheckoutOpen,
   } = useCart();
 
+  const headerRef = useRef(null);
+  const footerRef = useRef(null);
+  const [listMaxHeight, setListMaxHeight] = useState(null);
+
+  // Same reasoning as CheckoutModal: flex-1/min-h-0 shrink math didn't
+  // reliably constrain height on every mobile browser tested, clipping
+  // the total/checkout footer away with no way to scroll to it. Measuring
+  // header/footer in pixels and giving the item list an explicit
+  // max-height sidesteps flexbox's shrink behavior entirely.
+  useEffect(() => {
+    if (!isCartOpen || !viewportHeight) return;
+    const measure = () => {
+      const panelMax = viewportHeight * 0.85;
+      const headerH = headerRef.current?.offsetHeight || 0;
+      const footerH = footerRef.current?.offsetHeight || 0;
+      setListMaxHeight(Math.max(120, Math.round(panelMax - headerH - footerH)));
+    };
+    measure();
+    const id = requestAnimationFrame(measure);
+    return () => cancelAnimationFrame(id);
+  }, [isCartOpen, viewportHeight, items.length]);
+
   return (
     <AnimatePresence>
-      {isCartOpen && (
-        <>
+      {isCartOpen && [
           <motion.div
             key="backdrop"
             initial={{ opacity: 0 }}
@@ -36,7 +58,7 @@ export default function CartDrawer() {
             exit={{ opacity: 0 }}
             onClick={() => setCartOpen(false)}
             className="fixed inset-0 z-50 bg-night/70 backdrop-blur-sm lg:hidden"
-          />
+          />,
           <motion.div
             key="panel"
             initial={{ y: "100%" }}
@@ -46,7 +68,10 @@ export default function CartDrawer() {
             className="cart-drawer-panel fixed inset-x-0 bottom-0 z-50 flex flex-col rounded-t-2xl border border-gold/15 bg-surface shadow-lift sm:inset-x-auto sm:right-4 sm:bottom-4 sm:w-[380px] sm:rounded-2xl lg:hidden"
             style={viewportHeight ? { maxHeight: Math.round(viewportHeight * 0.85) } : undefined}
           >
-            <div className="flex items-center justify-between border-b border-gold/10 px-5 py-4">
+            <div
+              ref={headerRef}
+              className="flex shrink-0 items-center justify-between border-b border-gold/10 px-5 py-4"
+            >
               <h3 className="flex items-center gap-2 font-serif text-lg font-bold text-parchment">
                 🧺 {t("cart_title")}
                 {itemCount > 0 && (
@@ -63,7 +88,10 @@ export default function CartDrawer() {
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto px-5 py-3">
+            <div
+              className="cart-drawer-list overflow-y-auto px-5 py-3"
+              style={listMaxHeight ? { maxHeight: listMaxHeight } : undefined}
+            >
               {items.length === 0 ? (
                 <div className="flex flex-col items-center justify-center gap-2 py-16 text-center">
                   <span className="text-4xl">🍽️</span>
@@ -114,7 +142,7 @@ export default function CartDrawer() {
             </div>
 
             {items.length > 0 && (
-              <div className="border-t border-gold/10 px-5 py-4">
+              <div ref={footerRef} className="shrink-0 border-t border-gold/10 px-5 py-4">
                 <div className="flex justify-between text-[0.82rem] text-parchment-soft">
                   <span>{t("cart_subtotal")}</span>
                   <span>{subtotal} ₽</span>
@@ -144,16 +172,16 @@ export default function CartDrawer() {
                 </button>
               </div>
             )}
-          </motion.div>
-        </>
-      )}
+          </motion.div>,
+      ]}
       <style jsx global>{`
-        /* vh is computed against the layout viewport, which on mobile can
-           be taller than what's actually visible with the address bar
-           showing. dvh tracks the real visible viewport; vh stays as a
-           fallback for browsers that don't support dvh yet. */
+        /* Fallbacks for the brief moment before JS measures (or if JS is
+           disabled) — same vh/dvh reasoning as elsewhere in this file. */
         .cart-drawer-panel {
           max-height: 85vh;
+        }
+        .cart-drawer-list {
+          max-height: 60vh;
         }
         @media (min-width: 640px) {
           .cart-drawer-panel {
@@ -163,6 +191,9 @@ export default function CartDrawer() {
         @supports (height: 100dvh) {
           .cart-drawer-panel {
             max-height: 85dvh;
+          }
+          .cart-drawer-list {
+            max-height: 60dvh;
           }
           @media (min-width: 640px) {
             .cart-drawer-panel {

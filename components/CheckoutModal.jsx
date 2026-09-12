@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useLang } from "@/context/LangContext";
 import { useCart } from "@/context/CartContext";
@@ -13,6 +13,10 @@ export default function CheckoutModal() {
     useCart();
   const viewportHeight = useVisualViewportHeight();
 
+  const headerRef = useRef(null);
+  const footerRef = useRef(null);
+  const [formMaxHeight, setFormMaxHeight] = useState(null);
+
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [method, setMethod] = useState("delivery");
@@ -20,6 +24,26 @@ export default function CheckoutModal() {
   const [comment, setComment] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  // Flex's flex-1/min-h-0 shrink math (the usual way to make only the
+  // middle section scroll) turned out not to reliably constrain height on
+  // every mobile browser we tested against — the footer ended up clipped
+  // away with no way to scroll to it. Measuring the header/footer in
+  // pixels and giving the form an explicit max-height sidesteps flexbox's
+  // shrink behavior entirely: plain max-height + overflow-y-auto on a
+  // definite pixel value works everywhere.
+  useEffect(() => {
+    if (!isCheckoutOpen || !viewportHeight) return;
+    const measure = () => {
+      const panelMax = viewportHeight * 0.88;
+      const headerH = headerRef.current?.offsetHeight || 0;
+      const footerH = footerRef.current?.offsetHeight || 0;
+      setFormMaxHeight(Math.max(120, Math.round(panelMax - headerH - footerH)));
+    };
+    measure();
+    const id = requestAnimationFrame(measure);
+    return () => cancelAnimationFrame(id);
+  }, [isCheckoutOpen, viewportHeight, method]);
 
   const close = () => setCheckoutOpen(false);
 
@@ -74,8 +98,7 @@ export default function CheckoutModal() {
 
   return (
     <AnimatePresence>
-      {isCheckoutOpen && (
-        <>
+      {isCheckoutOpen && [
           <motion.div
             key="backdrop"
             initial={{ opacity: 0 }}
@@ -83,17 +106,31 @@ export default function CheckoutModal() {
             exit={{ opacity: 0 }}
             onClick={close}
             className="fixed inset-0 z-[60] bg-night/70 backdrop-blur-sm"
-          />
-          <motion.div
-            key="panel"
-            initial={{ opacity: 0, y: 24, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 24, scale: 0.98 }}
-            transition={{ type: "spring", damping: 28, stiffness: 320 }}
-            className="checkout-panel fixed inset-x-4 top-1/2 z-[60] mx-auto flex max-w-md -translate-y-1/2 flex-col overflow-hidden rounded-2xl border border-gold/15 bg-surface shadow-lift sm:inset-x-auto"
-            style={viewportHeight ? { maxHeight: Math.round(viewportHeight * 0.88) } : undefined}
+          />,
+          /* Plain flexbox centering, not top-1/2 + a Tailwind translate
+             class: Framer Motion writes its own `transform` inline style
+             for the panel's y/scale animation, which completely replaces
+             (not merges with) a `-translate-y-1/2` class on that same
+             element — so the panel was never actually shifted up by 50%
+             and its bottom half silently overflowed off-screen whenever
+             it was taller than half the viewport. Centering via a
+             non-animated wrapper sidesteps the conflict entirely. */
+          <div
+            key="panel-wrapper"
+            className="fixed inset-x-4 inset-y-0 z-[60] flex items-center justify-center sm:inset-x-auto"
+            onClick={close}
           >
-            <div className="flex shrink-0 items-center justify-between px-6 pb-4 pt-6">
+            <motion.div
+              key="panel"
+              initial={{ opacity: 0, y: 24, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 24, scale: 0.98 }}
+              transition={{ type: "spring", damping: 28, stiffness: 320 }}
+              onClick={(e) => e.stopPropagation()}
+              className="checkout-panel flex w-full max-w-md flex-col overflow-hidden rounded-2xl border border-gold/15 bg-surface shadow-lift"
+              style={viewportHeight ? { maxHeight: Math.round(viewportHeight * 0.88) } : undefined}
+            >
+            <div ref={headerRef} className="flex shrink-0 items-center justify-between px-6 pb-4 pt-6">
               <h3 className="font-serif text-xl font-bold text-parchment">{t("checkout_title")}</h3>
               <button
                 onClick={close}
@@ -107,11 +144,16 @@ export default function CheckoutModal() {
                 stays pinned so the order button is always reachable, even
                 when the form is taller than the viewport (long labels,
                 delivery address field, mobile browser chrome eating into
-                the visible height, etc.). */}
+                the visible height, etc.). Height is measured in JS
+                (formMaxHeight) rather than left to flexbox's flex-1/min-h-0
+                shrink math, which some mobile browsers didn't apply
+                correctly, letting the footer get clipped away with no way
+                to scroll to it. */}
             <form
               id="checkout-form"
               onSubmit={handleSubmit}
-              className="flex min-h-0 flex-1 flex-col gap-3.5 overflow-y-auto px-6"
+              className="checkout-form-fields flex flex-col gap-3.5 overflow-y-auto px-6"
+              style={formMaxHeight ? { maxHeight: formMaxHeight } : undefined}
             >
               <div className="flex gap-2 rounded-full bg-night p-1">
                 {[
@@ -180,7 +222,7 @@ export default function CheckoutModal() {
               <div className="pb-1" />
             </form>
 
-            <div className="shrink-0 border-t border-gold/10 px-6 pb-6 pt-4">
+            <div ref={footerRef} className="shrink-0 border-t border-gold/10 px-6 pb-6 pt-4">
               <div className="flex items-center justify-between rounded-xl bg-night px-4 py-3">
                 <span className="text-sm text-parchment-soft">{t("cart_total")}</span>
                 <span className="text-lg font-semibold text-gold">{total} ₽</span>
@@ -198,9 +240,9 @@ export default function CheckoutModal() {
                 {t("checkout_disclaimer")}
               </p>
             </div>
-          </motion.div>
-        </>
-      )}
+            </motion.div>
+          </div>,
+      ]}
       <style jsx global>{`
         .checkout-panel {
           /* vh is computed against the layout viewport, which on mobile
@@ -214,6 +256,17 @@ export default function CheckoutModal() {
         @supports (height: 100dvh) {
           .checkout-panel {
             max-height: 88dvh;
+          }
+        }
+        /* Fallback for the brief moment before JS measures the header/
+           footer and sets an explicit pixel max-height inline (or if JS
+           is disabled) — same reasoning as .checkout-panel above. */
+        .checkout-form-fields {
+          max-height: 60vh;
+        }
+        @supports (height: 100dvh) {
+          .checkout-form-fields {
+            max-height: 60dvh;
           }
         }
         .input {
