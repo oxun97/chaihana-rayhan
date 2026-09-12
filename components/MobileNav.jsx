@@ -1,8 +1,10 @@
 "use client";
 
-import { Home, UtensilsCrossed, ShoppingBag, MapPin } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Home, UtensilsCrossed, ShoppingBag, MapPin, User } from "lucide-react";
 import { useLang } from "@/context/LangContext";
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
 
 function scrollToId(id) {
   const el = document.getElementById(id);
@@ -14,11 +16,19 @@ function scrollToId(id) {
 export default function MobileNav() {
   const { t } = useLang();
   const { itemCount, setCartOpen } = useCart();
+  const { client, setAuthModalOpen } = useAuth();
+  const router = useRouter();
 
   const items = [
     { key: "home", icon: Home, label: t("mobile_nav_home"), onClick: () => scrollToId("top") },
     { key: "menu", icon: UtensilsCrossed, label: t("mobile_nav_menu"), onClick: () => scrollToId("menu-top") },
     { key: "cart", icon: ShoppingBag, label: t("mobile_nav_cart"), onClick: () => setCartOpen(true), badge: itemCount },
+    {
+      key: "account",
+      icon: User,
+      label: client ? t("nav_my_orders") : t("nav_login"),
+      onClick: () => (client ? router.push("/orders") : setAuthModalOpen(true)),
+    },
     { key: "contacts", icon: MapPin, label: t("mobile_nav_contacts"), onClick: () => scrollToId("contacts") },
   ];
 

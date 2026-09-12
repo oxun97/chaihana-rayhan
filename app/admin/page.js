@@ -212,6 +212,9 @@ export default function AdminPage() {
         <a href="/admin/orders" className="text-xs text-ink-soft underline hover:text-gold">
           Заказы
         </a>
+        <a href="/admin/telegram" className="text-xs text-ink-soft underline hover:text-gold">
+          Telegram
+        </a>
         <a href="/" className="text-xs text-ink-soft underline hover:text-gold">
           Открыть сайт
         </a>

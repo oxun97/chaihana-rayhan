@@ -10,6 +10,7 @@ import ReviewsSection from "@/components/ReviewsSection";
 import Footer from "@/components/Footer";
 import CartDrawer from "@/components/CartDrawer";
 import CheckoutModal from "@/components/CheckoutModal";
+import AuthModal from "@/components/AuthModal";
 import Toast from "@/components/Toast";
 import { readMenuCategories, getFeaturedDishes } from "@/lib/menu-server";
 
@@ -109,6 +110,7 @@ export default async function HomePage() {
       <Footer />
       <CartDrawer />
       <CheckoutModal />
+      <AuthModal />
       <MobileNav />
     </>
   );

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createOrder } from "@/lib/orders-server";
+import { getClientSession, CLIENT_COOKIE } from "@/lib/auth-server";
 
 export const dynamic = "force-dynamic";
 
@@ -34,6 +35,12 @@ export async function POST(request) {
     return NextResponse.json({ error: validationError }, { status: 400 });
   }
 
+  // Attach the order to the logged-in customer's account (if any) so it
+  // shows up in their order history — resolved server-side from the
+  // session cookie, never trusted from the request body.
+  const clientToken = request.cookies.get(CLIENT_COOKIE)?.value;
+  const clientSession = await getClientSession(clientToken);
+
   try {
     const order = await createOrder({
       customerName: body.customer.name.trim(),
@@ -43,6 +50,7 @@ export async function POST(request) {
       comment: body.customer.comment?.trim() || null,
       lang: body.lang,
       items: body.items,
+      clientId: clientSession?.client.id,
     });
     return NextResponse.json({ ok: true, order });
   } catch (e) {

@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Search, Menu as MenuIcon, X, MapPin, Phone as PhoneIcon, ShoppingBag, Heart } from "lucide-react";
+import Link from "next/link";
+import { Search, Menu as MenuIcon, X, MapPin, Phone as PhoneIcon, ShoppingBag, Heart, User } from "lucide-react";
 import { useLang } from "@/context/LangContext";
 import { useCart } from "@/context/CartContext";
 import { useMenu } from "@/context/MenuContext";
 import { useFavorites } from "@/context/FavoritesContext";
+import { useAuth } from "@/context/AuthContext";
 import { localized } from "@/lib/menu";
 import { RESTAURANT_PHONE_DISPLAY, RESTAURANT_PHONE_TEL } from "@/lib/whatsapp";
 import LogoMark from "@/components/LogoMark";
@@ -31,6 +33,7 @@ export default function Nav() {
   const { itemCount, setCartOpen, addItem } = useCart();
   const { categories } = useMenu();
   const { items: favoriteItems, toggle: toggleFavorite, count: favoriteCount } = useFavorites();
+  const { client, setAuthModalOpen } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [favoritesOpen, setFavoritesOpen] = useState(false);
@@ -146,6 +149,25 @@ export default function Nav() {
               </span>
             )}
           </button>
+          {client ? (
+            <Link
+              href="/orders"
+              className="flex h-9 w-9 items-center justify-center rounded-full text-parchment-soft transition-colors hover:bg-white/5 hover:text-gold"
+              aria-label={t("nav_my_orders")}
+              title={t("nav_my_orders")}
+            >
+              <User size={18} />
+            </Link>
+          ) : (
+            <button
+              onClick={() => setAuthModalOpen(true)}
+              className="flex h-9 w-9 items-center justify-center rounded-full text-parchment-soft transition-colors hover:bg-white/5 hover:text-gold"
+              aria-label={t("nav_login")}
+              title={t("nav_login")}
+            >
+              <User size={18} />
+            </button>
+          )}
           <LanguageSwitcher />
           <CartButton itemCount={itemCount} onClick={() => scrollToId("cart-sidebar")} />
         </div>
@@ -273,6 +295,25 @@ export default function Nav() {
                 </span>
               )}
             </button>
+            {client ? (
+              <Link
+                href="/orders"
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center gap-1.5 text-sm font-medium text-parchment-soft hover:text-gold"
+              >
+                <User size={16} /> {t("nav_my_orders")}
+              </Link>
+            ) : (
+              <button
+                onClick={() => {
+                  setMobileOpen(false);
+                  setAuthModalOpen(true);
+                }}
+                className="flex items-center gap-1.5 text-sm font-medium text-parchment-soft hover:text-gold"
+              >
+                <User size={16} /> {t("nav_login")}
+              </button>
+            )}
           </div>
           <div className="flex flex-col">
             {NAV_LINKS.map((link) => (

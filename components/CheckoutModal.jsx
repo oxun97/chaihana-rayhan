@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useLang } from "@/context/LangContext";
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
 import { buildWhatsAppOrderUrl } from "@/lib/whatsapp";
 import { useVisualViewportHeight } from "@/lib/useVisualViewportHeight";
 
@@ -11,6 +12,7 @@ export default function CheckoutModal() {
   const { lang, t } = useLang();
   const { items, subtotal, deliveryFee, total, isCheckoutOpen, setCheckoutOpen, clearCart } =
     useCart();
+  const { client } = useAuth();
   const viewportHeight = useVisualViewportHeight();
 
   const headerRef = useRef(null);
@@ -44,6 +46,14 @@ export default function CheckoutModal() {
     const id = requestAnimationFrame(measure);
     return () => cancelAnimationFrame(id);
   }, [isCheckoutOpen, viewportHeight, method]);
+
+  // Prefill from the logged-in account when the modal opens, without
+  // clobbering anything the customer has already typed.
+  useEffect(() => {
+    if (!isCheckoutOpen || !client) return;
+    setName((prev) => prev || client.name || "");
+    setPhone((prev) => prev || client.phone || "");
+  }, [isCheckoutOpen, client]);
 
   const close = () => setCheckoutOpen(false);
 
@@ -117,7 +127,7 @@ export default function CheckoutModal() {
              non-animated wrapper sidesteps the conflict entirely. */
           <div
             key="panel-wrapper"
-            className="fixed inset-x-4 inset-y-0 z-[60] flex items-center justify-center sm:inset-x-auto"
+            className="fixed inset-x-4 inset-y-0 z-[60] flex items-center justify-center"
             onClick={close}
           >
             <motion.div
