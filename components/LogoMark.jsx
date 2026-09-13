@@ -4,11 +4,11 @@
 export default function LogoMark({ className = "h-9 w-9" }) {
   return (
     <svg viewBox="0 0 40 40" fill="none" className={className} aria-hidden="true">
-      <circle cx="20" cy="20" r="18.5" stroke="#c89b3c" strokeWidth="1" />
-      <g stroke="#c89b3c" strokeWidth="1.4" strokeLinecap="round">
+      <circle cx="20" cy="20" r="18.5" stroke="#f2a900" strokeWidth="1" />
+      <g stroke="#f2a900" strokeWidth="1.4" strokeLinecap="round">
         <path d="M20 7v26M7 20h26M11 11l18 18M29 11L11 29" />
       </g>
-      <circle cx="20" cy="20" r="4" fill="#c89b3c" />
+      <circle cx="20" cy="20" r="4" fill="#f2a900" />
     </svg>
   );
 }

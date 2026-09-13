@@ -282,7 +282,7 @@ export default function CheckoutModal() {
         .input {
           width: 100%;
           border-radius: 0.75rem;
-          border: 1px solid rgba(200, 155, 60, 0.25);
+          border: 1px solid rgba(242, 169, 0, 0.25);
           padding: 0.6rem 0.85rem;
           font-size: 0.85rem;
           outline: none;
@@ -294,7 +294,7 @@ export default function CheckoutModal() {
           color: rgba(245, 230, 200, 0.45);
         }
         .input:focus {
-          border-color: #c89b3c;
+          border-color: #f2a900;
         }
       `}</style>
     </AnimatePresence>

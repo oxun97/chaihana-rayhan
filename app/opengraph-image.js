@@ -21,7 +21,7 @@ export default function OpengraphImage() {
           style={{
             width: 44,
             height: 44,
-            background: "#c9a96e",
+            background: "#f2a900",
             transform: "rotate(45deg)",
             borderRadius: 6,
           }}

@@ -19,7 +19,7 @@ export default function Hero() {
       className="relative flex min-h-[100dvh] items-center overflow-hidden bg-night pt-20 sm:min-h-[92vh]"
     >
       <div className="pattern-lattice-lg absolute inset-0 animate-drift opacity-[0.05]" />
-      <div className="absolute inset-0 animate-heroZoom bg-[radial-gradient(ellipse_at_top_left,rgba(200,155,60,0.18),transparent_55%),radial-gradient(ellipse_at_bottom_right,rgba(201,87,61,0.16),transparent_55%)]" />
+      <div className="absolute inset-0 animate-heroZoom bg-[radial-gradient(ellipse_at_top_left,rgba(242,169,0,0.18),transparent_55%),radial-gradient(ellipse_at_bottom_right,rgba(232,65,44,0.16),transparent_55%)]" />
       <div className="pointer-events-none absolute inset-3 rounded-[2rem] border border-gold/15 sm:inset-6 sm:rounded-[2.5rem]" />
 
       <div className="relative z-10 mx-auto grid w-full max-w-6xl gap-10 px-6 py-16 lg:grid-cols-2 lg:items-center lg:gap-6 lg:py-24">
@@ -104,7 +104,7 @@ export default function Hero() {
           className="relative mx-auto aspect-square w-full max-w-md lg:max-w-none"
         >
           <div className="pattern-lattice-soft absolute inset-6 rounded-[3rem] border border-gold/20 bg-gradient-to-br from-surface via-surface to-terracotta-dark/40" />
-          <div className="absolute inset-0 rounded-[3rem] bg-[radial-gradient(circle_at_50%_50%,rgba(200,155,60,0.28),transparent_60%)]" />
+          <div className="absolute inset-0 rounded-[3rem] bg-[radial-gradient(circle_at_50%_50%,rgba(242,169,0,0.28),transparent_60%)]" />
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="medallion flex h-28 w-28 items-center justify-center rounded-full bg-surface text-5xl sm:h-36 sm:w-36">
               🍚

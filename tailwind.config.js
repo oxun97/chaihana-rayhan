@@ -9,9 +9,9 @@ module.exports = {
     extend: {
       colors: {
         gold: {
-          DEFAULT: "#c89b3c",
-          light: "#e0bd6f",
-          dark: "#9c771f",
+          DEFAULT: "#f2a900",
+          light: "#ffc94d",
+          dark: "#b87a00",
         },
         // Light-theme tokens — used by the internal /admin and /courier
         // back-office panels only. Keep these as a light theme: they're
@@ -44,9 +44,9 @@ module.exports = {
           dark: "#134a47",
         },
         terracotta: {
-          DEFAULT: "#c9573d",
-          light: "#e18063",
-          dark: "#9c3f28",
+          DEFAULT: "#e8412c",
+          light: "#ff7a5c",
+          dark: "#b92e1c",
         },
       },
       fontFamily: {
