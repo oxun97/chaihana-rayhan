@@ -9,6 +9,23 @@ export default function AdminTelegramPage() {
   const [botUsername, setBotUsername] = useState("");
   const [setupBusy, setSetupBusy] = useState(false);
 
+  const [status, setStatus] = useState(null);
+  const [statusError, setStatusError] = useState("");
+  const [statusBusy, setStatusBusy] = useState(false);
+
+  const loadStatus = () => {
+    setStatusBusy(true);
+    setStatusError("");
+    fetch("/api/admin/telegram/status")
+      .then((res) => res.json().then((data) => ({ ok: res.ok, data })))
+      .then(({ ok, data }) => {
+        if (!ok) throw new Error(data.error);
+        setStatus(data);
+      })
+      .catch((e) => setStatusError(e.message || "Не удалось получить статус."))
+      .finally(() => setStatusBusy(false));
+  };
+
   const loadSubscribers = () => {
     fetch("/api/admin/telegram/subscribers")
       .then((res) => res.json())
@@ -21,6 +38,7 @@ export default function AdminTelegramPage() {
 
   useEffect(() => {
     loadSubscribers();
+    loadStatus();
   }, []);
 
   async function handleSetup() {
@@ -115,6 +133,68 @@ export default function AdminTelegramPage() {
               команду <code className="rounded bg-cream px-1">/start</code>, чтобы получать уведомления
               о новых заказах.
             </p>
+          )}
+        </div>
+
+        <div className="rounded-2xl bg-white p-4 shadow-soft">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 className="font-serif text-base font-bold text-ink">Диагностика</h2>
+            <button
+              onClick={loadStatus}
+              disabled={statusBusy}
+              className="rounded-full border border-gold/30 px-3 py-1 text-xs font-semibold text-ink-soft hover:border-gold hover:text-gold disabled:opacity-50"
+            >
+              {statusBusy ? "Проверяем…" : "Проверить"}
+            </button>
+          </div>
+
+          {statusError && <p className="mt-2 text-sm text-red-500">{statusError}</p>}
+
+          {status && (
+            <dl className="mt-3 flex flex-col gap-2 text-sm">
+              <div className="flex flex-wrap justify-between gap-2">
+                <dt className="text-ink-soft">Бот</dt>
+                <dd className="text-ink">@{status.bot.username}</dd>
+              </div>
+
+              <div className="flex flex-col gap-1 border-t border-cream pt-2">
+                <dt className="text-ink-soft">Адрес, куда Telegram доставляет</dt>
+                <dd className="break-all font-mono text-xs text-ink">
+                  {status.webhook.url || "— не задан —"}
+                </dd>
+                {!status.webhook.url ? (
+                  <dd className="text-xs text-red-600">
+                    Вебхук не зарегистрирован. Нажмите «Настроить бота» выше.
+                  </dd>
+                ) : status.matches ? (
+                  <dd className="text-xs text-green-700">Совпадает с адресом сайта ✓</dd>
+                ) : (
+                  <dd className="text-xs text-red-600">
+                    Не совпадает с ожидаемым: <span className="break-all font-mono">{status.expectedUrl || "SITE_URL не задан"}</span>. Нажмите
+                    «Настроить бота», чтобы перерегистрировать.
+                  </dd>
+                )}
+              </div>
+
+              <div className="flex flex-wrap justify-between gap-2 border-t border-cream pt-2">
+                <dt className="text-ink-soft">Сообщений в очереди</dt>
+                <dd className="text-ink">{status.webhook.pendingUpdateCount}</dd>
+              </div>
+
+              <div className="flex flex-col gap-1 border-t border-cream pt-2">
+                <dt className="text-ink-soft">Последняя ошибка доставки</dt>
+                {status.webhook.lastErrorMessage ? (
+                  <>
+                    <dd className="text-xs text-red-600">{status.webhook.lastErrorMessage}</dd>
+                    <dd className="text-xs text-ink-soft">
+                      {new Date(status.webhook.lastErrorDate).toLocaleString("ru-RU")}
+                    </dd>
+                  </>
+                ) : (
+                  <dd className="text-xs text-green-700">Ошибок нет ✓</dd>
+                )}
+              </div>
+            </dl>
           )}
         </div>
 
