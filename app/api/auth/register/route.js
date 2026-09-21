@@ -36,7 +36,9 @@ export async function POST(request) {
   }
 
   const session = await createClientSession({ userId: user.id, userAgent: request.headers.get("user-agent") });
-  const res = NextResponse.json({ ok: true, client: user });
+  // A brand-new account has no Telegram link yet, but the field is always
+  // present so the client shape is identical across login/register/me.
+  const res = NextResponse.json({ ok: true, client: { ...user, telegramLinked: false } });
   res.cookies.set(CLIENT_COOKIE, session.id, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",

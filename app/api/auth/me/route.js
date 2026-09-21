@@ -8,6 +8,11 @@ export async function GET(request) {
   const session = await getClientSession(token);
   if (!session) return NextResponse.json({ client: null });
   return NextResponse.json({
-    client: { id: session.client.id, name: session.client.name, phone: session.client.phone },
+    client: {
+      id: session.client.id,
+      name: session.client.name,
+      phone: session.client.phone,
+      telegramLinked: !!session.client.telegram_chat_id,
+    },
   });
 }

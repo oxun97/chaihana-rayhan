@@ -106,7 +106,16 @@
       "status_ready": "Готов",
       "status_on_delivery": "В доставке",
       "status_delivered": "Доставлен",
-      "status_cancelled": "Отменён"
+      "status_cancelled": "Отменён",
+      "tg_order_label": "Заказ",
+      "tg_status_label": "Статус",
+      "tg_notify_title": "Уведомления в Telegram",
+      "tg_notify_hint": "Подключите Telegram, и мы сообщим, когда заказ подтверждён, готов и передан курьеру.",
+      "tg_notify_connect": "Подключить Telegram",
+      "tg_notify_connected": "Telegram подключён",
+      "tg_notify_disconnect": "Отключить",
+      "tg_notify_waiting": "Нажмите «Start» в Telegram — страница обновится сама.",
+      "tg_notify_unavailable": "Уведомления пока недоступны. Попробуйте позже."
     },
     "en": {
       "code": "en",
@@ -214,7 +223,16 @@
       "status_ready": "Ready",
       "status_on_delivery": "Out for delivery",
       "status_delivered": "Delivered",
-      "status_cancelled": "Cancelled"
+      "status_cancelled": "Cancelled",
+      "tg_order_label": "Order",
+      "tg_status_label": "Status",
+      "tg_notify_title": "Telegram notifications",
+      "tg_notify_hint": "Connect Telegram and we'll tell you when your order is confirmed, ready and on its way.",
+      "tg_notify_connect": "Connect Telegram",
+      "tg_notify_connected": "Telegram connected",
+      "tg_notify_disconnect": "Disconnect",
+      "tg_notify_waiting": "Press “Start” in Telegram — this page will update by itself.",
+      "tg_notify_unavailable": "Notifications aren't available right now. Please try again later."
     },
     "uz": {
       "code": "uz",
@@ -322,7 +340,16 @@
       "status_ready": "Tayyor",
       "status_on_delivery": "Yetkazilmoqda",
       "status_delivered": "Yetkazildi",
-      "status_cancelled": "Bekor qilindi"
+      "status_cancelled": "Bekor qilindi",
+      "tg_order_label": "Buyurtma",
+      "tg_status_label": "Holat",
+      "tg_notify_title": "Telegram bildirishnomalari",
+      "tg_notify_hint": "Telegramni ulang — buyurtma tasdiqlanganda, tayyor bo'lganda va yo'lga chiqqanda xabar beramiz.",
+      "tg_notify_connect": "Telegramni ulash",
+      "tg_notify_connected": "Telegram ulandi",
+      "tg_notify_disconnect": "Uzish",
+      "tg_notify_waiting": "Telegramda «Start» ni bosing — sahifa o'zi yangilanadi.",
+      "tg_notify_unavailable": "Bildirishnomalar hozir mavjud emas. Keyinroq urinib ko'ring."
     },
     "tg": {
       "code": "tg",
@@ -430,7 +457,16 @@
       "status_ready": "Омода",
       "status_on_delivery": "Дар роҳи расонидан",
       "status_delivered": "Расонида шуд",
-      "status_cancelled": "Бекор шуд"
+      "status_cancelled": "Бекор шуд",
+      "tg_order_label": "Фармоиш",
+      "tg_status_label": "Ҳолат",
+      "tg_notify_title": "Огоҳиномаҳо дар Telegram",
+      "tg_notify_hint": "Telegram-ро пайваст кунед — вақте фармоиш тасдиқ, омода ва фиристода шавад, хабар медиҳем.",
+      "tg_notify_connect": "Пайваст кардани Telegram",
+      "tg_notify_connected": "Telegram пайваст шуд",
+      "tg_notify_disconnect": "Ҷудо кардан",
+      "tg_notify_waiting": "Дар Telegram «Start»-ро пахш кунед — саҳифа худаш нав мешавад.",
+      "tg_notify_unavailable": "Огоҳиномаҳо ҳоло дастрас нестанд. Баъдтар кӯшиш кунед."
     }
   },
   "icons": {

@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, LogOut, PackageOpen } from "lucide-react";
+import { ArrowLeft, LogOut, PackageOpen, Send, Check } from "lucide-react";
 import { useLang } from "@/context/LangContext";
 import { useAuth } from "@/context/AuthContext";
 
@@ -27,14 +27,20 @@ const STATUS_COLORS = {
 };
 
 export default function OrdersPage() {
-  const { t, lang } = useLang();
+  const { t } = useLang();
   const { client, logout, setAuthModalOpen } = useAuth();
   const [orders, setOrders] = useState(null);
   const [error, setError] = useState("");
 
+  // Keyed on the account id rather than the client object: the Telegram
+  // card below polls the session while waiting for the link, and every poll
+  // hands back a fresh object — depending on it would re-fetch the whole
+  // order list on each tick.
+  const clientId = client === undefined ? undefined : client?.id ?? null;
+
   useEffect(() => {
-    if (client === undefined) return;
-    if (!client) {
+    if (clientId === undefined) return;
+    if (clientId === null) {
       setOrders(null);
       return;
     }
@@ -45,7 +51,7 @@ export default function OrdersPage() {
         else setError(data.error || "Не удалось загрузить заказы.");
       })
       .catch(() => setError("Не удалось загрузить заказы."));
-  }, [client]);
+  }, [clientId]);
 
   return (
     <main className="min-h-screen bg-night px-4 pb-16 pt-6 sm:px-6">
@@ -88,6 +94,8 @@ export default function OrdersPage() {
           </div>
         )}
 
+        {client && <TelegramCard />}
+
         {client && error && (
           <p className="rounded-2xl border border-red-500/20 bg-red-500/5 px-4 py-3 text-sm text-red-400">
             {error}
@@ -114,6 +122,122 @@ export default function OrdersPage() {
         )}
       </div>
     </main>
+  );
+}
+
+// Waiting for the customer to press Start inside Telegram: the link only
+// completes on Telegram's side, so the page polls its own session until the
+// webhook has recorded the chat. Capped so a closed Telegram tab doesn't
+// leave a request loop running forever.
+const LINK_POLL_INTERVAL_MS = 3000;
+const LINK_POLL_TIMEOUT_MS = 120000;
+
+function TelegramCard() {
+  const { t } = useLang();
+  const { client, refresh } = useAuth();
+  const [busy, setBusy] = useState(false);
+  const [waiting, setWaiting] = useState(false);
+  const [error, setError] = useState("");
+  const pollRef = useRef(null);
+  const linked = !!client?.telegramLinked;
+
+  const stopPolling = () => {
+    if (pollRef.current) {
+      clearInterval(pollRef.current);
+      pollRef.current = null;
+    }
+    setWaiting(false);
+  };
+
+  useEffect(() => {
+    if (linked) stopPolling();
+  }, [linked]);
+
+  // Clear the interval if the customer navigates away mid-wait.
+  useEffect(() => () => {
+    if (pollRef.current) clearInterval(pollRef.current);
+  }, []);
+
+  async function connect() {
+    setError("");
+    setBusy(true);
+    try {
+      const res = await fetch("/api/auth/telegram-link", { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || t("tg_notify_unavailable"));
+
+      window.open(data.url, "_blank", "noopener,noreferrer");
+      setWaiting(true);
+
+      const startedAt = Date.now();
+      pollRef.current = setInterval(() => {
+        if (Date.now() - startedAt > LINK_POLL_TIMEOUT_MS) {
+          stopPolling();
+          return;
+        }
+        refresh();
+      }, LINK_POLL_INTERVAL_MS);
+    } catch (e) {
+      setError(e.message || t("tg_notify_unavailable"));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function disconnect() {
+    setError("");
+    setBusy(true);
+    stopPolling();
+    try {
+      const res = await fetch("/api/auth/telegram-link", { method: "DELETE" });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || t("tg_notify_unavailable"));
+      }
+      refresh();
+    } catch (e) {
+      setError(e.message || t("tg_notify_unavailable"));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="mb-4 rounded-2xl border border-gold/10 bg-surface p-4 sm:p-5">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex min-w-0 items-start gap-3">
+          <span
+            className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${
+              linked ? "bg-green-500/15 text-green-400" : "bg-gold/15 text-gold"
+            }`}
+          >
+            {linked ? <Check size={17} /> : <Send size={16} />}
+          </span>
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-parchment">
+              {linked ? t("tg_notify_connected") : t("tg_notify_title")}
+            </p>
+            <p className="mt-0.5 text-xs text-parchment-soft">
+              {waiting ? t("tg_notify_waiting") : linked ? "" : t("tg_notify_hint")}
+            </p>
+          </div>
+        </div>
+
+        <button
+          onClick={linked ? disconnect : connect}
+          disabled={busy}
+          className={`shrink-0 rounded-full px-5 py-2 text-xs font-semibold transition-transform hover:scale-[1.02] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 ${
+            linked
+              ? "border border-gold/20 text-parchment-soft hover:text-terracotta"
+              : "bg-gold text-night"
+          }`}
+        >
+          {linked ? t("tg_notify_disconnect") : t("tg_notify_connect")}
+        </button>
+      </div>
+
+      {error && <p className="mt-3 text-xs text-red-400">{error}</p>}
+    </div>
   );
 }
 

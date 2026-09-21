@@ -22,7 +22,7 @@ export async function POST(request) {
   const supabase = getSupabaseAdmin();
   const { data: user, error } = await supabase
     .from("users")
-    .select("id, phone, password_hash, role, is_active, name")
+    .select("id, phone, password_hash, role, is_active, name, telegram_chat_id")
     .eq("phone", phone)
     .eq("role", "client")
     .maybeSingle();
@@ -32,7 +32,15 @@ export async function POST(request) {
   }
 
   const session = await createClientSession({ userId: user.id, userAgent: request.headers.get("user-agent") });
-  const res = NextResponse.json({ ok: true, client: { id: user.id, name: user.name, phone: user.phone } });
+  const res = NextResponse.json({
+    ok: true,
+    client: {
+      id: user.id,
+      name: user.name,
+      phone: user.phone,
+      telegramLinked: !!user.telegram_chat_id,
+    },
+  });
   res.cookies.set(CLIENT_COOKIE, session.id, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
