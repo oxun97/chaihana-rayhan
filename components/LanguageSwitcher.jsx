@@ -3,7 +3,7 @@
 import { useLang } from "@/context/LangContext";
 import i18n from "@/data/i18n.json";
 
-const FLAGS = { ru: "🇷🇺", en: "🇬🇧", uz: "🇺🇿", tg: "🇹🇯" };
+const FLAGS = { ru: "🇷🇺", uz: "🇺🇿" };
 
 export default function LanguageSwitcher({ className = "" }) {
   const { lang, setLang, langs } = useLang();

@@ -5,7 +5,7 @@ import i18n from "@/data/i18n.json";
 
 const LangContext = createContext(null);
 
-const LANGS = ["ru", "en", "uz", "tg"];
+const LANGS = ["ru", "uz"];
 const STORAGE_KEY = "chaihana_lang";
 
 export function LangProvider({ children }) {

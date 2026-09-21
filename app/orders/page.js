@@ -244,7 +244,7 @@ function TelegramCard() {
 function OrderCard({ order }) {
   const { t, lang } = useLang();
   const date = new Date(order.created_at).toLocaleString(
-    lang === "ru" ? "ru-RU" : lang === "en" ? "en-US" : "ru-RU",
+    lang === "uz" ? "uz-UZ" : "ru-RU",
     { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }
   );
 

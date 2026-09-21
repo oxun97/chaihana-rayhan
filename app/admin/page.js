@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import i18n from "@/data/i18n.json";
 
-const LANGS = ["ru", "en", "uz", "tg"];
+const LANGS = ["ru", "uz"];
 const ICONS = ["spicy", "beef", "chicken", "lamb", "veg", "fish", "dairy"];
 const ICON_EMOJI = {
   spicy: "🌶️",
@@ -16,7 +16,7 @@ const ICON_EMOJI = {
 };
 
 function emptyLocalized() {
-  return { ru: "", en: "", uz: "", tg: "" };
+  return { ru: "", uz: "" };
 }
 
 function makeItemId(categoryId) {
