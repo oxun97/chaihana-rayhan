@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getTelegramBotInfo, getTelegramWebhookInfo } from "@/lib/telegram";
+import { getPublicOrigin, isDeploymentSpecificUrl } from "@/lib/site-url";
 
 export const dynamic = "force-dynamic";
 
@@ -10,9 +11,8 @@ export async function GET() {
     return NextResponse.json({ error: "TELEGRAM_BOT_TOKEN не задан." }, { status: 503 });
   }
 
-  const expectedUrl = process.env.SITE_URL
-    ? `${process.env.SITE_URL.replace(/\/$/, "")}/api/telegram/webhook`
-    : null;
+  const origin = getPublicOrigin();
+  const expectedUrl = origin ? `${origin}/api/telegram/webhook` : null;
 
   try {
     const [bot, webhook] = await Promise.all([getTelegramBotInfo(), getTelegramWebhookInfo()]);
@@ -28,6 +28,10 @@ export async function GET() {
       },
       expectedUrl,
       matches: !!expectedUrl && webhook.url === expectedUrl,
+      // A webhook pointed at a single build's address stops working as
+      // soon as that build is superseded, so call it out even when it
+      // happens to match what we would register right now.
+      deploymentSpecific: !!webhook.url && isDeploymentSpecificUrl(webhook.url),
     });
   } catch (e) {
     console.error("Failed to read Telegram webhook info:", e);

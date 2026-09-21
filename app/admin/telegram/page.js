@@ -166,8 +166,14 @@ export default function AdminTelegramPage() {
                   <dd className="text-xs text-red-600">
                     Вебхук не зарегистрирован. Нажмите «Настроить бота» выше.
                   </dd>
+                ) : status.deploymentSpecific ? (
+                  <dd className="text-xs text-red-600">
+                    Это адрес отдельной сборки, а не постоянный адрес сайта — Telegram перестаёт
+                    доставлять после следующего деплоя. Нажмите «Настроить бота», чтобы
+                    перерегистрировать на постоянный адрес.
+                  </dd>
                 ) : status.matches ? (
-                  <dd className="text-xs text-green-700">Совпадает с адресом сайта ✓</dd>
+                  <dd className="text-xs text-green-700">Постоянный адрес сайта ✓</dd>
                 ) : (
                   <dd className="text-xs text-red-600">
                     Не совпадает с ожидаемым: <span className="break-all font-mono">{status.expectedUrl || "SITE_URL не задан"}</span>. Нажмите
