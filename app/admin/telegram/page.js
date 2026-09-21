@@ -103,11 +103,11 @@ export default function AdminTelegramPage() {
             </a>{" "}
             в Telegram и получите токен.
             <br />
-            2. Добавьте <code className="rounded bg-cream px-1">TELEGRAM_BOT_TOKEN</code> и{" "}
-            <code className="rounded bg-cream px-1">SITE_URL</code> в переменные окружения проекта и
-            задеплойте.
+            2. Добавьте <code className="rounded bg-cream px-1">TELEGRAM_BOT_TOKEN</code> в
+            переменные окружения проекта и задеплойте.
             <br />
-            3. Нажмите кнопку ниже — это подключит бота к сайту.
+            3. Откройте эту страницу по постоянному адресу сайта (не по адресу отдельной сборки) и
+            нажмите кнопку ниже — бот будет подключён именно к этому адресу.
           </p>
 
           <button
@@ -173,11 +173,14 @@ export default function AdminTelegramPage() {
                     перерегистрировать на постоянный адрес.
                   </dd>
                 ) : status.matches ? (
-                  <dd className="text-xs text-green-700">Постоянный адрес сайта ✓</dd>
+                  <dd className="text-xs text-green-700">
+                    Совпадает с адресом, на котором открыта админка ✓
+                  </dd>
                 ) : (
                   <dd className="text-xs text-red-600">
-                    Не совпадает с ожидаемым: <span className="break-all font-mono">{status.expectedUrl || "SITE_URL не задан"}</span>. Нажмите
-                    «Настроить бота», чтобы перерегистрировать.
+                    Не совпадает с адресом, на котором открыта админка:{" "}
+                    <span className="break-all font-mono">{status.expectedUrl}</span>. Нажмите
+                    «Настроить бота», чтобы перерегистрировать на него.
                   </dd>
                 )}
               </div>

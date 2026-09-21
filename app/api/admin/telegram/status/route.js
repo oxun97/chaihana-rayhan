@@ -1,17 +1,19 @@
 import { NextResponse } from "next/server";
 import { getTelegramBotInfo, getTelegramWebhookInfo } from "@/lib/telegram";
-import { getPublicOrigin, isDeploymentSpecificUrl } from "@/lib/site-url";
+import { getOriginFromRequest, isDeploymentSpecificUrl } from "@/lib/site-url";
 
 export const dynamic = "force-dynamic";
 
 // Diagnostics for the order-notification bot. Behind the admin Basic Auth
 // (see middleware.js) because the reply names the webhook URL.
-export async function GET() {
+export async function GET(request) {
   if (!process.env.TELEGRAM_BOT_TOKEN) {
     return NextResponse.json({ error: "TELEGRAM_BOT_TOKEN не задан." }, { status: 503 });
   }
 
-  const origin = getPublicOrigin();
+  // Compared against the address this page was opened on — the same source
+  // the setup route registers from, so the two always agree.
+  const origin = getOriginFromRequest(request);
   const expectedUrl = origin ? `${origin}/api/telegram/webhook` : null;
 
   try {
