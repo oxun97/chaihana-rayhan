@@ -18,6 +18,7 @@ import { CartProvider } from "@/context/CartContext";
 import { MenuProvider } from "@/context/MenuContext";
 import { FavoritesProvider } from "@/context/FavoritesContext";
 import { AuthProvider } from "@/context/AuthContext";
+import { ThemeProvider, THEME_BOOT_SCRIPT } from "@/context/ThemeContext";
 import { readMenuCategories } from "@/lib/menu-server";
 
 // The menu is editable at runtime via /admin, so this layout (and everything
@@ -53,17 +54,22 @@ export default async function RootLayout({ children }) {
   }
 
   return (
-    <html lang="ru">
+    <html lang="ru" data-theme="day" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT }} />
+      </head>
       <body className="font-sans">
-        <LangProvider>
-          <AuthProvider>
-            <MenuProvider categories={categories}>
-              <FavoritesProvider>
-                <CartProvider>{children}</CartProvider>
-              </FavoritesProvider>
-            </MenuProvider>
-          </AuthProvider>
-        </LangProvider>
+        <ThemeProvider>
+          <LangProvider>
+            <AuthProvider>
+              <MenuProvider categories={categories}>
+                <FavoritesProvider>
+                  <CartProvider>{children}</CartProvider>
+                </FavoritesProvider>
+              </MenuProvider>
+            </AuthProvider>
+          </LangProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

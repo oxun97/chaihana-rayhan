@@ -8,6 +8,22 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        // Theme-aware tokens (see :root in globals.css). Everything built
+        // from the redesign brief uses these; the fixed-hue tokens below
+        // are the pre-redesign set, still used by screens not yet ported.
+        paper: "rgb(var(--paper) / <alpha-value>)",
+        card: {
+          DEFAULT: "rgb(var(--card) / <alpha-value>)",
+          sunken: "rgb(var(--card-sunken) / <alpha-value>)",
+        },
+        edge: "rgb(var(--edge) / <alpha-value>)",
+        body: "rgb(var(--body) / <alpha-value>)",
+        muted: "rgb(var(--muted) / <alpha-value>)",
+        brand: "rgb(var(--brand) / <alpha-value>)",
+        saffron: "rgb(var(--saffron) / <alpha-value>)",
+        herb: "rgb(var(--herb) / <alpha-value>)",
+        cocoa: "rgb(var(--cocoa) / <alpha-value>)",
+        sand: "rgb(var(--sand) / <alpha-value>)",
         gold: {
           DEFAULT: "#f2a900",
           light: "#ffc94d",

@@ -115,7 +115,7 @@ export default function CheckoutModal() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={close}
-            className="fixed inset-0 z-[60] bg-night/70 backdrop-blur-sm"
+            className="fixed inset-0 z-[60] bg-cocoa/60 backdrop-blur-sm"
           />,
           /* Plain flexbox centering, not top-1/2 + a Tailwind translate
              class: Framer Motion writes its own `transform` inline style
@@ -137,14 +137,14 @@ export default function CheckoutModal() {
               exit={{ opacity: 0, y: 24, scale: 0.98 }}
               transition={{ type: "spring", damping: 28, stiffness: 320 }}
               onClick={(e) => e.stopPropagation()}
-              className="checkout-panel flex w-full max-w-md flex-col overflow-hidden rounded-2xl border border-gold/15 bg-surface shadow-lift"
+              className="checkout-panel flex w-full max-w-md flex-col overflow-hidden rounded-2xl border border-edge bg-card shadow-lift"
               style={viewportHeight ? { maxHeight: Math.round(viewportHeight * 0.88) } : undefined}
             >
             <div ref={headerRef} className="flex shrink-0 items-center justify-between px-6 pb-4 pt-6">
-              <h3 className="font-serif text-xl font-bold text-parchment">{t("checkout_title")}</h3>
+              <h3 className="font-serif text-xl font-bold text-body">{t("checkout_title")}</h3>
               <button
                 onClick={close}
-                className="flex h-8 w-8 items-center justify-center rounded-full text-parchment-soft hover:bg-white/5"
+                className="flex h-8 w-8 items-center justify-center rounded-full text-muted hover:bg-white/5"
               >
                 ✕
               </button>
@@ -165,7 +165,7 @@ export default function CheckoutModal() {
               className="checkout-form-fields flex flex-col gap-3.5 overflow-y-auto px-6"
               style={formMaxHeight ? { maxHeight: formMaxHeight } : undefined}
             >
-              <div className="flex gap-2 rounded-full bg-night p-1">
+              <div className="flex gap-2 rounded-full bg-paper p-1">
                 {[
                   { key: "delivery", label: t("checkout_method_delivery") },
                   { key: "pickup", label: t("checkout_method_pickup") },
@@ -175,7 +175,7 @@ export default function CheckoutModal() {
                     key={m.key}
                     onClick={() => setMethod(m.key)}
                     className={`flex-1 rounded-full py-2 text-sm font-medium transition-colors ${
-                      method === m.key ? "bg-gold text-night" : "text-parchment-soft"
+                      method === m.key ? "bg-brand text-white" : "text-muted"
                     }`}
                   >
                     {m.label}
@@ -232,10 +232,10 @@ export default function CheckoutModal() {
               <div className="pb-1" />
             </form>
 
-            <div ref={footerRef} className="shrink-0 border-t border-gold/10 px-6 pb-6 pt-4">
-              <div className="flex items-center justify-between rounded-xl bg-night px-4 py-3">
-                <span className="text-sm text-parchment-soft">{t("cart_total")}</span>
-                <span className="text-lg font-semibold text-gold">{total} ₽</span>
+            <div ref={footerRef} className="shrink-0 border-t border-edge/70 px-6 pb-6 pt-4">
+              <div className="flex items-center justify-between rounded-xl bg-paper px-4 py-3">
+                <span className="text-sm text-muted">{t("cart_total")}</span>
+                <span className="text-lg font-semibold text-brand">{total} ₽</span>
               </div>
 
               <button
@@ -246,7 +246,7 @@ export default function CheckoutModal() {
               >
                 <WhatsAppIcon /> {submitting ? t("checkout_submitting") : t("checkout_submit")}
               </button>
-              <p className="mt-2 text-center text-[0.72rem] text-parchment-soft">
+              <p className="mt-2 text-center text-[0.72rem] text-muted">
                 {t("checkout_disclaimer")}
               </p>
             </div>
@@ -282,19 +282,19 @@ export default function CheckoutModal() {
         .input {
           width: 100%;
           border-radius: 0.75rem;
-          border: 1px solid rgba(242, 169, 0, 0.25);
+          border: 1px solid rgb(var(--edge));
           padding: 0.6rem 0.85rem;
           font-size: 0.85rem;
           outline: none;
           transition: border-color 0.2s;
-          background: #0b0b0b;
-          color: #f5e6c8;
+          background: rgb(var(--card));
+          color: rgb(var(--body));
         }
         .input::placeholder {
-          color: rgba(245, 230, 200, 0.45);
+          color: rgb(var(--muted));
         }
         .input:focus {
-          border-color: #f2a900;
+          border-color: rgb(var(--brand));
         }
       `}</style>
     </AnimatePresence>
@@ -304,7 +304,7 @@ export default function CheckoutModal() {
 function Field({ label, children }) {
   return (
     <label className="flex flex-col gap-1">
-      <span className="text-[0.75rem] font-medium text-parchment-soft">{label}</span>
+      <span className="text-[0.75rem] font-medium text-muted">{label}</span>
       {children}
     </label>
   );

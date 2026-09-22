@@ -2,19 +2,49 @@
 @tailwind components;
 @tailwind utilities;
 
+/* --- Theme tokens -------------------------------------------------------
+   The palette from the brief, exposed as space-separated RGB channels so
+   Tailwind's `rgb(var(--x) / <alpha-value>)` keeps opacity modifiers
+   (bg-brand/10) working. Day is the default — the brief's reference
+   screens are all cream — and night is the paired dark set, picked to hold
+   the same contrast rather than being a naive inversion. */
+:root {
+  --paper: 247 240 229; /* #F7F0E5 cream — page ground */
+  --card: 255 252 246; /* near-white, elevated surfaces */
+  --card-sunken: 240 232 218; /* inputs, quiet fills */
+  --edge: 232 213 186; /* #E8D5BA warm beige — borders */
+  --body: 36 20 13; /* #24140D dark chocolate — text */
+  --muted: 122 99 84; /* secondary text, ~4.8:1 on cream */
+  --brand: 181 31 36; /* #B51F24 red accent */
+  --saffron: 199 154 69; /* #C79A45 gold */
+  --herb: 23 74 50; /* #174A32 eastern green */
+  --cocoa: 36 20 13; /* #24140D — hero/footer grounds in both themes */
+  --sand: 232 213 186; /* #E8D5BA */
+}
+
+:root[data-theme="night"] {
+  --paper: 26 14 9;
+  --card: 45 26 18;
+  --card-sunken: 34 19 13;
+  --edge: 74 48 33;
+  --body: 247 240 229;
+  --muted: 186 165 143;
+  --brand: 217 58 63; /* lifted off #B51F24 so it stays legible on cocoa */
+  --saffron: 214 173 95;
+  --herb: 46 122 86;
+  --cocoa: 18 10 6;
+  --sand: 122 99 84;
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
   }
-  /* The public storefront is dark by default (Luxury Oriental redesign).
-     /admin and /courier override this with their own light bg-cream
-     wrapper divs (min-h-screen), so this default never shows through
-     there except briefly on iOS overscroll bounce. */
   body {
-    @apply bg-night text-parchment antialiased;
+    @apply bg-paper text-body antialiased;
   }
   ::selection {
-    @apply bg-gold/30;
+    @apply bg-brand/20;
   }
 }
 

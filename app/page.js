@@ -1,13 +1,7 @@
-import Nav from "@/components/Nav";
-import MobileNav from "@/components/MobileNav";
-import Hero from "@/components/Hero";
-import CategoryRow from "@/components/CategoryRow";
-import PopularDishes from "@/components/PopularDishes";
-import MenuSection from "@/components/MenuSection";
-import CartSidebar from "@/components/CartSidebar";
-import AboutSection from "@/components/AboutSection";
-import ReviewsSection from "@/components/ReviewsSection";
-import Footer from "@/components/Footer";
+import Header from "@/components/site/Header";
+import Storefront from "@/components/site/Storefront";
+import Footer from "@/components/site/Footer";
+import MobileBottomNav from "@/components/site/MobileBottomNav";
 import CartDrawer from "@/components/CartDrawer";
 import CheckoutModal from "@/components/CheckoutModal";
 import AuthModal from "@/components/AuthModal";
@@ -55,15 +49,13 @@ const jsonLd = {
 
 export default async function HomePage() {
   let categories = [];
-  let menuError = false;
   try {
     categories = await readMenuCategories();
   } catch (e) {
     console.error("Failed to load menu from the database:", e);
-    menuError = true;
   }
 
-  const featuredDishes = getFeaturedDishes(categories);
+  const featured = getFeaturedDishes(categories);
 
   return (
     <>
@@ -71,47 +63,14 @@ export default async function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <Nav />
+      <Header />
       <Toast />
-      <main className="pb-20 lg:pb-0">
-        <Hero />
-        {!menuError && <CategoryRow />}
-
-        {menuError ? (
-          <div className="mx-auto max-w-xl px-4 py-16 text-center">
-            <p className="font-serif text-lg font-semibold text-parchment">
-              Меню временно недоступно
-            </p>
-            <p className="mt-2 text-sm text-parchment-soft">
-              Пожалуйста, позвоните нам, чтобы сделать заказ, или попробуйте обновить
-              страницу через несколько минут.
-            </p>
-          </div>
-        ) : (
-          <div
-            id="menu-top"
-            className="mx-auto max-w-7xl scroll-mt-20 px-4 pt-6 sm:px-6 lg:flex lg:items-start lg:gap-8"
-          >
-            <div className="min-w-0 flex-1">
-              <PopularDishes dishes={featuredDishes} />
-              {categories.map((cat) => (
-                <MenuSection key={cat.id} category={cat} />
-              ))}
-            </div>
-            <div className="lg:w-[320px] lg:shrink-0">
-              <CartSidebar />
-            </div>
-          </div>
-        )}
-
-        <AboutSection />
-        <ReviewsSection />
-      </main>
+      <Storefront featured={featured} />
       <Footer />
       <CartDrawer />
       <CheckoutModal />
       <AuthModal />
-      <MobileNav />
+      <MobileBottomNav />
     </>
   );
 }

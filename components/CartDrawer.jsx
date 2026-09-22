@@ -57,7 +57,7 @@ export default function CartDrawer() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setCartOpen(false)}
-            className="fixed inset-0 z-50 bg-night/70 backdrop-blur-sm lg:hidden"
+            className="fixed inset-0 z-50 bg-cocoa/60 backdrop-blur-sm lg:hidden"
           />,
           <motion.div
             key="panel"
@@ -65,24 +65,24 @@ export default function CartDrawer() {
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
             transition={{ type: "spring", damping: 32, stiffness: 320 }}
-            className="cart-drawer-panel fixed inset-x-0 bottom-0 z-50 flex flex-col rounded-t-2xl border border-gold/15 bg-surface shadow-lift sm:inset-x-auto sm:right-4 sm:bottom-4 sm:w-[380px] sm:rounded-2xl lg:hidden"
+            className="cart-drawer-panel fixed inset-x-0 bottom-0 z-50 flex flex-col rounded-t-2xl border border-edge bg-card shadow-lift sm:inset-x-auto sm:right-4 sm:bottom-4 sm:w-[380px] sm:rounded-2xl lg:hidden"
             style={viewportHeight ? { maxHeight: Math.round(viewportHeight * 0.85) } : undefined}
           >
             <div
               ref={headerRef}
-              className="flex shrink-0 items-center justify-between border-b border-gold/10 px-5 py-4"
+              className="flex shrink-0 items-center justify-between border-b border-edge/70 px-5 py-4"
             >
-              <h3 className="flex items-center gap-2 font-serif text-lg font-bold text-parchment">
+              <h3 className="flex items-center gap-2 font-serif text-lg font-bold text-body">
                 🧺 {t("cart_title")}
                 {itemCount > 0 && (
-                  <span className="text-sm font-normal text-parchment-soft">
+                  <span className="text-sm font-normal text-muted">
                     ({itemCount} {t("cart_items_count")})
                   </span>
                 )}
               </h3>
               <button
                 onClick={() => setCartOpen(false)}
-                className="flex h-8 w-8 items-center justify-center rounded-full text-parchment-soft hover:bg-white/5"
+                className="flex h-8 w-8 items-center justify-center rounded-full text-muted hover:bg-white/5"
               >
                 <X size={18} />
               </button>
@@ -95,42 +95,42 @@ export default function CartDrawer() {
               {items.length === 0 ? (
                 <div className="flex flex-col items-center justify-center gap-2 py-16 text-center">
                   <span className="text-4xl">🍽️</span>
-                  <p className="font-medium text-parchment">{t("cart_empty")}</p>
-                  <p className="text-sm text-parchment-soft">{t("cart_empty_hint")}</p>
+                  <p className="font-medium text-body">{t("cart_empty")}</p>
+                  <p className="text-sm text-muted">{t("cart_empty_hint")}</p>
                 </div>
               ) : (
                 <ul className="flex flex-col gap-3">
                   {items.map((it) => (
                     <li key={it.id} className="flex items-center gap-3">
-                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-night text-xl">
+                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-paper text-xl">
                         🍽️
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-[0.85rem] font-medium text-parchment">
+                        <p className="truncate text-[0.85rem] font-medium text-body">
                           {localized(it.name, lang)}
                         </p>
-                        <p className="text-[0.78rem] text-gold">{it.price} ₽</p>
+                        <p className="text-[0.78rem] text-brand">{it.price} ₽</p>
                       </div>
-                      <div className="flex items-center gap-1.5 rounded-full border border-gold/40 px-1 py-1">
+                      <div className="flex items-center gap-1.5 rounded-full border border-edge px-1 py-1">
                         <button
                           onClick={() => setQty(it.id, it.qty - 1)}
-                          className="flex h-6 w-6 items-center justify-center rounded-full text-gold hover:bg-gold/10 active:scale-90"
+                          className="flex h-6 w-6 items-center justify-center rounded-full text-brand hover:bg-brand/10 active:scale-90"
                         >
                           <Minus size={13} />
                         </button>
-                        <span className="min-w-[1rem] text-center text-[0.78rem] font-semibold text-parchment">
+                        <span className="min-w-[1rem] text-center text-[0.78rem] font-semibold text-body">
                           {it.qty}
                         </span>
                         <button
                           onClick={() => setQty(it.id, it.qty + 1)}
-                          className="flex h-6 w-6 items-center justify-center rounded-full text-gold hover:bg-gold/10 active:scale-90"
+                          className="flex h-6 w-6 items-center justify-center rounded-full text-brand hover:bg-brand/10 active:scale-90"
                         >
                           <Plus size={13} />
                         </button>
                       </div>
                       <button
                         onClick={() => removeItem(it.id)}
-                        className="ml-1 text-parchment-soft/60 hover:text-terracotta"
+                        className="ml-1 text-muted/60 hover:text-brand"
                         aria-label="remove"
                       >
                         <X size={16} />
@@ -142,23 +142,23 @@ export default function CartDrawer() {
             </div>
 
             {items.length > 0 && (
-              <div ref={footerRef} className="shrink-0 border-t border-gold/10 px-5 py-4">
-                <div className="flex justify-between text-[0.82rem] text-parchment-soft">
+              <div ref={footerRef} className="shrink-0 border-t border-edge/70 px-5 py-4">
+                <div className="flex justify-between text-[0.82rem] text-muted">
                   <span>{t("cart_subtotal")}</span>
                   <span>{subtotal} ₽</span>
                 </div>
-                <div className="mt-1 flex justify-between text-[0.82rem] text-parchment-soft">
+                <div className="mt-1 flex justify-between text-[0.82rem] text-muted">
                   <span>{t("cart_delivery")}</span>
                   <span>{deliveryFee === 0 ? "—" : `${deliveryFee} ₽`}</span>
                 </div>
                 {deliveryFee > 0 && (
-                  <p className="mt-1 text-[0.68rem] text-parchment-soft/70">
+                  <p className="mt-1 text-[0.68rem] text-muted/70">
                     {t("cart_delivery_free_hint")}
                   </p>
                 )}
-                <div className="mt-2 flex justify-between text-base font-semibold text-parchment">
+                <div className="mt-2 flex justify-between text-base font-semibold text-body">
                   <span>{t("cart_total")}</span>
-                  <span className="text-gold">{total} ₽</span>
+                  <span className="text-brand">{total} ₽</span>
                 </div>
 
                 <button
@@ -166,7 +166,7 @@ export default function CartDrawer() {
                     setCartOpen(false);
                     setCheckoutOpen(true);
                   }}
-                  className="mt-4 w-full rounded-full bg-terracotta py-3 text-sm font-semibold text-white transition-transform active:scale-[0.98]"
+                  className="mt-4 w-full rounded-full bg-brand py-3 text-sm font-semibold text-white transition-transform active:scale-[0.98]"
                 >
                   {t("cart_checkout")}
                 </button>

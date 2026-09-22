@@ -55,7 +55,7 @@ export default function AuthModal() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={close}
-          className="fixed inset-0 z-[70] bg-night/70 backdrop-blur-sm"
+          className="fixed inset-0 z-[70] bg-cocoa/60 backdrop-blur-sm"
         />,
         // Same non-animated centering wrapper pattern as CheckoutModal:
         // Framer Motion's inline transform from the y/scale animation
@@ -73,26 +73,26 @@ export default function AuthModal() {
             exit={{ opacity: 0, y: 24, scale: 0.98 }}
             transition={{ type: "spring", damping: 28, stiffness: 320 }}
             onClick={(e) => e.stopPropagation()}
-            className="flex max-h-[88vh] w-full max-w-sm flex-col overflow-hidden rounded-2xl border border-gold/15 bg-surface shadow-lift sm:max-h-[85vh]"
+            className="flex max-h-[88vh] w-full max-w-sm flex-col overflow-hidden rounded-2xl border border-edge bg-card shadow-lift sm:max-h-[85vh]"
           >
             <div className="flex shrink-0 items-center justify-between px-6 pb-4 pt-6">
-              <h3 className="font-serif text-xl font-bold text-parchment">
+              <h3 className="font-serif text-xl font-bold text-body">
                 {tab === "login" ? t("auth_login_tab") : t("auth_register_tab")}
               </h3>
               <button
                 onClick={close}
-                className="flex h-8 w-8 items-center justify-center rounded-full text-parchment-soft hover:bg-white/5"
+                className="flex h-8 w-8 items-center justify-center rounded-full text-muted hover:bg-white/5"
               >
                 ✕
               </button>
             </div>
 
-            <div className="mx-6 mb-4 flex shrink-0 gap-2 rounded-full bg-night p-1">
+            <div className="mx-6 mb-4 flex shrink-0 gap-2 rounded-full bg-paper p-1">
               <button
                 type="button"
                 onClick={() => switchTab("login")}
                 className={`flex-1 rounded-full py-2 text-sm font-medium transition-colors ${
-                  tab === "login" ? "bg-gold text-night" : "text-parchment-soft"
+                  tab === "login" ? "bg-brand text-white" : "text-muted"
                 }`}
               >
                 {t("auth_login_tab")}
@@ -101,7 +101,7 @@ export default function AuthModal() {
                 type="button"
                 onClick={() => switchTab("register")}
                 className={`flex-1 rounded-full py-2 text-sm font-medium transition-colors ${
-                  tab === "register" ? "bg-gold text-night" : "text-parchment-soft"
+                  tab === "register" ? "bg-brand text-white" : "text-muted"
                 }`}
               >
                 {t("auth_register_tab")}
@@ -151,7 +151,7 @@ export default function AuthModal() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="mt-1 w-full rounded-full bg-gold py-3 text-sm font-semibold text-night transition-transform hover:scale-[1.01] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+                className="mt-1 w-full rounded-full bg-brand py-3 text-sm font-semibold text-white transition-transform hover:scale-[1.01] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {tab === "login" ? t("auth_login_submit") : t("auth_register_submit")}
               </button>
@@ -159,7 +159,7 @@ export default function AuthModal() {
               <button
                 type="button"
                 onClick={() => switchTab(tab === "login" ? "register" : "login")}
-                className="mb-5 mt-1 text-center text-xs text-parchment-soft underline-offset-2 hover:text-gold hover:underline"
+                className="mb-5 mt-1 text-center text-xs text-muted underline-offset-2 hover:text-brand hover:underline"
               >
                 {tab === "login" ? t("auth_switch_to_register") : t("auth_switch_to_login")}
               </button>
@@ -171,19 +171,19 @@ export default function AuthModal() {
         .auth-input {
           width: 100%;
           border-radius: 0.75rem;
-          border: 1px solid rgba(242, 169, 0, 0.25);
+          border: 1px solid rgb(var(--edge));
           padding: 0.6rem 0.85rem;
           font-size: 0.85rem;
           outline: none;
           transition: border-color 0.2s;
-          background: #0b0b0b;
-          color: #f5e6c8;
+          background: rgb(var(--card));
+          color: rgb(var(--body));
         }
         .auth-input::placeholder {
-          color: rgba(245, 230, 200, 0.45);
+          color: rgb(var(--muted));
         }
         .auth-input:focus {
-          border-color: #f2a900;
+          border-color: rgb(var(--brand));
         }
       `}</style>
     </AnimatePresence>
@@ -193,7 +193,7 @@ export default function AuthModal() {
 function Field({ label, children }) {
   return (
     <label className="flex flex-col gap-1">
-      <span className="text-[0.75rem] font-medium text-parchment-soft">{label}</span>
+      <span className="text-[0.75rem] font-medium text-muted">{label}</span>
       {children}
     </label>
   );
