@@ -2,6 +2,7 @@ import Header from "@/components/site/Header";
 import Storefront from "@/components/site/Storefront";
 import Footer from "@/components/site/Footer";
 import MobileBottomNav from "@/components/site/MobileBottomNav";
+import InstallPrompt from "@/components/site/InstallPrompt";
 import CartDrawer from "@/components/CartDrawer";
 import CheckoutModal from "@/components/CheckoutModal";
 import AuthModal from "@/components/AuthModal";
@@ -79,6 +80,7 @@ export default async function HomePage() {
       <CheckoutModal />
       <AuthModal />
       <MobileBottomNav />
+      <InstallPrompt />
     </>
   );
 }

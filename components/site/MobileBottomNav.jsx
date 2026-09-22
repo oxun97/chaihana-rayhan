@@ -43,7 +43,10 @@ export default function MobileBottomNav() {
   ];
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-edge bg-paper/97 backdrop-blur-md lg:hidden">
+    // 95, not 97: Tailwind only generates opacity modifiers from its own
+    // scale (multiples of five), so `bg-paper/97` emitted no rule at all and
+    // left the bar fully transparent.
+    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-edge bg-paper/95 backdrop-blur-md lg:hidden">
       <div className="mx-auto flex max-w-md items-stretch justify-around px-1 pb-[max(0.4rem,env(safe-area-inset-bottom))] pt-1.5">
         {items.map(({ key, icon: Icon, label, onClick, badge }) => (
           <button

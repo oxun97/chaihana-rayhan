@@ -175,7 +175,12 @@
       "pay_card_courier": "Картой курьеру",
       "pay_method": "Способ оплаты",
       "checkout_secure": "Ваши данные надёжно защищены",
-      "cart_step_empty": "Корзина пуста"
+      "cart_step_empty": "Корзина пуста",
+      "install_title": "Установите приложение",
+      "install_lead": "Чайхана Райхан на домашнем экране — заказ в два тапа, без браузера.",
+      "install_action": "Установить",
+      "install_ios_lead": "Нажмите «Поделиться», затем «На экран „Домой“» — и чайхана будет под рукой.",
+      "install_dismiss": "Скрыть"
     },
     "uz": {
       "code": "uz",
@@ -352,7 +357,12 @@
       "pay_card_courier": "Kuryerga karta bilan",
       "pay_method": "Toʻlov usuli",
       "checkout_secure": "Maʼlumotlaringiz ishonchli himoyalangan",
-      "cart_step_empty": "Savat boʻsh"
+      "cart_step_empty": "Savat boʻsh",
+      "install_title": "Ilovani o'rnating",
+      "install_lead": "Chayxona Rayhon asosiy ekranda — ikki bosishda buyurtma, brauzersiz.",
+      "install_action": "O'rnatish",
+      "install_ios_lead": "«Ulashish» tugmasini bosing, so'ng «Uy ekraniga» ni tanlang — chayxona doim yoningizda.",
+      "install_dismiss": "Yopish"
     }
   },
   "icons": {

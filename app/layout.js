@@ -19,6 +19,7 @@ import { MenuProvider } from "@/context/MenuContext";
 import { FavoritesProvider } from "@/context/FavoritesContext";
 import { AuthProvider } from "@/context/AuthContext";
 import { ThemeProvider, THEME_BOOT_SCRIPT } from "@/context/ThemeContext";
+import ServiceWorker from "@/components/ServiceWorker";
 import { readMenuCategories } from "@/lib/menu-server";
 
 // The menu is editable at runtime via /admin, so this layout (and everything
@@ -42,7 +43,8 @@ export const metadata = {
 export const viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#0b0b0b",
+  themeColor: "#B51F24",
+  viewportFit: "cover",
 };
 
 export default async function RootLayout({ children }) {
@@ -59,6 +61,7 @@ export default async function RootLayout({ children }) {
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT }} />
       </head>
       <body className="font-sans">
+        <ServiceWorker />
         <ThemeProvider>
           <LangProvider>
             <AuthProvider>
