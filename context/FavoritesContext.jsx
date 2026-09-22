@@ -2,29 +2,28 @@
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useMenu } from "@/context/MenuContext";
+import { readStored, writeStored } from "@/lib/persisted-state";
 
 const FavoritesContext = createContext(null);
 const STORAGE_KEY = "chaihana_favorites_v1";
+
+// Favourites are a list of dish ids. Anything else in storage is discarded:
+// `ids.map(...)` on a stored object used to throw on every render.
+function coerceIds(parsed) {
+  if (!Array.isArray(parsed)) return null;
+  return parsed.filter((id) => typeof id === "string" && id);
+}
 
 export function FavoritesProvider({ children }) {
   const { getItem } = useMenu();
   const [ids, setIds] = useState([]);
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) setIds(JSON.parse(raw));
-    } catch (e) {
-      /* ignore */
-    }
+    setIds(readStored(STORAGE_KEY, coerceIds, []));
   }, []);
 
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(ids));
-    } catch (e) {
-      /* ignore */
-    }
+    writeStored(STORAGE_KEY, ids);
   }, [ids]);
 
   const toggle = (id) => {

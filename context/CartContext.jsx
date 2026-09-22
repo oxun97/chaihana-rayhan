@@ -2,11 +2,26 @@
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useMenu } from "@/context/MenuContext";
+import { readStored, writeStored } from "@/lib/persisted-state";
 
 const CartContext = createContext(null);
 const STORAGE_KEY = "chaihana_cart_v1";
 const FREE_DELIVERY_FROM = 2000;
 const DELIVERY_FEE = 100;
+
+// The cart is a flat { [dishId]: qty } map. A stored `null`, an array, or
+// quantities left over from an older shape used to crash the page instead
+// of the basket simply coming back empty. Lines that survive are kept, so a
+// single odd entry does not throw away a real order.
+function coerceLines(parsed) {
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return null;
+  const lines = {};
+  for (const [id, qty] of Object.entries(parsed)) {
+    const n = Math.floor(Number(qty));
+    if (id && Number.isFinite(n) && n > 0) lines[id] = n;
+  }
+  return lines;
+}
 
 export function CartProvider({ children }) {
   const { getItem } = useMenu();
@@ -17,20 +32,11 @@ export function CartProvider({ children }) {
   const [lastAdded, setLastAdded] = useState(null);
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) setLines(JSON.parse(raw));
-    } catch (e) {
-      /* ignore */
-    }
+    setLines(readStored(STORAGE_KEY, coerceLines, {}));
   }, []);
 
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(lines));
-    } catch (e) {
-      /* ignore */
-    }
+    writeStored(STORAGE_KEY, lines);
   }, [lines]);
 
   const addItem = (id, qty = 1) => {
