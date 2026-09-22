@@ -2,9 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, LogOut, PackageOpen, Send, Check } from "lucide-react";
+import { ArrowLeft, LogOut, PackageOpen, Send, Check, RotateCcw } from "lucide-react";
 import { useLang } from "@/context/LangContext";
 import { useAuth } from "@/context/AuthContext";
+import { useCart } from "@/context/CartContext";
+import { useMenu } from "@/context/MenuContext";
 
 const STATUS_KEYS = {
   new: "status_new",
@@ -17,12 +19,12 @@ const STATUS_KEYS = {
 };
 
 const STATUS_COLORS = {
-  new: "bg-gold/15 text-gold",
-  confirmed: "bg-gold/15 text-gold",
-  preparing: "bg-gold/15 text-gold",
-  ready: "bg-gold/25 text-gold",
-  on_delivery: "bg-terracotta/15 text-terracotta",
-  delivered: "bg-green-500/15 text-green-400",
+  new: "bg-saffron/20 text-brand",
+  confirmed: "bg-saffron/20 text-brand",
+  preparing: "bg-saffron/20 text-brand",
+  ready: "bg-saffron/25 text-brand",
+  on_delivery: "bg-brand/15 text-brand",
+  delivered: "bg-herb/15 text-herb",
   cancelled: "bg-red-500/15 text-red-400",
 };
 
@@ -54,40 +56,40 @@ export default function OrdersPage() {
   }, [clientId]);
 
   return (
-    <main className="min-h-screen bg-night px-4 pb-16 pt-6 sm:px-6">
+    <main className="min-h-screen bg-paper px-4 pb-16 pt-6 sm:px-6">
       <div className="mx-auto max-w-2xl">
         <div className="mb-6 flex items-center justify-between">
           <Link
             href="/"
-            className="flex items-center gap-1.5 text-sm font-medium text-parchment-soft hover:text-gold"
+            className="flex items-center gap-1.5 text-sm font-medium text-muted hover:text-brand"
           >
             <ArrowLeft size={16} /> {t("hero_title")}
           </Link>
           {client && (
             <button
               onClick={logout}
-              className="flex items-center gap-1.5 text-sm font-medium text-parchment-soft hover:text-terracotta"
+              className="flex items-center gap-1.5 text-sm font-medium text-muted hover:text-brand"
             >
               <LogOut size={16} /> {t("nav_logout")}
             </button>
           )}
         </div>
 
-        <h1 className="mb-6 font-serif text-2xl font-bold text-parchment sm:text-3xl">
+        <h1 className="mb-6 font-serif text-2xl font-bold text-body sm:text-3xl">
           {t("my_orders_title")}
         </h1>
 
         {client === undefined && (
-          <p className="text-sm text-parchment-soft">…</p>
+          <p className="text-sm text-muted">…</p>
         )}
 
         {client === null && (
-          <div className="flex flex-col items-center gap-4 rounded-2xl border border-gold/10 bg-surface px-6 py-14 text-center">
-            <PackageOpen size={40} className="text-gold" />
-            <p className="text-sm text-parchment-soft">{t("my_orders_login_hint")}</p>
+          <div className="flex flex-col items-center gap-4 rounded-2xl border border-edge/70 bg-card px-6 py-14 text-center">
+            <PackageOpen size={40} className="text-brand" />
+            <p className="text-sm text-muted">{t("my_orders_login_hint")}</p>
             <button
               onClick={() => setAuthModalOpen(true)}
-              className="rounded-full bg-gold px-6 py-2.5 text-sm font-semibold text-night transition-transform hover:scale-[1.02] active:scale-[0.98]"
+              className="rounded-full bg-brand px-6 py-2.5 text-sm font-semibold text-white transition-transform hover:scale-[1.02] active:scale-[0.98]"
             >
               {t("nav_login")}
             </button>
@@ -103,13 +105,13 @@ export default function OrdersPage() {
         )}
 
         {client && !error && orders === null && (
-          <p className="text-sm text-parchment-soft">…</p>
+          <p className="text-sm text-muted">…</p>
         )}
 
         {client && orders && orders.length === 0 && (
-          <div className="flex flex-col items-center gap-3 rounded-2xl border border-gold/10 bg-surface px-6 py-14 text-center">
-            <PackageOpen size={40} className="text-gold" />
-            <p className="text-sm text-parchment-soft">{t("my_orders_empty")}</p>
+          <div className="flex flex-col items-center gap-3 rounded-2xl border border-edge/70 bg-card px-6 py-14 text-center">
+            <PackageOpen size={40} className="text-brand" />
+            <p className="text-sm text-muted">{t("my_orders_empty")}</p>
           </div>
         )}
 
@@ -203,21 +205,21 @@ function TelegramCard() {
   }
 
   return (
-    <div className="mb-4 rounded-2xl border border-gold/10 bg-surface p-4 sm:p-5">
+    <div className="mb-4 rounded-2xl border border-edge/70 bg-card p-4 sm:p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex min-w-0 items-start gap-3">
           <span
             className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${
-              linked ? "bg-green-500/15 text-green-400" : "bg-gold/15 text-gold"
+              linked ? "bg-herb/15 text-herb" : "bg-saffron/20 text-brand"
             }`}
           >
             {linked ? <Check size={17} /> : <Send size={16} />}
           </span>
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-parchment">
+            <p className="text-sm font-semibold text-body">
               {linked ? t("tg_notify_connected") : t("tg_notify_title")}
             </p>
-            <p className="mt-0.5 text-xs text-parchment-soft">
+            <p className="mt-0.5 text-xs text-muted">
               {waiting ? t("tg_notify_waiting") : linked ? "" : t("tg_notify_hint")}
             </p>
           </div>
@@ -228,8 +230,8 @@ function TelegramCard() {
           disabled={busy}
           className={`shrink-0 rounded-full px-5 py-2 text-xs font-semibold transition-transform hover:scale-[1.02] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 ${
             linked
-              ? "border border-gold/20 text-parchment-soft hover:text-terracotta"
-              : "bg-gold text-night"
+              ? "border border-edge text-muted hover:text-brand"
+              : "bg-brand text-white"
           }`}
         >
           {linked ? t("tg_notify_disconnect") : t("tg_notify_connect")}
@@ -243,46 +245,81 @@ function TelegramCard() {
 
 function OrderCard({ order }) {
   const { t, lang } = useLang();
+  const { addItem, setCartOpen } = useCart();
+  const { getItem } = useMenu();
+  const [repeatNote, setRepeatNote] = useState("");
   const date = new Date(order.created_at).toLocaleString(
     lang === "uz" ? "uz-UZ" : "ru-RU",
     { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }
   );
 
+  // Re-orders by dish id, not by the line snapshot: a dish that has since
+  // been removed or taken off sale is skipped and reported rather than
+  // silently dropped or added at its old price.
+  function repeat() {
+    const lines = order.order_items || [];
+    let added = 0;
+    for (const line of lines) {
+      if (line.dish_id && getItem(line.dish_id)) {
+        addItem(line.dish_id, line.qty);
+        added += 1;
+      }
+    }
+
+    if (added === 0) {
+      setRepeatNote(t("repeat_none"));
+      return;
+    }
+    setRepeatNote(added < lines.length ? t("repeat_partial") : t("repeat_added"));
+    setCartOpen(true);
+  }
+
   return (
-    <li className="rounded-2xl border border-gold/10 bg-surface p-4 sm:p-5">
+    <li className="rounded-2xl border border-edge/70 bg-card p-4 sm:p-5">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <div>
-          <span className="font-serif text-base font-semibold text-parchment">
+          <span className="font-serif text-base font-semibold text-body">
             №{order.order_number}
           </span>
-          <span className="ml-2 text-xs text-parchment-soft">{date}</span>
+          <span className="ml-2 text-xs text-muted">{date}</span>
         </div>
         <span
           className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium ${
-            STATUS_COLORS[order.status] || "bg-white/5 text-parchment-soft"
+            STATUS_COLORS[order.status] || "bg-white/5 text-muted"
           }`}
         >
           {t(STATUS_KEYS[order.status] || "status_new")}
         </span>
       </div>
 
-      <ul className="mb-3 flex flex-col gap-1 border-y border-gold/10 py-3 text-sm">
+      <ul className="mb-3 flex flex-col gap-1 border-y border-edge/70 py-3 text-sm">
         {(order.order_items || []).map((it, i) => (
           <li key={i} className="flex items-center justify-between gap-3">
-            <span className="min-w-0 truncate text-parchment-soft">
+            <span className="min-w-0 truncate text-muted">
               {it.name_snapshot} × {it.qty}
             </span>
-            <span className="shrink-0 text-parchment">{it.price_snapshot * it.qty} ₽</span>
+            <span className="shrink-0 text-body">{it.price_snapshot * it.qty} ₽</span>
           </li>
         ))}
       </ul>
 
       <div className="flex items-center justify-between text-sm">
-        <span className="text-parchment-soft">
+        <span className="text-muted">
           {order.method === "pickup" ? t("checkout_method_pickup") : t("checkout_method_delivery")}
           {order.address ? ` · ${order.address}` : ""}
         </span>
-        <span className="font-semibold text-gold">{order.total} ₽</span>
+        <span className="font-semibold text-brand">{order.total} ₽</span>
+      </div>
+
+      <div className="mt-3 flex items-center justify-between gap-3 border-t border-edge/70 pt-3">
+        <span className="text-xs text-muted">{repeatNote}</span>
+        <button
+          onClick={repeat}
+          className="flex shrink-0 items-center gap-1.5 rounded-full border border-edge px-4 py-2 text-xs font-semibold text-body transition-colors hover:border-brand hover:text-brand"
+        >
+          <RotateCcw size={14} />
+          {t("repeat_order")}
+        </button>
       </div>
     </li>
   );

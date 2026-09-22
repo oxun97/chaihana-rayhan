@@ -26,6 +26,46 @@ export default function CheckoutModal() {
   const [comment, setComment] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [promoInput, setPromoInput] = useState("");
+  const [promo, setPromo] = useState(null);
+  const [promoError, setPromoError] = useState("");
+  const [promoChecking, setPromoChecking] = useState(false);
+
+  // Shown to the customer only; create_order() re-prices the code itself,
+  // so what ends up charged never depends on this number.
+  const discount = promo?.discount || 0;
+  const payable = Math.max(0, total - discount);
+
+  async function applyPromo() {
+    setPromoError("");
+    setPromoChecking(true);
+    try {
+      const res = await fetch("/api/promo-codes/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: promoInput, subtotal }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || t("promo_invalid"));
+
+      if (data.valid) {
+        setPromo(data);
+      } else {
+        setPromo(null);
+        const reasons = {
+          expired: t("promo_expired"),
+          exhausted: t("promo_exhausted"),
+          min_subtotal: `${t("promo_min_subtotal")} ${data.min_subtotal} ₽`,
+        };
+        setPromoError(reasons[data.reason] || t("promo_invalid"));
+      }
+    } catch (e) {
+      setPromo(null);
+      setPromoError(e.message || t("promo_invalid"));
+    } finally {
+      setPromoChecking(false);
+    }
+  }
 
   // Flex's flex-1/min-h-0 shrink math (the usual way to make only the
   // middle section scroll) turned out not to reliably constrain height on
@@ -72,15 +112,26 @@ export default function CheckoutModal() {
     // delivery channel to the restaurant, so a database hiccup must never
     // block the order from going out — it just won't have an order number.
     let orderNumber = null;
+    // The server is the only authority on the discount, so the message sent
+    // to the restaurant quotes its numbers, not the preview's.
+    let priced = { subtotal, deliveryFee, discount: 0, total };
     try {
       const res = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ customer, items, lang }),
+        body: JSON.stringify({ customer, items, lang, promoCode: promo?.code || null }),
       });
       if (res.ok) {
         const data = await res.json();
         orderNumber = data.order?.order_number ?? null;
+        if (data.order) {
+          priced = {
+            subtotal: data.order.subtotal,
+            deliveryFee: data.order.delivery_fee,
+            discount: data.order.discount || 0,
+            total: data.order.total,
+          };
+        }
       }
     } catch (e) {
       /* offline or API unreachable — still send via WhatsApp below */
@@ -90,9 +141,11 @@ export default function CheckoutModal() {
       lang,
       customer,
       items,
-      subtotal,
-      deliveryFee,
-      total,
+      subtotal: priced.subtotal,
+      deliveryFee: priced.deliveryFee,
+      discount: priced.discount,
+      promoCode: priced.discount > 0 ? promo?.code : null,
+      total: priced.total,
       orderNumber,
     });
 
@@ -225,6 +278,36 @@ export default function CheckoutModal() {
                 />
               </Field>
 
+              <Field label={t("promo_placeholder")}>
+                <div className="flex gap-2">
+                  <input
+                    value={promoInput}
+                    onChange={(e) => {
+                      setPromoInput(e.target.value);
+                      setPromo(null);
+                      setPromoError("");
+                    }}
+                    placeholder={t("promo_placeholder")}
+                    className="input uppercase"
+                  />
+                  <button
+                    type="button"
+                    onClick={applyPromo}
+                    disabled={promoChecking || !promoInput.trim()}
+                    className="shrink-0 rounded-xl bg-card-sunken px-4 text-[0.8rem] font-semibold text-body transition-colors hover:text-brand disabled:opacity-50"
+                  >
+                    {t("promo_apply")}
+                  </button>
+                </div>
+              </Field>
+
+              {promo && (
+                <p className="text-sm font-medium text-herb">
+                  {t("promo_applied")}: −{promo.discount} ₽
+                </p>
+              )}
+              {promoError && <p className="text-sm text-brand">{promoError}</p>}
+
               {error && <p className="text-sm text-red-500">{error}</p>}
 
               {/* Bottom padding so the last field never sits flush against
@@ -233,9 +316,17 @@ export default function CheckoutModal() {
             </form>
 
             <div ref={footerRef} className="shrink-0 border-t border-edge/70 px-6 pb-6 pt-4">
-              <div className="flex items-center justify-between rounded-xl bg-paper px-4 py-3">
-                <span className="text-sm text-muted">{t("cart_total")}</span>
-                <span className="text-lg font-semibold text-brand">{total} ₽</span>
+              <div className="flex flex-col gap-1.5 rounded-xl bg-paper px-4 py-3">
+                {discount > 0 && (
+                  <div className="flex items-center justify-between text-sm text-herb">
+                    <span>{t("promo_discount")}</span>
+                    <span>−{discount} ₽</span>
+                  </div>
+                )}
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted">{t("cart_total")}</span>
+                  <span className="text-lg font-semibold text-brand">{payable} ₽</span>
+                </div>
               </div>
 
               <button

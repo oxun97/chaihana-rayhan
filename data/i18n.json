@@ -153,7 +153,19 @@
       "contacts_title": "Наши контакты",
       "contacts_route": "Построить маршрут",
       "menu_section_title": "Меню",
-      "menu_empty": "Меню временно недоступно. Позвоните нам, чтобы сделать заказ."
+      "menu_empty": "Меню временно недоступно. Позвоните нам, чтобы сделать заказ.",
+      "promo_placeholder": "Промокод",
+      "promo_apply": "Применить",
+      "promo_applied": "Промокод применён",
+      "promo_discount": "Скидка",
+      "promo_invalid": "Промокод не найден",
+      "promo_expired": "Срок действия истёк",
+      "promo_exhausted": "Промокод больше не действует",
+      "promo_min_subtotal": "Промокод действует от",
+      "repeat_order": "Повторить",
+      "repeat_added": "Заказ добавлен в корзину",
+      "repeat_partial": "Часть блюд больше недоступна",
+      "repeat_none": "Блюда из этого заказа больше недоступны"
     },
     "uz": {
       "code": "uz",
@@ -308,7 +320,19 @@
       "contacts_title": "Bizning kontaktlar",
       "contacts_route": "Yoʻnalish qurish",
       "menu_section_title": "Menyu",
-      "menu_empty": "Menyu vaqtincha mavjud emas. Buyurtma uchun qoʻngʻiroq qiling."
+      "menu_empty": "Menyu vaqtincha mavjud emas. Buyurtma uchun qoʻngʻiroq qiling.",
+      "promo_placeholder": "Promokod",
+      "promo_apply": "Qoʻllash",
+      "promo_applied": "Promokod qoʻllanildi",
+      "promo_discount": "Chegirma",
+      "promo_invalid": "Promokod topilmadi",
+      "promo_expired": "Muddati tugagan",
+      "promo_exhausted": "Promokod endi ishlamaydi",
+      "promo_min_subtotal": "Promokod shu summadan ishlaydi:",
+      "repeat_order": "Takrorlash",
+      "repeat_added": "Buyurtma savatga qoʻshildi",
+      "repeat_partial": "Bir qism taomlar endi mavjud emas",
+      "repeat_none": "Bu buyurtmadagi taomlar endi mavjud emas"
     }
   },
   "icons": {

@@ -11,7 +11,6 @@ import DishCard from "@/components/site/DishCard";
 import PromoCard from "@/components/site/PromoCard";
 import BookingForm from "@/components/site/BookingForm";
 import ContactBlock from "@/components/site/ContactBlock";
-import { PROMOS } from "@/data/promos";
 
 function scrollToId(id) {
   const el = document.getElementById(id);
@@ -19,7 +18,7 @@ function scrollToId(id) {
   window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 88, behavior: "smooth" });
 }
 
-export default function Storefront({ featured }) {
+export default function Storefront({ featured, promos }) {
   const { t, lang } = useLang();
   const { categories } = useMenu();
   const [activeCat, setActiveCat] = useState(null);
@@ -28,8 +27,6 @@ export default function Storefront({ featured }) {
     () => (activeCat ? categories.filter((c) => c.id === activeCat) : categories),
     [categories, activeCat]
   );
-
-  const promos = PROMOS[lang] || PROMOS.ru;
 
   return (
     <main className="pb-24 lg:pb-0">
@@ -96,6 +93,7 @@ export default function Storefront({ featured }) {
       </section>
 
       {/* Promos */}
+      {promos.length > 0 && (
       <section id="promos" className="mx-auto max-w-7xl scroll-mt-24 px-4 pt-12 sm:px-6 lg:px-8">
         <h2 className="mb-4 font-serif text-[1.7rem] font-bold tracking-tight text-body sm:text-[2.1rem]">
           {t("promos_title")}
@@ -108,6 +106,7 @@ export default function Storefront({ featured }) {
           ))}
         </div>
       </section>
+      )}
 
       {/* Booking + contacts */}
       <section

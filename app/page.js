@@ -7,6 +7,7 @@ import CheckoutModal from "@/components/CheckoutModal";
 import AuthModal from "@/components/AuthModal";
 import Toast from "@/components/Toast";
 import { readMenuCategories, getFeaturedDishes } from "@/lib/menu-server";
+import { readPromos } from "@/lib/promos-server";
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -55,6 +56,13 @@ export default async function HomePage() {
     console.error("Failed to load menu from the database:", e);
   }
 
+  let promos = [];
+  try {
+    promos = await readPromos();
+  } catch (e) {
+    console.error("Failed to load promos from the database:", e);
+  }
+
   const featured = getFeaturedDishes(categories);
 
   return (
@@ -65,7 +73,7 @@ export default async function HomePage() {
       />
       <Header />
       <Toast />
-      <Storefront featured={featured} />
+      <Storefront featured={featured} promos={promos} />
       <Footer />
       <CartDrawer />
       <CheckoutModal />

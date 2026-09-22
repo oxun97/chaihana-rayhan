@@ -51,6 +51,9 @@ export async function POST(request) {
       lang: body.lang,
       items: body.items,
       clientId: clientSession?.client.id,
+      // Only the code travels from the browser — create_order() re-validates
+      // it and computes the discount itself.
+      promoCode: typeof body.promoCode === "string" ? body.promoCode.trim() : null,
     });
     return NextResponse.json({ ok: true, order });
   } catch (e) {
