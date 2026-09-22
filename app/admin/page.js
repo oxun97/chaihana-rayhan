@@ -203,35 +203,7 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-cream">
-      <header className="sticky top-0 z-10 flex flex-wrap items-center gap-3 border-b border-gold/15 bg-cream/95 px-4 py-3 backdrop-blur-md sm:px-6">
-        <h1 className="font-serif text-lg font-bold text-ink">Админ-панель — Чайхана Райхан</h1>
-        <a href="/admin/dashboard" className="text-xs text-ink-soft underline hover:text-gold">
-          Дашборд
-        </a>
-        <a href="/admin/orders" className="text-xs text-ink-soft underline hover:text-gold">
-          Заказы
-        </a>
-        <a href="/admin/telegram" className="text-xs text-ink-soft underline hover:text-gold">
-          Telegram
-        </a>
-        <a href="/" className="text-xs text-ink-soft underline hover:text-gold">
-          Открыть сайт
-        </a>
-        <div className="ml-auto flex items-center gap-3">
-          {saveError && <span className="text-xs text-red-500">{saveError}</span>}
-          {saveSuccess && <span className="text-xs text-green-600">Меню сохранено ✓</span>}
-          <button
-            onClick={handleSave}
-            disabled={!dirty || saving}
-            className="rounded-full bg-gold px-5 py-2 text-sm font-semibold text-ink transition-colors hover:bg-gold-dark hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            {saving ? "Сохранение…" : dirty ? "Сохранить изменения" : "Всё сохранено"}
-          </button>
-        </div>
-      </header>
-
-      <div className="mx-auto flex max-w-6xl flex-col gap-4 p-4 md:flex-row sm:p-6">
+    <AdminShell title="Меню" active="menu">
         <aside className="flex shrink-0 flex-row gap-1.5 overflow-x-auto pb-1 md:w-56 md:flex-col md:overflow-visible md:pb-0">
           {categories.map((cat) => (
             <button
@@ -243,8 +215,8 @@ export default function AdminPage() {
               }}
               className={`shrink-0 rounded-xl px-3 py-2 text-left text-sm font-medium transition-colors ${
                 activeCategoryId === cat.id
-                  ? "bg-ink text-cream"
-                  : "bg-white text-ink-soft hover:bg-gold/10"
+                  ? "bg-brand text-white"
+                  : "bg-card text-muted hover:bg-brand/10"
               }`}
             >
               {cat.title.ru || cat.id}
@@ -253,7 +225,7 @@ export default function AdminPage() {
           ))}
 
           {newCategoryOpen ? (
-            <div className="flex shrink-0 flex-col gap-1.5 rounded-xl border border-gold/25 bg-white p-2.5 md:w-full">
+            <div className="flex shrink-0 flex-col gap-1.5 rounded-xl border border-edge bg-card p-2.5 md:w-full">
               <input
                 value={newCategoryId}
                 onChange={(e) => setNewCategoryId(e.target.value)}
@@ -269,13 +241,13 @@ export default function AdminPage() {
               <div className="flex gap-1.5">
                 <button
                   onClick={handleAddCategory}
-                  className="flex-1 rounded-lg bg-gold py-1.5 text-xs font-semibold text-ink hover:bg-gold-dark hover:text-white"
+                  className="flex-1 rounded-lg bg-brand py-1.5 text-xs font-semibold text-white transition-opacity hover:opacity-90"
                 >
                   Создать
                 </button>
                 <button
                   onClick={() => setNewCategoryOpen(false)}
-                  className="rounded-lg px-2 text-xs text-ink-soft hover:bg-cream"
+                  className="rounded-lg px-2 text-xs text-muted hover:bg-paper"
                 >
                   Отмена
                 </button>
@@ -284,7 +256,7 @@ export default function AdminPage() {
           ) : (
             <button
               onClick={() => setNewCategoryOpen(true)}
-              className="shrink-0 rounded-xl border border-dashed border-gold/40 px-3 py-2 text-sm text-ink-soft hover:border-gold hover:text-gold"
+              className="shrink-0 rounded-xl border border-dashed border-edge/40 px-3 py-2 text-sm text-muted hover:border-brand hover:text-brand"
             >
               + Категория
             </button>
@@ -292,8 +264,8 @@ export default function AdminPage() {
         </aside>
 
         {activeCategory && (
-          <main className="flex-1 rounded-2xl bg-white p-4 shadow-soft sm:p-5">
-            <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-gold/10 pb-4">
+          <main className="flex-1 rounded-2xl bg-card p-4 shadow-soft sm:p-5">
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-edge/70 pb-4">
               <PhotoUpload
                 label="Фото категории"
                 currentSrc={activeCategory.imageSrc}
@@ -317,9 +289,9 @@ export default function AdminPage() {
               </button>
             </div>
 
-            <div className="mb-4 flex flex-wrap gap-2 border-b border-gold/10 pb-4">
+            <div className="mb-4 flex flex-wrap gap-2 border-b border-edge/70 pb-4">
               {LANGS.map((lang) => (
-                <label key={lang} className="flex items-center gap-1.5 text-xs text-ink-soft">
+                <label key={lang} className="flex items-center gap-1.5 text-xs text-muted">
                   {i18n.ui[lang]?.label}:
                   <input
                     value={activeCategory.title[lang] || ""}
@@ -346,7 +318,7 @@ export default function AdminPage() {
               />
               <button
                 onClick={handleAddItem}
-                className="shrink-0 rounded-full bg-gold px-4 py-2 text-sm font-semibold text-ink hover:bg-gold-dark hover:text-white"
+                className="shrink-0 rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90"
               >
                 + Блюдо
               </button>
@@ -371,59 +343,58 @@ export default function AdminPage() {
                 />
               ))}
               {filteredItems.length === 0 && (
-                <li className="py-8 text-center text-sm text-ink-soft">Ничего не найдено.</li>
+                <li className="py-8 text-center text-sm text-muted">Ничего не найдено.</li>
               )}
             </ul>
           </main>
         )}
-      </div>
 
       <style jsx global>{`
         .admin-input {
           border-radius: 0.5rem;
-          border: 1px solid rgba(201, 169, 110, 0.3);
+          border: 1px solid rgb(var(--edge));
           padding: 0.4rem 0.65rem;
           font-size: 0.8rem;
           outline: none;
-          background: #fdfcf8;
+          background: rgb(var(--card));
           transition: border-color 0.2s;
         }
         .admin-input:focus {
-          border-color: #c9a96e;
+          border-color: rgb(var(--brand));
         }
       `}</style>
-    </div>
+    </AdminShell>
   );
 }
 
 function DishRow({ item, categoryId, expanded, onToggle, onDelete, onChange }) {
   return (
-    <li className="rounded-xl border border-gold/10">
+    <li className="rounded-xl border border-edge/70">
       <div className="flex items-center gap-3 px-3 py-2.5">
         {item.imgSrc ? (
           <img src={item.imgSrc} alt="" className="h-9 w-9 shrink-0 rounded-lg object-cover" />
         ) : (
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-cream text-sm text-ink-soft/40">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-paper text-sm text-muted/40">
             🍽️
           </div>
         )}
         <button onClick={onToggle} className="flex flex-1 items-center gap-3 text-left">
-          <span className="min-w-0 flex-1 truncate text-sm font-medium text-ink">
+          <span className="min-w-0 flex-1 truncate text-sm font-medium text-body">
             {item.featured && <span className="mr-1" title="В популярных">⭐</span>}
-            {item.name.ru || <em className="text-ink-soft">без названия</em>}
+            {item.name.ru || <em className="text-muted">без названия</em>}
           </span>
-          <span className="shrink-0 text-sm font-semibold text-gold">{item.price} ₽</span>
+          <span className="shrink-0 text-sm font-semibold text-brand">{item.price} ₽</span>
           {item.weight && (
-            <span className="shrink-0 text-xs text-ink-soft">{item.weight}</span>
+            <span className="shrink-0 text-xs text-muted">{item.weight}</span>
           )}
         </button>
-        <button onClick={onDelete} className="shrink-0 text-ink-soft/60 hover:text-red-500">
+        <button onClick={onDelete} className="shrink-0 text-muted/60 hover:text-red-500">
           ✕
         </button>
       </div>
 
       {expanded && (
-        <div className="flex flex-col gap-3 border-t border-gold/10 px-3 py-3">
+        <div className="flex flex-col gap-3 border-t border-edge/70 px-3 py-3">
           <PhotoUpload
             label="Фото блюда"
             currentSrc={item.imgSrc}
@@ -435,7 +406,7 @@ function DishRow({ item, categoryId, expanded, onToggle, onDelete, onChange }) {
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {LANGS.map((lang) => (
-              <label key={lang} className="flex flex-col gap-1 text-xs text-ink-soft">
+              <label key={lang} className="flex flex-col gap-1 text-xs text-muted">
                 Название ({i18n.ui[lang]?.label})
                 <input
                   value={item.name[lang] || ""}
@@ -450,7 +421,7 @@ function DishRow({ item, categoryId, expanded, onToggle, onDelete, onChange }) {
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {LANGS.map((lang) => (
-              <label key={lang} className="flex flex-col gap-1 text-xs text-ink-soft">
+              <label key={lang} className="flex flex-col gap-1 text-xs text-muted">
                 Описание ({i18n.ui[lang]?.label})
                 <textarea
                   value={item.desc?.[lang] || ""}
@@ -468,7 +439,7 @@ function DishRow({ item, categoryId, expanded, onToggle, onDelete, onChange }) {
           </div>
 
           <div className="flex flex-wrap gap-3">
-            <label className="flex flex-col gap-1 text-xs text-ink-soft">
+            <label className="flex flex-col gap-1 text-xs text-muted">
               Цена, ₽
               <input
                 type="number"
@@ -480,7 +451,7 @@ function DishRow({ item, categoryId, expanded, onToggle, onDelete, onChange }) {
                 className="admin-input w-28"
               />
             </label>
-            <label className="flex flex-col gap-1 text-xs text-ink-soft">
+            <label className="flex flex-col gap-1 text-xs text-muted">
               Вес/объём
               <input
                 value={item.weight || ""}
@@ -489,7 +460,7 @@ function DishRow({ item, categoryId, expanded, onToggle, onDelete, onChange }) {
                 className="admin-input w-28"
               />
             </label>
-            <label className="flex flex-1 min-w-[200px] flex-col gap-1 text-xs text-ink-soft">
+            <label className="flex flex-1 min-w-[200px] flex-col gap-1 text-xs text-muted">
               Ключ файла в хранилище
               <input
                 value={item.img || ""}
@@ -500,7 +471,7 @@ function DishRow({ item, categoryId, expanded, onToggle, onDelete, onChange }) {
             </label>
           </div>
 
-          <label className="flex items-center gap-1.5 text-xs font-medium text-ink-soft">
+          <label className="flex items-center gap-1.5 text-xs font-medium text-muted">
             <input
               type="checkbox"
               checked={!!item.featured}
@@ -513,7 +484,7 @@ function DishRow({ item, categoryId, expanded, onToggle, onDelete, onChange }) {
             {ICONS.map((icon) => {
               const checked = (item.icons || []).includes(icon);
               return (
-                <label key={icon} className="flex items-center gap-1.5 text-xs text-ink-soft">
+                <label key={icon} className="flex items-center gap-1.5 text-xs text-muted">
                   <input
                     type="checkbox"
                     checked={checked}
@@ -571,13 +542,13 @@ function PhotoUpload({ label, currentSrc, target, categoryId, itemId, onUploaded
       {currentSrc ? (
         <img src={currentSrc} alt="" className="h-10 w-10 rounded-lg object-cover" />
       ) : (
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-cream text-[0.6rem] text-ink-soft/50">
+        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-paper text-[0.6rem] text-muted/50">
           нет фото
         </div>
       )}
       <label
         htmlFor={inputId}
-        className="cursor-pointer rounded-full border border-gold/40 px-3 py-1.5 text-xs font-medium text-ink-soft hover:border-gold hover:text-gold"
+        className="cursor-pointer rounded-full border border-edge/40 px-3 py-1.5 text-xs font-medium text-muted hover:border-brand hover:text-brand"
       >
         {uploading ? "Загрузка…" : label}
       </label>
@@ -595,8 +566,8 @@ function PhotoUpload({ label, currentSrc, target, categoryId, itemId, onUploaded
 
 function CenteredMessage({ children, error }) {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-cream px-4">
-      <p className={`text-sm ${error ? "text-red-500" : "text-ink-soft"}`}>{children}</p>
+    <div className="flex min-h-screen items-center justify-center bg-paper px-4">
+      <p className={`text-sm ${error ? "text-red-500" : "text-muted"}`}>{children}</p>
     </div>
   );
 }

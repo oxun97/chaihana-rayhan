@@ -54,15 +54,15 @@ function LoginForm({ onLoggedIn }) {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-cream px-4">
+    <div className="flex min-h-screen items-center justify-center bg-paper px-4">
       <form
         onSubmit={handleSubmit}
-        className="flex w-full max-w-xs flex-col gap-3 rounded-2xl bg-white p-6 shadow-soft"
+        className="flex w-full max-w-xs flex-col gap-3 rounded-2xl bg-card p-6 shadow-soft"
       >
-        <h1 className="mb-1 text-center font-serif text-xl font-bold text-ink">
+        <h1 className="mb-1 text-center font-serif text-xl font-bold text-body">
           Вход для курьера
         </h1>
-        <label className="flex flex-col gap-1 text-xs text-ink-soft">
+        <label className="flex flex-col gap-1 text-xs text-muted">
           Телефон
           <input
             value={phone}
@@ -72,7 +72,7 @@ function LoginForm({ onLoggedIn }) {
             required
           />
         </label>
-        <label className="flex flex-col gap-1 text-xs text-ink-soft">
+        <label className="flex flex-col gap-1 text-xs text-muted">
           Пароль
           <input
             type="password"
@@ -86,18 +86,18 @@ function LoginForm({ onLoggedIn }) {
         <button
           type="submit"
           disabled={submitting}
-          className="mt-1 rounded-full bg-gold py-2.5 text-sm font-semibold text-ink hover:bg-gold-dark hover:text-white disabled:opacity-50"
+          className="mt-1 rounded-full bg-brand py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
         >
           {submitting ? "Входим…" : "Войти"}
         </button>
         <style jsx global>{`
           .courier-input {
             border-radius: 0.6rem;
-            border: 1px solid rgba(201, 169, 110, 0.3);
+            border: 1px solid rgb(var(--edge));
             padding: 0.55rem 0.75rem;
             font-size: 0.85rem;
             outline: none;
-            background: #fdfcf8;
+            background: rgb(var(--card));
           }
         `}</style>
       </form>
@@ -169,11 +169,11 @@ function OrdersBoard({ courier, onLoggedOut }) {
   }
 
   return (
-    <div className="min-h-screen bg-cream px-4 py-6 sm:px-6">
+    <div className="min-h-screen bg-paper px-4 py-6 sm:px-6">
       <div className="mx-auto flex max-w-xl flex-col gap-6">
         <div className="flex items-center justify-between">
-          <h1 className="font-serif text-lg font-bold text-ink">Привет, {courier.name}</h1>
-          <button onClick={logout} className="text-xs text-ink-soft underline hover:text-gold">
+          <h1 className="font-serif text-lg font-bold text-body">Привет, {courier.name}</h1>
+          <button onClick={logout} className="text-xs text-muted underline hover:text-brand">
             Выйти
           </button>
         </div>
@@ -181,11 +181,11 @@ function OrdersBoard({ courier, onLoggedOut }) {
         {error && <p className="text-sm text-red-500">{error}</p>}
 
         <section>
-          <h2 className="mb-2 text-sm font-semibold text-ink-soft">Мои заказы</h2>
+          <h2 className="mb-2 text-sm font-semibold text-muted">Мои заказы</h2>
           {!data ? (
-            <p className="text-sm text-ink-soft">Загрузка…</p>
+            <p className="text-sm text-muted">Загрузка…</p>
           ) : data.mine.length === 0 ? (
-            <p className="text-sm text-ink-soft">Нет заказов в доставке.</p>
+            <p className="text-sm text-muted">Нет заказов в доставке.</p>
           ) : (
             <ul className="flex flex-col gap-3">
               {data.mine.map((order) => (
@@ -193,7 +193,7 @@ function OrdersBoard({ courier, onLoggedOut }) {
                   <button
                     disabled={busyId === order.id}
                     onClick={() => complete(order.id)}
-                    className="w-full rounded-full bg-gold py-2 text-sm font-semibold text-ink hover:bg-gold-dark hover:text-white disabled:opacity-50"
+                    className="w-full rounded-full bg-brand py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
                   >
                     Доставлено
                   </button>
@@ -204,9 +204,9 @@ function OrdersBoard({ courier, onLoggedOut }) {
         </section>
 
         <section>
-          <h2 className="mb-2 text-sm font-semibold text-ink-soft">Доступные заказы</h2>
+          <h2 className="mb-2 text-sm font-semibold text-muted">Доступные заказы</h2>
           {!data ? null : data.available.length === 0 ? (
-            <p className="text-sm text-ink-soft">Пока нет заказов, готовых к доставке.</p>
+            <p className="text-sm text-muted">Пока нет заказов, готовых к доставке.</p>
           ) : (
             <ul className="flex flex-col gap-3">
               {data.available.map((order) => (
@@ -214,7 +214,7 @@ function OrdersBoard({ courier, onLoggedOut }) {
                   <button
                     disabled={busyId === order.id}
                     onClick={() => take(order.id)}
-                    className="w-full rounded-full border-2 border-gold py-2 text-sm font-semibold text-gold hover:bg-gold hover:text-ink disabled:opacity-50"
+                    className="w-full rounded-full border-2 border-edge py-2 text-sm font-semibold text-brand hover:bg-brand hover:text-body disabled:opacity-50"
                   >
                     Взять в доставку
                   </button>
@@ -230,17 +230,17 @@ function OrdersBoard({ courier, onLoggedOut }) {
 
 function OrderCard({ order, children }) {
   return (
-    <li className="rounded-2xl bg-white p-4 shadow-soft">
+    <li className="rounded-2xl bg-card p-4 shadow-soft">
       <div className="flex items-center justify-between">
-        <span className="font-serif text-base font-bold text-ink">№{order.order_number}</span>
-        <span className="text-sm font-semibold text-gold">{order.total} ₽</span>
+        <span className="font-serif text-base font-bold text-body">№{order.order_number}</span>
+        <span className="text-sm font-semibold text-brand">{order.total} ₽</span>
       </div>
-      <p className="mt-1 text-sm text-ink">{order.customer_name}</p>
-      <a href={`tel:${order.customer_phone}`} className="text-sm text-gold hover:underline">
+      <p className="mt-1 text-sm text-body">{order.customer_name}</p>
+      <a href={`tel:${order.customer_phone}`} className="text-sm text-brand hover:underline">
         {order.customer_phone}
       </a>
-      {order.address && <p className="mt-1 text-sm text-ink-soft">{order.address}</p>}
-      {order.comment && <p className="mt-1 text-xs text-ink-soft">Комментарий: {order.comment}</p>}
+      {order.address && <p className="mt-1 text-sm text-muted">{order.address}</p>}
+      {order.comment && <p className="mt-1 text-xs text-muted">Комментарий: {order.comment}</p>}
       <div className="mt-3">{children}</div>
     </li>
   );
@@ -248,8 +248,8 @@ function OrderCard({ order, children }) {
 
 function CenteredMessage({ children }) {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-cream px-4">
-      <p className="text-sm text-ink-soft">{children}</p>
+    <div className="flex min-h-screen items-center justify-center bg-paper px-4">
+      <p className="text-sm text-muted">{children}</p>
     </div>
   );
 }

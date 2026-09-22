@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import AdminShell from "@/components/admin/AdminShell";
 
 const STATUS_LABELS = {
   new: "Новый",
@@ -13,11 +14,11 @@ const STATUS_LABELS = {
 };
 
 const STATUS_COLORS = {
-  new: "bg-gold/15 text-gold-dark",
-  confirmed: "bg-teal/15 text-teal-dark",
-  preparing: "bg-teal/15 text-teal-dark",
-  ready: "bg-gold/25 text-ink",
-  on_delivery: "bg-terracotta/15 text-terracotta-dark",
+  new: "bg-saffron/20 text-brand",
+  confirmed: "bg-herb/15 text-herb",
+  preparing: "bg-herb/15 text-herb",
+  ready: "bg-saffron/25 text-body",
+  on_delivery: "bg-brand/15 text-brand",
   delivered: "bg-green-100 text-green-700",
   cancelled: "bg-red-100 text-red-600",
 };
@@ -127,31 +128,14 @@ export default function AdminOrdersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-cream">
-      <header className="sticky top-0 z-10 flex flex-wrap items-center gap-3 border-b border-gold/15 bg-cream/95 px-4 py-3 backdrop-blur-md sm:px-6">
-        <h1 className="font-serif text-lg font-bold text-ink">Заказы — Чайхана Райхан</h1>
-        <a href="/admin" className="text-xs text-ink-soft underline hover:text-gold">
-          Меню
-        </a>
-        <a href="/admin/dashboard" className="text-xs text-ink-soft underline hover:text-gold">
-          Дашборд
-        </a>
-        <a href="/admin/telegram" className="text-xs text-ink-soft underline hover:text-gold">
-          Telegram
-        </a>
-        <a href="/" className="text-xs text-ink-soft underline hover:text-gold">
-          Открыть сайт
-        </a>
-      </header>
-
-      <div className="mx-auto flex max-w-6xl flex-col gap-6 p-4 sm:p-6">
+    <AdminShell title="Заказы" active="orders">
         <div className="flex flex-wrap gap-1.5 overflow-x-auto pb-1">
           {STATUS_FILTERS.map((s) => (
             <button
               key={s}
               onClick={() => setFilter(s)}
               className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
-                filter === s ? "bg-ink text-cream" : "bg-white text-ink-soft hover:bg-gold/10"
+                filter === s ? "bg-brand text-white" : "bg-card text-muted hover:bg-brand/10"
               }`}
             >
               {s === "all" ? "Все" : STATUS_LABELS[s]}
@@ -162,9 +146,9 @@ export default function AdminOrdersPage() {
         {loadError && <p className="text-sm text-red-500">{loadError}</p>}
 
         {orders === null ? (
-          <p className="text-sm text-ink-soft">Загрузка…</p>
+          <p className="text-sm text-muted">Загрузка…</p>
         ) : orders.length === 0 ? (
-          <p className="text-sm text-ink-soft">Заказов пока нет.</p>
+          <p className="text-sm text-muted">Заказов пока нет.</p>
         ) : (
           <ul className="flex flex-col gap-3">
             {orders.map((order) => (
@@ -181,8 +165,7 @@ export default function AdminOrdersPage() {
         )}
 
         <CourierManager couriers={couriers} onCreated={loadCouriers} />
-      </div>
-    </div>
+    </AdminShell>
   );
 }
 
@@ -192,45 +175,45 @@ function OrderCard({ order, couriers, busy, onChangeStatus, onAssignCourier }) {
   const createdAt = new Date(order.created_at).toLocaleString("ru-RU");
 
   return (
-    <li className="rounded-2xl bg-white p-4 shadow-soft">
+    <li className="rounded-2xl bg-card p-4 shadow-soft">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
-            <span className="font-serif text-base font-bold text-ink">№{order.order_number}</span>
+            <span className="font-serif text-base font-bold text-body">№{order.order_number}</span>
             <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_COLORS[order.status]}`}>
               {STATUS_LABELS[order.status]}
             </span>
           </div>
-          <p className="mt-1 text-xs text-ink-soft">{createdAt}</p>
+          <p className="mt-1 text-xs text-muted">{createdAt}</p>
         </div>
         <div className="text-right text-sm">
-          <p className="font-semibold text-ink">{order.customer_name}</p>
-          <a href={`tel:${order.customer_phone}`} className="text-gold hover:underline">
+          <p className="font-semibold text-body">{order.customer_name}</p>
+          <a href={`tel:${order.customer_phone}`} className="text-brand hover:underline">
             {order.customer_phone}
           </a>
         </div>
       </div>
 
-      <div className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-xs text-ink-soft">
+      <div className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-xs text-muted">
         <span>{order.method === "pickup" ? "Самовывоз" : "Доставка"}</span>
         {order.address && <span>{order.address}</span>}
         {order.comment && <span>Комментарий: {order.comment}</span>}
       </div>
 
-      <ul className="mt-3 flex flex-col gap-0.5 border-t border-gold/10 pt-2 text-sm text-ink">
+      <ul className="mt-3 flex flex-col gap-0.5 border-t border-edge/70 pt-2 text-sm text-body">
         {(order.order_items || []).map((it) => (
           <li key={it.id} className="flex justify-between">
             <span>
               {it.name_snapshot} × {it.qty}
             </span>
-            <span className="text-ink-soft">{it.price_snapshot * it.qty} ₽</span>
+            <span className="text-muted">{it.price_snapshot * it.qty} ₽</span>
           </li>
         ))}
       </ul>
 
-      <div className="mt-2 flex justify-between border-t border-gold/10 pt-2 text-sm font-semibold text-ink">
+      <div className="mt-2 flex justify-between border-t border-edge/70 pt-2 text-sm font-semibold text-body">
         <span>Итого</span>
-        <span className="text-gold">{order.total} ₽</span>
+        <span className="text-brand">{order.total} ₽</span>
       </div>
 
       <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -242,7 +225,7 @@ function OrderCard({ order, couriers, busy, onChangeStatus, onAssignCourier }) {
             className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors disabled:opacity-50 ${
               status === "cancelled"
                 ? "border border-red-300 text-red-500 hover:bg-red-50"
-                : "bg-gold text-ink hover:bg-gold-dark hover:text-white"
+                : "bg-brand text-white transition-opacity hover:opacity-90"
             }`}
           >
             {STATUS_LABELS[status]}
@@ -269,11 +252,11 @@ function OrderCard({ order, couriers, busy, onChangeStatus, onAssignCourier }) {
       <style jsx global>{`
         .admin-input {
           border-radius: 0.5rem;
-          border: 1px solid rgba(201, 169, 110, 0.3);
+          border: 1px solid rgb(var(--edge));
           padding: 0.4rem 0.65rem;
           font-size: 0.8rem;
           outline: none;
-          background: #fdfcf8;
+          background: rgb(var(--card));
         }
       `}</style>
     </li>
@@ -313,12 +296,12 @@ function CourierManager({ couriers, onCreated }) {
   }
 
   return (
-    <div className="rounded-2xl bg-white p-4 shadow-soft">
+    <div className="rounded-2xl bg-card p-4 shadow-soft">
       <div className="flex items-center justify-between">
-        <h2 className="font-serif text-base font-bold text-ink">Курьеры</h2>
+        <h2 className="font-serif text-base font-bold text-body">Курьеры</h2>
         <button
           onClick={() => setOpen((v) => !v)}
-          className="rounded-full border border-gold/40 px-3 py-1.5 text-xs font-medium text-ink-soft hover:border-gold hover:text-gold"
+          className="rounded-full border border-edge/40 px-3 py-1.5 text-xs font-medium text-muted hover:border-brand hover:text-brand"
         >
           {open ? "Отмена" : "+ Курьер"}
         </button>
@@ -326,11 +309,11 @@ function CourierManager({ couriers, onCreated }) {
 
       {open && (
         <form onSubmit={handleCreate} className="mt-3 flex flex-wrap items-end gap-2">
-          <label className="flex flex-col gap-1 text-xs text-ink-soft">
+          <label className="flex flex-col gap-1 text-xs text-muted">
             Имя
             <input value={name} onChange={(e) => setName(e.target.value)} className="admin-input" required />
           </label>
-          <label className="flex flex-col gap-1 text-xs text-ink-soft">
+          <label className="flex flex-col gap-1 text-xs text-muted">
             Телефон
             <input
               value={phone}
@@ -340,7 +323,7 @@ function CourierManager({ couriers, onCreated }) {
               required
             />
           </label>
-          <label className="flex flex-col gap-1 text-xs text-ink-soft">
+          <label className="flex flex-col gap-1 text-xs text-muted">
             Пароль
             <input
               type="password"
@@ -354,7 +337,7 @@ function CourierManager({ couriers, onCreated }) {
           <button
             type="submit"
             disabled={saving}
-            className="rounded-full bg-gold px-4 py-2 text-xs font-semibold text-ink hover:bg-gold-dark hover:text-white disabled:opacity-50"
+            className="rounded-full bg-brand px-4 py-2 text-xs font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
           >
             {saving ? "Создание…" : "Создать"}
           </button>
@@ -363,11 +346,11 @@ function CourierManager({ couriers, onCreated }) {
       )}
 
       <ul className="mt-3 flex flex-col gap-1.5">
-        {couriers.length === 0 && <li className="text-xs text-ink-soft">Курьеров пока нет.</li>}
+        {couriers.length === 0 && <li className="text-xs text-muted">Курьеров пока нет.</li>}
         {couriers.map((c) => (
-          <li key={c.id} className="flex items-center justify-between text-sm text-ink">
+          <li key={c.id} className="flex items-center justify-between text-sm text-body">
             <span>{c.name}</span>
-            <span className="text-ink-soft">{c.phone}</span>
+            <span className="text-muted">{c.phone}</span>
           </li>
         ))}
       </ul>

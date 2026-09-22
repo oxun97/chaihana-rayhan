@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import AdminShell from "@/components/admin/AdminShell";
 
 export default function AdminTelegramPage() {
   const [subscribers, setSubscribers] = useState(null);
@@ -71,39 +72,22 @@ export default function AdminTelegramPage() {
   const activeSubscribers = (subscribers || []).filter((s) => s.is_active);
 
   return (
-    <div className="min-h-screen bg-cream">
-      <header className="sticky top-0 z-10 flex flex-wrap items-center gap-3 border-b border-gold/15 bg-cream/95 px-4 py-3 backdrop-blur-md sm:px-6">
-        <h1 className="font-serif text-lg font-bold text-ink">Telegram — Чайхана Райхан</h1>
-        <a href="/admin" className="text-xs text-ink-soft underline hover:text-gold">
-          Меню
-        </a>
-        <a href="/admin/dashboard" className="text-xs text-ink-soft underline hover:text-gold">
-          Дашборд
-        </a>
-        <a href="/admin/orders" className="text-xs text-ink-soft underline hover:text-gold">
-          Заказы
-        </a>
-        <a href="/" className="text-xs text-ink-soft underline hover:text-gold">
-          Открыть сайт
-        </a>
-      </header>
-
-      <div className="mx-auto flex max-w-2xl flex-col gap-6 p-4 sm:p-6">
-        <div className="rounded-2xl bg-white p-4 shadow-soft">
-          <h2 className="font-serif text-base font-bold text-ink">Настройка бота</h2>
-          <p className="mt-2 text-sm text-ink-soft">
+    <AdminShell title="Telegram" active="telegram">
+        <div className="rounded-2xl bg-card p-4 shadow-soft">
+          <h2 className="font-serif text-base font-bold text-body">Настройка бота</h2>
+          <p className="mt-2 text-sm text-muted">
             1. Создайте бота через{" "}
             <a
               href="https://t.me/BotFather"
               target="_blank"
               rel="noreferrer"
-              className="text-gold underline"
+              className="text-brand underline"
             >
               @BotFather
             </a>{" "}
             в Telegram и получите токен.
             <br />
-            2. Добавьте <code className="rounded bg-cream px-1">TELEGRAM_BOT_TOKEN</code> в
+            2. Добавьте <code className="rounded bg-paper px-1">TELEGRAM_BOT_TOKEN</code> в
             переменные окружения проекта и задеплойте.
             <br />
             3. Откройте эту страницу по постоянному адресу сайта (не по адресу отдельной сборки) и
@@ -113,7 +97,7 @@ export default function AdminTelegramPage() {
           <button
             onClick={handleSetup}
             disabled={setupBusy}
-            className="mt-3 rounded-full bg-gold px-4 py-2 text-sm font-semibold text-ink hover:bg-gold-dark hover:text-white disabled:opacity-50"
+            className="mt-3 rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
           >
             {setupBusy ? "Настраиваем…" : "Настроить бота"}
           </button>
@@ -130,19 +114,19 @@ export default function AdminTelegramPage() {
               >
                 @{botUsername}
               </a>{" "}
-              команду <code className="rounded bg-cream px-1">/start</code>, чтобы получать уведомления
+              команду <code className="rounded bg-paper px-1">/start</code>, чтобы получать уведомления
               о новых заказах.
             </p>
           )}
         </div>
 
-        <div className="rounded-2xl bg-white p-4 shadow-soft">
+        <div className="rounded-2xl bg-card p-4 shadow-soft">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2 className="font-serif text-base font-bold text-ink">Диагностика</h2>
+            <h2 className="font-serif text-base font-bold text-body">Диагностика</h2>
             <button
               onClick={loadStatus}
               disabled={statusBusy}
-              className="rounded-full border border-gold/30 px-3 py-1 text-xs font-semibold text-ink-soft hover:border-gold hover:text-gold disabled:opacity-50"
+              className="rounded-full border border-edge px-3 py-1 text-xs font-semibold text-muted hover:border-brand hover:text-brand disabled:opacity-50"
             >
               {statusBusy ? "Проверяем…" : "Проверить"}
             </button>
@@ -153,13 +137,13 @@ export default function AdminTelegramPage() {
           {status && (
             <dl className="mt-3 flex flex-col gap-2 text-sm">
               <div className="flex flex-wrap justify-between gap-2">
-                <dt className="text-ink-soft">Бот</dt>
-                <dd className="text-ink">@{status.bot.username}</dd>
+                <dt className="text-muted">Бот</dt>
+                <dd className="text-body">@{status.bot.username}</dd>
               </div>
 
-              <div className="flex flex-col gap-1 border-t border-cream pt-2">
-                <dt className="text-ink-soft">Адрес, куда Telegram доставляет</dt>
-                <dd className="break-all font-mono text-xs text-ink">
+              <div className="flex flex-col gap-1 border-t border-edge/70 pt-2">
+                <dt className="text-muted">Адрес, куда Telegram доставляет</dt>
+                <dd className="break-all font-mono text-xs text-body">
                   {status.webhook.url || "— не задан —"}
                 </dd>
                 {!status.webhook.url ? (
@@ -185,17 +169,17 @@ export default function AdminTelegramPage() {
                 )}
               </div>
 
-              <div className="flex flex-wrap justify-between gap-2 border-t border-cream pt-2">
-                <dt className="text-ink-soft">Сообщений в очереди</dt>
-                <dd className="text-ink">{status.webhook.pendingUpdateCount}</dd>
+              <div className="flex flex-wrap justify-between gap-2 border-t border-edge/70 pt-2">
+                <dt className="text-muted">Сообщений в очереди</dt>
+                <dd className="text-body">{status.webhook.pendingUpdateCount}</dd>
               </div>
 
-              <div className="flex flex-col gap-1 border-t border-cream pt-2">
-                <dt className="text-ink-soft">Последняя ошибка доставки</dt>
+              <div className="flex flex-col gap-1 border-t border-edge/70 pt-2">
+                <dt className="text-muted">Последняя ошибка доставки</dt>
                 {status.webhook.lastErrorMessage ? (
                   <>
                     <dd className="text-xs text-red-600">{status.webhook.lastErrorMessage}</dd>
-                    <dd className="text-xs text-ink-soft">
+                    <dd className="text-xs text-muted">
                       {new Date(status.webhook.lastErrorDate).toLocaleString("ru-RU")}
                     </dd>
                   </>
@@ -207,24 +191,24 @@ export default function AdminTelegramPage() {
           )}
         </div>
 
-        <div className="rounded-2xl bg-white p-4 shadow-soft">
-          <h2 className="font-serif text-base font-bold text-ink">
+        <div className="rounded-2xl bg-card p-4 shadow-soft">
+          <h2 className="font-serif text-base font-bold text-body">
             Подписанные чаты {subscribers && `(${activeSubscribers.length})`}
           </h2>
           {loadError && <p className="mt-2 text-sm text-red-500">{loadError}</p>}
           {subscribers === null ? (
-            <p className="mt-3 text-sm text-ink-soft">Загрузка…</p>
+            <p className="mt-3 text-sm text-muted">Загрузка…</p>
           ) : activeSubscribers.length === 0 ? (
-            <p className="mt-3 text-sm text-ink-soft">
+            <p className="mt-3 text-sm text-muted">
               Пока никто не подписан. Настройте бота выше и отправьте ему /start.
             </p>
           ) : (
             <ul className="mt-3 flex flex-col gap-2">
               {activeSubscribers.map((s) => (
                 <li key={s.chat_id} className="flex items-center justify-between text-sm">
-                  <span className="text-ink">
+                  <span className="text-body">
                     {s.first_name || "Без имени"}
-                    {s.username && <span className="ml-1 text-ink-soft">@{s.username}</span>}
+                    {s.username && <span className="ml-1 text-muted">@{s.username}</span>}
                   </span>
                   <button
                     onClick={() => unsubscribe(s.chat_id)}
@@ -237,7 +221,6 @@ export default function AdminTelegramPage() {
             </ul>
           )}
         </div>
-      </div>
-    </div>
+    </AdminShell>
   );
 }
