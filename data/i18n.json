@@ -165,7 +165,17 @@
       "repeat_order": "Повторить",
       "repeat_added": "Заказ добавлен в корзину",
       "repeat_partial": "Часть блюд больше недоступна",
-      "repeat_none": "Блюда из этого заказа больше недоступны"
+      "repeat_none": "Блюда из этого заказа больше недоступны",
+      "step_cart": "Корзина",
+      "step_delivery": "Доставка",
+      "step_payment": "Оплата",
+      "step_next": "Далее",
+      "step_back": "Назад",
+      "pay_cash": "Наличными",
+      "pay_card_courier": "Картой курьеру",
+      "pay_method": "Способ оплаты",
+      "checkout_secure": "Ваши данные надёжно защищены",
+      "cart_step_empty": "Корзина пуста"
     },
     "uz": {
       "code": "uz",
@@ -332,7 +342,17 @@
       "repeat_order": "Takrorlash",
       "repeat_added": "Buyurtma savatga qoʻshildi",
       "repeat_partial": "Bir qism taomlar endi mavjud emas",
-      "repeat_none": "Bu buyurtmadagi taomlar endi mavjud emas"
+      "repeat_none": "Bu buyurtmadagi taomlar endi mavjud emas",
+      "step_cart": "Savat",
+      "step_delivery": "Yetkazish",
+      "step_payment": "Toʻlov",
+      "step_next": "Keyingi",
+      "step_back": "Orqaga",
+      "pay_cash": "Naqd pul",
+      "pay_card_courier": "Kuryerga karta bilan",
+      "pay_method": "Toʻlov usuli",
+      "checkout_secure": "Maʼlumotlaringiz ishonchli himoyalangan",
+      "cart_step_empty": "Savat boʻsh"
     }
   },
   "icons": {

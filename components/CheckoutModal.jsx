@@ -2,39 +2,94 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { ArrowLeft, ArrowRight, Minus, Plus, Trash2, Wallet, CreditCard, Lock } from "lucide-react";
 import { useLang } from "@/context/LangContext";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
+import { localized } from "@/lib/menu";
 import { buildWhatsAppOrderUrl } from "@/lib/whatsapp";
 import { useVisualViewportHeight } from "@/lib/useVisualViewportHeight";
+import StepIndicator from "@/components/site/StepIndicator";
+
+const STEP_CART = 0;
+const STEP_DELIVERY = 1;
+const STEP_PAYMENT = 2;
 
 export default function CheckoutModal() {
   const { lang, t } = useLang();
-  const { items, subtotal, deliveryFee, total, isCheckoutOpen, setCheckoutOpen, clearCart } =
-    useCart();
+  const {
+    items,
+    subtotal,
+    deliveryFee,
+    total,
+    setQty,
+    removeItem,
+    isCheckoutOpen,
+    setCheckoutOpen,
+    clearCart,
+  } = useCart();
   const { client } = useAuth();
   const viewportHeight = useVisualViewportHeight();
 
   const headerRef = useRef(null);
   const footerRef = useRef(null);
-  const [formMaxHeight, setFormMaxHeight] = useState(null);
+  const [bodyMaxHeight, setBodyMaxHeight] = useState(null);
 
+  const [step, setStep] = useState(STEP_CART);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [method, setMethod] = useState("delivery");
   const [address, setAddress] = useState("");
   const [comment, setComment] = useState("");
+  const [payment, setPayment] = useState("cash");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
   const [promoInput, setPromoInput] = useState("");
   const [promo, setPromo] = useState(null);
   const [promoError, setPromoError] = useState("");
   const [promoChecking, setPromoChecking] = useState(false);
 
-  // Shown to the customer only; create_order() re-prices the code itself,
-  // so what ends up charged never depends on this number.
+  // Preview only: create_order() re-prices the code, so nothing charged
+  // depends on these numbers.
   const discount = promo?.discount || 0;
   const payable = Math.max(0, total - discount);
+
+  // Flex's flex-1/min-h-0 shrink math did not reliably constrain height on
+  // every mobile browser we tested — the footer ended up clipped with no
+  // way to scroll to it. Measuring header/footer in pixels and giving the
+  // scrolling body an explicit max-height works everywhere.
+  useEffect(() => {
+    if (!isCheckoutOpen || !viewportHeight) return;
+    const measure = () => {
+      const panelMax = viewportHeight * 0.9;
+      const headerH = headerRef.current?.offsetHeight || 0;
+      const footerH = footerRef.current?.offsetHeight || 0;
+      setBodyMaxHeight(Math.max(140, Math.round(panelMax - headerH - footerH)));
+    };
+    measure();
+    const id = requestAnimationFrame(measure);
+    return () => cancelAnimationFrame(id);
+  }, [isCheckoutOpen, viewportHeight, step, method, items.length]);
+
+  // Prefill from the account when the modal opens, without clobbering
+  // anything the customer has already typed.
+  useEffect(() => {
+    if (!isCheckoutOpen || !client) return;
+    setName((prev) => prev || client.name || "");
+    setPhone((prev) => prev || client.phone || "");
+  }, [isCheckoutOpen, client]);
+
+  // An emptied cart cannot be on a later step.
+  useEffect(() => {
+    if (items.length === 0 && step !== STEP_CART) setStep(STEP_CART);
+  }, [items.length, step]);
+
+  const close = () => {
+    setCheckoutOpen(false);
+    setStep(STEP_CART);
+    setError("");
+  };
 
   async function applyPromo() {
     setPromoError("");
@@ -67,59 +122,44 @@ export default function CheckoutModal() {
     }
   }
 
-  // Flex's flex-1/min-h-0 shrink math (the usual way to make only the
-  // middle section scroll) turned out not to reliably constrain height on
-  // every mobile browser we tested against — the footer ended up clipped
-  // away with no way to scroll to it. Measuring the header/footer in
-  // pixels and giving the form an explicit max-height sidesteps flexbox's
-  // shrink behavior entirely: plain max-height + overflow-y-auto on a
-  // definite pixel value works everywhere.
-  useEffect(() => {
-    if (!isCheckoutOpen || !viewportHeight) return;
-    const measure = () => {
-      const panelMax = viewportHeight * 0.88;
-      const headerH = headerRef.current?.offsetHeight || 0;
-      const footerH = footerRef.current?.offsetHeight || 0;
-      setFormMaxHeight(Math.max(120, Math.round(panelMax - headerH - footerH)));
-    };
-    measure();
-    const id = requestAnimationFrame(measure);
-    return () => cancelAnimationFrame(id);
-  }, [isCheckoutOpen, viewportHeight, method]);
-
-  // Prefill from the logged-in account when the modal opens, without
-  // clobbering anything the customer has already typed.
-  useEffect(() => {
-    if (!isCheckoutOpen || !client) return;
-    setName((prev) => prev || client.name || "");
-    setPhone((prev) => prev || client.phone || "");
-  }, [isCheckoutOpen, client]);
-
-  const close = () => setCheckoutOpen(false);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!name.trim() || !phone.trim()) {
-      setError(t("checkout_required"));
+  function goNext() {
+    setError("");
+    if (step === STEP_CART) {
+      if (items.length === 0) return;
+      setStep(STEP_DELIVERY);
       return;
     }
+    if (step === STEP_DELIVERY) {
+      if (!name.trim() || !phone.trim()) {
+        setError(t("checkout_required"));
+        return;
+      }
+      setStep(STEP_PAYMENT);
+    }
+  }
+
+  async function submit() {
     setError("");
     setSubmitting(true);
 
     const customer = { name, phone, method, address, comment };
 
     // Persisting the order is best-effort: WhatsApp is the guaranteed
-    // delivery channel to the restaurant, so a database hiccup must never
-    // block the order from going out — it just won't have an order number.
+    // channel to the restaurant, so a database hiccup must never block the
+    // order — it just won't carry an order number.
     let orderNumber = null;
-    // The server is the only authority on the discount, so the message sent
-    // to the restaurant quotes its numbers, not the preview's.
     let priced = { subtotal, deliveryFee, discount: 0, total };
     try {
       const res = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ customer, items, lang, promoCode: promo?.code || null }),
+        body: JSON.stringify({
+          customer,
+          items,
+          lang,
+          promoCode: promo?.code || null,
+          paymentMethod: payment,
+        }),
       });
       if (res.ok) {
         const data = await res.json();
@@ -145,6 +185,7 @@ export default function CheckoutModal() {
       deliveryFee: priced.deliveryFee,
       discount: priced.discount,
       promoCode: priced.discount > 0 ? promo?.code : null,
+      paymentLabel: payment === "cash" ? t("pay_cash") : t("pay_card_courier"),
       total: priced.total,
       orderNumber,
     });
@@ -157,216 +198,315 @@ export default function CheckoutModal() {
     setPhone("");
     setAddress("");
     setComment("");
-  };
+    setPromoInput("");
+    setPromo(null);
+  }
 
   return (
     <AnimatePresence>
       {isCheckoutOpen && [
+        <motion.div
+          key="backdrop"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={close}
+          className="fixed inset-0 z-[60] bg-cocoa/60 backdrop-blur-sm"
+        />,
+        /* Plain flexbox centering, not top-1/2 + a Tailwind translate class:
+           Framer Motion writes its own `transform` inline style for the
+           panel's y/scale animation, which replaces (not merges with) a
+           `-translate-y-1/2` class on the same element — the panel was never
+           actually shifted up and its bottom half overflowed off-screen. */
+        <div
+          key="panel-wrapper"
+          className="fixed inset-x-4 inset-y-0 z-[60] flex items-center justify-center"
+          onClick={close}
+        >
           <motion.div
-            key="backdrop"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={close}
-            className="fixed inset-0 z-[60] bg-cocoa/60 backdrop-blur-sm"
-          />,
-          /* Plain flexbox centering, not top-1/2 + a Tailwind translate
-             class: Framer Motion writes its own `transform` inline style
-             for the panel's y/scale animation, which completely replaces
-             (not merges with) a `-translate-y-1/2` class on that same
-             element — so the panel was never actually shifted up by 50%
-             and its bottom half silently overflowed off-screen whenever
-             it was taller than half the viewport. Centering via a
-             non-animated wrapper sidesteps the conflict entirely. */
-          <div
-            key="panel-wrapper"
-            className="fixed inset-x-4 inset-y-0 z-[60] flex items-center justify-center"
-            onClick={close}
+            key="panel"
+            initial={{ opacity: 0, y: 24, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 24, scale: 0.98 }}
+            transition={{ type: "spring", damping: 28, stiffness: 320 }}
+            onClick={(e) => e.stopPropagation()}
+            className="checkout-panel flex w-full max-w-md flex-col overflow-hidden rounded-[22px] border border-edge bg-card shadow-lift"
+            style={viewportHeight ? { maxHeight: Math.round(viewportHeight * 0.9) } : undefined}
           >
-            <motion.div
-              key="panel"
-              initial={{ opacity: 0, y: 24, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 24, scale: 0.98 }}
-              transition={{ type: "spring", damping: 28, stiffness: 320 }}
-              onClick={(e) => e.stopPropagation()}
-              className="checkout-panel flex w-full max-w-md flex-col overflow-hidden rounded-2xl border border-edge bg-card shadow-lift"
-              style={viewportHeight ? { maxHeight: Math.round(viewportHeight * 0.88) } : undefined}
-            >
-            <div ref={headerRef} className="flex shrink-0 items-center justify-between px-6 pb-4 pt-6">
-              <h3 className="font-serif text-xl font-bold text-body">{t("checkout_title")}</h3>
-              <button
-                onClick={close}
-                className="flex h-8 w-8 items-center justify-center rounded-full text-muted hover:bg-white/5"
-              >
-                ✕
-              </button>
-            </div>
-
-            {/* Only this section scrolls — the total/submit footer below
-                stays pinned so the order button is always reachable, even
-                when the form is taller than the viewport (long labels,
-                delivery address field, mobile browser chrome eating into
-                the visible height, etc.). Height is measured in JS
-                (formMaxHeight) rather than left to flexbox's flex-1/min-h-0
-                shrink math, which some mobile browsers didn't apply
-                correctly, letting the footer get clipped away with no way
-                to scroll to it. */}
-            <form
-              id="checkout-form"
-              onSubmit={handleSubmit}
-              className="checkout-form-fields flex flex-col gap-3.5 overflow-y-auto px-6"
-              style={formMaxHeight ? { maxHeight: formMaxHeight } : undefined}
-            >
-              <div className="flex gap-2 rounded-full bg-paper p-1">
-                {[
-                  { key: "delivery", label: t("checkout_method_delivery") },
-                  { key: "pickup", label: t("checkout_method_pickup") },
-                ].map((m) => (
+            <div ref={headerRef} className="shrink-0 px-5 pb-4 pt-5">
+              <div className="mb-4 flex items-center justify-between">
+                {step > STEP_CART ? (
                   <button
-                    type="button"
-                    key={m.key}
-                    onClick={() => setMethod(m.key)}
-                    className={`flex-1 rounded-full py-2 text-sm font-medium transition-colors ${
-                      method === m.key ? "bg-brand text-white" : "text-muted"
-                    }`}
+                    onClick={() => setStep(step - 1)}
+                    className="flex items-center gap-1.5 text-sm font-medium text-muted hover:text-brand"
                   >
-                    {m.label}
+                    <ArrowLeft size={16} /> {t("step_back")}
                   </button>
-                ))}
-              </div>
-
-              <Field label={t("checkout_name")}>
-                <input
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder={t("checkout_name_placeholder")}
-                  className="input"
-                  required
-                />
-              </Field>
-
-              <Field label={t("checkout_phone")}>
-                <input
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="+7 900 000-00-00"
-                  type="tel"
-                  className="input"
-                  required
-                />
-              </Field>
-
-              {method === "delivery" && (
-                <Field label={t("checkout_address")}>
-                  <input
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    placeholder={t("checkout_address_placeholder")}
-                    className="input"
-                  />
-                </Field>
-              )}
-
-              <Field label={t("checkout_comment")}>
-                <textarea
-                  value={comment}
-                  onChange={(e) => setComment(e.target.value)}
-                  placeholder={t("checkout_comment_placeholder")}
-                  rows={2}
-                  className="input resize-none"
-                />
-              </Field>
-
-              <Field label={t("promo_placeholder")}>
-                <div className="flex gap-2">
-                  <input
-                    value={promoInput}
-                    onChange={(e) => {
-                      setPromoInput(e.target.value);
-                      setPromo(null);
-                      setPromoError("");
-                    }}
-                    placeholder={t("promo_placeholder")}
-                    className="input uppercase"
-                  />
-                  <button
-                    type="button"
-                    onClick={applyPromo}
-                    disabled={promoChecking || !promoInput.trim()}
-                    className="shrink-0 rounded-xl bg-card-sunken px-4 text-[0.8rem] font-semibold text-body transition-colors hover:text-brand disabled:opacity-50"
-                  >
-                    {t("promo_apply")}
-                  </button>
-                </div>
-              </Field>
-
-              {promo && (
-                <p className="text-sm font-medium text-herb">
-                  {t("promo_applied")}: −{promo.discount} ₽
-                </p>
-              )}
-              {promoError && <p className="text-sm text-brand">{promoError}</p>}
-
-              {error && <p className="text-sm text-red-500">{error}</p>}
-
-              {/* Bottom padding so the last field never sits flush against
-                  the pinned footer below. */}
-              <div className="pb-1" />
-            </form>
-
-            <div ref={footerRef} className="shrink-0 border-t border-edge/70 px-6 pb-6 pt-4">
-              <div className="flex flex-col gap-1.5 rounded-xl bg-paper px-4 py-3">
-                {discount > 0 && (
-                  <div className="flex items-center justify-between text-sm text-herb">
-                    <span>{t("promo_discount")}</span>
-                    <span>−{discount} ₽</span>
-                  </div>
+                ) : (
+                  <h3 className="font-serif text-lg font-bold text-body">{t("checkout_title")}</h3>
                 )}
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted">{t("cart_total")}</span>
-                  <span className="text-lg font-semibold text-brand">{payable} ₽</span>
-                </div>
+                <button
+                  onClick={close}
+                  className="flex h-8 w-8 items-center justify-center rounded-full text-muted hover:bg-card-sunken"
+                >
+                  ✕
+                </button>
               </div>
 
-              <button
-                type="submit"
-                form="checkout-form"
-                disabled={submitting}
-                className="mt-3 flex w-full items-center justify-center gap-2 rounded-full bg-[#25D366] py-3 text-sm font-semibold text-white transition-transform hover:scale-[1.01] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                <WhatsAppIcon /> {submitting ? t("checkout_submitting") : t("checkout_submit")}
-              </button>
-              <p className="mt-2 text-center text-[0.72rem] text-muted">
-                {t("checkout_disclaimer")}
-              </p>
+              <StepIndicator step={step} onStepClick={setStep} />
             </div>
-            </motion.div>
-          </div>,
+
+            {/* Only this section scrolls; the footer stays pinned so the
+                primary button is always reachable. */}
+            <div
+              className="checkout-body flex flex-col gap-3.5 overflow-y-auto px-5"
+              style={bodyMaxHeight ? { maxHeight: bodyMaxHeight } : undefined}
+            >
+              {step === STEP_CART && (
+                <>
+                  {items.length === 0 ? (
+                    <p className="py-8 text-center text-sm text-muted">{t("cart_step_empty")}</p>
+                  ) : (
+                    <ul className="flex flex-col gap-2.5">
+                      {items.map((it) => (
+                        <li
+                          key={it.id}
+                          className="flex items-center gap-3 rounded-2xl bg-card-sunken/60 p-2.5"
+                        >
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-[0.88rem] font-medium text-body">
+                              {localized(it.name, lang)}
+                            </p>
+                            <p className="text-[0.8rem] font-semibold text-body">
+                              {it.price * it.qty} ₽
+                            </p>
+                          </div>
+
+                          <div className="flex shrink-0 items-center gap-1 rounded-full border border-edge bg-card p-1">
+                            <button
+                              onClick={() => setQty(it.id, it.qty - 1)}
+                              aria-label="−"
+                              className="flex h-7 w-7 items-center justify-center rounded-full text-body hover:text-brand"
+                            >
+                              <Minus size={14} />
+                            </button>
+                            <span className="min-w-[1.1rem] text-center text-sm font-semibold text-body">
+                              {it.qty}
+                            </span>
+                            <button
+                              onClick={() => setQty(it.id, it.qty + 1)}
+                              aria-label="+"
+                              className="flex h-7 w-7 items-center justify-center rounded-full text-body hover:text-brand"
+                            >
+                              <Plus size={14} />
+                            </button>
+                          </div>
+
+                          <button
+                            onClick={() => removeItem(it.id)}
+                            aria-label="delete"
+                            className="shrink-0 text-muted hover:text-brand"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                  {items.length > 0 && (
+                    <>
+                      <div className="flex gap-2">
+                        <input
+                          value={promoInput}
+                          onChange={(e) => {
+                            setPromoInput(e.target.value);
+                            setPromo(null);
+                            setPromoError("");
+                          }}
+                          placeholder={t("promo_placeholder")}
+                          className="input uppercase"
+                        />
+                        <button
+                          type="button"
+                          onClick={applyPromo}
+                          disabled={promoChecking || !promoInput.trim()}
+                          className="shrink-0 rounded-xl bg-card-sunken px-4 text-[0.8rem] font-semibold text-body transition-colors hover:text-brand disabled:opacity-50"
+                        >
+                          {t("promo_apply")}
+                        </button>
+                      </div>
+                      {promo && (
+                        <p className="text-sm font-medium text-herb">
+                          {t("promo_applied")}: −{promo.discount} ₽
+                        </p>
+                      )}
+                      {promoError && <p className="text-sm text-brand">{promoError}</p>}
+                    </>
+                  )}
+                </>
+              )}
+
+              {step === STEP_DELIVERY && (
+                <>
+                  <div className="flex gap-2 rounded-full bg-card-sunken p-1">
+                    {[
+                      { key: "delivery", label: t("checkout_method_delivery") },
+                      { key: "pickup", label: t("checkout_method_pickup") },
+                    ].map((m) => (
+                      <button
+                        type="button"
+                        key={m.key}
+                        onClick={() => setMethod(m.key)}
+                        className={`flex-1 rounded-full py-2 text-sm font-medium transition-colors ${
+                          method === m.key ? "bg-brand text-white" : "text-muted"
+                        }`}
+                      >
+                        {m.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  <Field label={t("checkout_name")}>
+                    <input
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder={t("checkout_name_placeholder")}
+                      className="input"
+                    />
+                  </Field>
+
+                  <Field label={t("checkout_phone")}>
+                    <input
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="+7 900 000-00-00"
+                      type="tel"
+                      className="input"
+                    />
+                  </Field>
+
+                  {method === "delivery" && (
+                    <Field label={t("checkout_address")}>
+                      <input
+                        value={address}
+                        onChange={(e) => setAddress(e.target.value)}
+                        placeholder={t("checkout_address_placeholder")}
+                        className="input"
+                      />
+                    </Field>
+                  )}
+
+                  <Field label={t("checkout_comment")}>
+                    <textarea
+                      value={comment}
+                      onChange={(e) => setComment(e.target.value)}
+                      placeholder={t("checkout_comment_placeholder")}
+                      rows={2}
+                      className="input resize-none"
+                    />
+                  </Field>
+                </>
+              )}
+
+              {step === STEP_PAYMENT && (
+                <>
+                  <p className="text-[0.72rem] font-medium uppercase tracking-[0.1em] text-muted">
+                    {t("pay_method")}
+                  </p>
+                  {[
+                    { key: "cash", label: t("pay_cash"), icon: Wallet },
+                    { key: "card_courier", label: t("pay_card_courier"), icon: CreditCard },
+                  ].map(({ key, label, icon: Icon }) => (
+                    <button
+                      type="button"
+                      key={key}
+                      onClick={() => setPayment(key)}
+                      className={`flex items-center gap-3 rounded-2xl border p-3.5 text-left transition-colors ${
+                        payment === key
+                          ? "border-brand bg-brand/5"
+                          : "border-edge hover:border-brand/50"
+                      }`}
+                    >
+                      <Icon size={19} className={payment === key ? "text-brand" : "text-muted"} />
+                      <span className="flex-1 text-[0.9rem] font-medium text-body">{label}</span>
+                      <span
+                        className={`h-4 w-4 rounded-full border-[5px] ${
+                          payment === key ? "border-brand" : "border-edge"
+                        }`}
+                      />
+                    </button>
+                  ))}
+
+                  <dl className="mt-1 flex flex-col gap-1.5 rounded-2xl bg-card-sunken/60 p-3.5 text-sm">
+                    <Row label={t("cart_subtotal")} value={`${subtotal} ₽`} />
+                    {discount > 0 && (
+                      <Row label={t("promo_discount")} value={`−${discount} ₽`} accent="herb" />
+                    )}
+                    <Row
+                      label={t("cart_delivery")}
+                      value={deliveryFee === 0 ? "—" : `${deliveryFee} ₽`}
+                    />
+                  </dl>
+                </>
+              )}
+
+              {error && <p className="text-sm text-brand">{error}</p>}
+              <div className="pb-1" />
+            </div>
+
+            <div ref={footerRef} className="shrink-0 border-t border-edge/70 px-5 pb-5 pt-3.5">
+              <div className="mb-3 flex items-center justify-between">
+                <span className="text-sm text-muted">{t("cart_total")}</span>
+                <span className="font-serif text-xl font-bold text-body">{payable} ₽</span>
+              </div>
+
+              {step < STEP_PAYMENT ? (
+                <button
+                  onClick={goNext}
+                  disabled={items.length === 0}
+                  className="flex w-full items-center justify-center gap-2 rounded-full bg-brand py-3.5 text-[0.92rem] font-semibold text-white transition-transform hover:scale-[1.01] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {t("step_next")} <ArrowRight size={17} />
+                </button>
+              ) : (
+                <>
+                  <button
+                    onClick={submit}
+                    disabled={submitting}
+                    className="flex w-full items-center justify-center gap-2 rounded-full bg-brand py-3.5 text-[0.92rem] font-semibold text-white transition-transform hover:scale-[1.01] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {submitting ? t("checkout_submitting") : t("checkout_submit")}
+                    {!submitting && <ArrowRight size={17} />}
+                  </button>
+                  <p className="mt-2.5 flex items-center justify-center gap-1.5 text-center text-[0.72rem] text-muted">
+                    <Lock size={12} /> {t("checkout_secure")}
+                  </p>
+                </>
+              )}
+            </div>
+          </motion.div>
+        </div>,
       ]}
       <style jsx global>{`
         .checkout-panel {
-          /* vh is computed against the layout viewport, which on mobile
-             can be taller than what's actually visible once the browser's
-             address bar is showing — that pushed the pinned total/submit
-             footer below the real screen edge. dvh tracks the visible
-             viewport instead; vh above stays as a fallback for browsers
-             that don't support dvh yet. */
-          max-height: 88vh;
+          /* vh is computed against the layout viewport, which on mobile can
+             be taller than what is actually visible once the address bar is
+             showing — that pushed the pinned footer below the screen edge.
+             dvh tracks the visible viewport; vh stays as the fallback. */
+          max-height: 90vh;
         }
         @supports (height: 100dvh) {
           .checkout-panel {
-            max-height: 88dvh;
+            max-height: 90dvh;
           }
         }
-        /* Fallback for the brief moment before JS measures the header/
-           footer and sets an explicit pixel max-height inline (or if JS
-           is disabled) — same reasoning as .checkout-panel above. */
-        .checkout-form-fields {
+        /* Fallback for the moment before JS measures header/footer. */
+        .checkout-body {
           max-height: 60vh;
         }
         @supports (height: 100dvh) {
-          .checkout-form-fields {
+          .checkout-body {
             max-height: 60dvh;
           }
         }
@@ -374,8 +514,8 @@ export default function CheckoutModal() {
           width: 100%;
           border-radius: 0.75rem;
           border: 1px solid rgb(var(--edge));
-          padding: 0.6rem 0.85rem;
-          font-size: 0.85rem;
+          padding: 0.65rem 0.85rem;
+          font-size: 0.88rem;
           outline: none;
           transition: border-color 0.2s;
           background: rgb(var(--card));
@@ -394,17 +534,20 @@ export default function CheckoutModal() {
 
 function Field({ label, children }) {
   return (
-    <label className="flex flex-col gap-1">
-      <span className="text-[0.75rem] font-medium text-muted">{label}</span>
+    <label className="flex flex-col gap-1.5">
+      <span className="text-[0.72rem] font-medium uppercase tracking-[0.08em] text-muted">
+        {label}
+      </span>
       {children}
     </label>
   );
 }
 
-function WhatsAppIcon() {
+function Row({ label, value, accent }) {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M12.04 2c-5.52 0-10 4.48-10 10 0 1.77.46 3.44 1.27 4.89L2 22l5.25-1.38A9.94 9.94 0 0 0 12.04 22c5.52 0 10-4.48 10-10s-4.48-10-10-10zm0 18.2a8.2 8.2 0 0 1-4.18-1.14l-.3-.18-3.12.82.83-3.04-.2-.31A8.2 8.2 0 1 1 20.24 12a8.2 8.2 0 0 1-8.2 8.2zm4.5-6.13c-.25-.12-1.47-.72-1.7-.8-.23-.08-.4-.12-.56.12-.17.25-.64.8-.79.96-.14.17-.29.19-.54.06-.25-.12-1.04-.38-1.98-1.22-.73-.65-1.23-1.46-1.37-1.7-.14-.25-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.15.16-.25.25-.42.08-.17.04-.31-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.41-.42-.56-.42-.14-.01-.31-.01-.48-.01-.17 0-.43.06-.66.31-.23.25-.86.84-.86 2.04 0 1.2.88 2.36 1 2.53.12.17 1.74 2.66 4.22 3.73.59.25 1.05.4 1.41.52.59.19 1.13.16 1.55.1.47-.07 1.47-.6 1.68-1.18.21-.58.21-1.08.15-1.18-.06-.1-.23-.16-.48-.28z" />
-    </svg>
+    <div className="flex items-center justify-between">
+      <dt className="text-muted">{label}</dt>
+      <dd className={accent === "herb" ? "font-medium text-herb" : "text-body"}>{value}</dd>
+    </div>
   );
 }
