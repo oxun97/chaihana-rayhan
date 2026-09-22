@@ -9,6 +9,7 @@ import { useAuth } from "@/context/AuthContext";
 import { localized } from "@/lib/menu";
 import { buildWhatsAppOrderUrl } from "@/lib/whatsapp";
 import { useVisualViewportHeight } from "@/lib/useVisualViewportHeight";
+import { useOverlay } from "@/lib/useOverlay";
 import StepIndicator from "@/components/site/StepIndicator";
 
 const STEP_CART = 0;
@@ -90,6 +91,8 @@ export default function CheckoutModal() {
     setStep(STEP_CART);
     setError("");
   };
+
+  useOverlay(isCheckoutOpen, close);
 
   async function applyPromo() {
     setPromoError("");

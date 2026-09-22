@@ -32,7 +32,7 @@ export default function PromoCard({ promo, onAction }) {
       {action && (
         <button
           onClick={onAction}
-          className="relative mt-4 flex w-fit items-center gap-2 rounded-full bg-[#F7F0E5] px-4 py-2 text-[0.78rem] font-semibold text-cocoa transition-transform hover:scale-[1.03] active:scale-95"
+          className="relative mt-4 flex min-h-[44px] w-fit items-center gap-2 rounded-full bg-[#F7F0E5] px-5 py-2 text-[0.78rem] font-semibold text-cocoa transition-transform hover:scale-[1.03] active:scale-95"
         >
           {action}
           <ArrowRight size={14} />

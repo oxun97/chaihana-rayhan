@@ -11,6 +11,7 @@ import { localized } from "@/lib/menu";
 import Logo from "@/components/site/Logo";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import ThemeToggle from "@/components/ThemeToggle";
+import { useOverlay } from "@/lib/useOverlay";
 
 const LINKS = [
   { id: "menu", key: "nav_menu" },
@@ -40,6 +41,12 @@ export default function Header() {
   useEffect(() => {
     if (searchOpen) inputRef.current?.focus();
   }, [searchOpen]);
+
+  // Escape closes both. The search bar keeps the page scrollable — its
+  // results are read against the menu behind it — while the mobile menu
+  // covers the screen and locks it.
+  useOverlay(searchOpen, () => setSearchOpen(false), { lockScroll: false });
+  useOverlay(mobileOpen, () => setMobileOpen(false));
 
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -120,6 +127,7 @@ export default function Header() {
 
           <button
             onClick={() => setCartOpen(true)}
+            aria-label={t("cart_title")}
             className="flex items-center gap-2.5 rounded-full bg-brand px-4 py-2.5 text-[0.85rem] font-semibold text-white transition-transform hover:scale-[1.02] active:scale-[0.98]"
           >
             <ShoppingCart size={16} />
@@ -136,7 +144,7 @@ export default function Header() {
         <button
           onClick={() => setMobileOpen((v) => !v)}
           aria-label={t("nav_menu")}
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-body"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-body"
         >
           {mobileOpen ? <X size={22} /> : <MenuIcon size={22} />}
         </button>
@@ -162,7 +170,7 @@ export default function Header() {
         <button
           onClick={() => setSearchOpen((v) => !v)}
           aria-label={t("search_placeholder")}
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-body"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-body"
         >
           {searchOpen ? <X size={20} /> : <Search size={20} />}
         </button>

@@ -76,7 +76,7 @@ export default function AdminBookingsPage() {
           <button
             key={f}
             onClick={() => setFilter(f)}
-            className={`shrink-0 rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors ${
+            className={`flex min-h-[44px] shrink-0 items-center rounded-full px-3.5 text-xs font-medium transition-colors ${
               filter === f
                 ? "bg-brand text-white"
                 : "border border-edge text-muted hover:border-brand hover:text-brand"
@@ -109,7 +109,7 @@ export default function AdminBookingsPage() {
               <div className="flex flex-wrap gap-x-5 gap-y-1.5 text-sm text-muted">
                 <a
                   href={`tel:${b.customer_phone}`}
-                  className="flex items-center gap-1.5 text-brand hover:underline"
+                  className="-my-2.5 flex items-center gap-1.5 py-2.5 text-brand hover:underline"
                 >
                   <Phone size={14} /> {b.customer_phone}
                 </a>
@@ -134,13 +134,13 @@ export default function AdminBookingsPage() {
                   <>
                     <button
                       onClick={() => setStatus(b.id, "confirmed")}
-                      className="rounded-full bg-herb px-4 py-1.5 text-xs font-semibold text-white"
+                      className="min-h-[44px] rounded-full bg-herb px-4 text-xs font-semibold text-white"
                     >
                       Подтвердить
                     </button>
                     <button
                       onClick={() => setStatus(b.id, "declined")}
-                      className="rounded-full border border-edge px-4 py-1.5 text-xs font-semibold text-muted hover:border-brand hover:text-brand"
+                      className="min-h-[44px] rounded-full border border-edge px-4 text-xs font-semibold text-muted hover:border-brand hover:text-brand"
                     >
                       Отклонить
                     </button>
@@ -149,7 +149,7 @@ export default function AdminBookingsPage() {
                 {b.status === "confirmed" && (
                   <button
                     onClick={() => setStatus(b.id, "done")}
-                    className="rounded-full border border-edge px-4 py-1.5 text-xs font-semibold text-muted hover:border-brand hover:text-brand"
+                    className="min-h-[44px] rounded-full border border-edge px-4 text-xs font-semibold text-muted hover:border-brand hover:text-brand"
                   >
                     Завершить
                   </button>

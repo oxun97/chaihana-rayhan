@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import i18n from "@/data/i18n.json";
+import AdminShell from "@/components/admin/AdminShell";
 
 const LANGS = ["ru", "uz"];
 const ICONS = ["spicy", "beef", "chicken", "lamb", "veg", "fish", "dairy"];
@@ -203,7 +204,35 @@ export default function AdminPage() {
   }
 
   return (
-    <AdminShell title="Меню" active="menu">
+    <AdminShell
+      title="Меню"
+      active="menu"
+      actions={
+        <>
+          {saveError ? (
+            <span className="max-w-[11rem] truncate text-[0.72rem] font-medium text-brand" title={saveError}>
+              {saveError}
+            </span>
+          ) : saveSuccess ? (
+            <span className="text-[0.72rem] font-medium text-herb">Сохранено</span>
+          ) : dirty ? (
+            <span className="text-[0.72rem] text-muted">Есть изменения</span>
+          ) : null}
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={saving || !dirty}
+            className="min-h-[44px] rounded-full bg-brand px-4 py-2 text-[0.8rem] font-semibold text-white transition-opacity disabled:opacity-40"
+          >
+            {saving ? "Сохраняем…" : "Сохранить"}
+          </button>
+        </>
+      }
+    >
+      {/* Sidebar beside the editor on a desktop, a scrollable strip of
+          category chips above it on a phone. AdminShell stacks its children
+          in a column, so the row has to be established here. */}
+      <div className="flex flex-col gap-4 md:flex-row">
         <aside className="flex shrink-0 flex-row gap-1.5 overflow-x-auto pb-1 md:w-56 md:flex-col md:overflow-visible md:pb-0">
           {categories.map((cat) => (
             <button
@@ -213,7 +242,7 @@ export default function AdminPage() {
                 setExpandedItemId(null);
                 setSearch("");
               }}
-              className={`shrink-0 rounded-xl px-3 py-2 text-left text-sm font-medium transition-colors ${
+              className={`flex min-h-[44px] shrink-0 items-center rounded-xl px-3 py-2 text-left text-sm font-medium transition-colors ${
                 activeCategoryId === cat.id
                   ? "bg-brand text-white"
                   : "bg-card text-muted hover:bg-brand/10"
@@ -264,7 +293,9 @@ export default function AdminPage() {
         </aside>
 
         {activeCategory && (
-          <main className="flex-1 rounded-2xl bg-card p-4 shadow-soft sm:p-5">
+          // A section, not a <main>: AdminShell already renders the page's
+          // single <main> around these children.
+          <section className="min-w-0 flex-1 rounded-2xl bg-card p-4 shadow-soft sm:p-5">
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-edge/70 pb-4">
               <PhotoUpload
                 label="Фото категории"
@@ -283,7 +314,7 @@ export default function AdminPage() {
               />
               <button
                 onClick={() => handleDeleteCategory(activeCategory.id)}
-                className="text-xs text-red-400 hover:text-red-600"
+                className="-my-2.5 min-h-[44px] px-2 py-2.5 text-xs text-red-400 hover:text-red-600"
               >
                 Удалить категорию
               </button>
@@ -318,7 +349,7 @@ export default function AdminPage() {
               />
               <button
                 onClick={handleAddItem}
-                className="shrink-0 rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                className="min-h-[44px] shrink-0 rounded-full bg-brand px-4 text-sm font-semibold text-white transition-opacity hover:opacity-90"
               >
                 + Блюдо
               </button>
@@ -346,11 +377,13 @@ export default function AdminPage() {
                 <li className="py-8 text-center text-sm text-muted">Ничего не найдено.</li>
               )}
             </ul>
-          </main>
+          </section>
         )}
+      </div>
 
       <style jsx global>{`
         .admin-input {
+          min-height: 44px;
           border-radius: 0.5rem;
           border: 1px solid rgb(var(--edge));
           padding: 0.4rem 0.65rem;
@@ -358,6 +391,9 @@ export default function AdminPage() {
           outline: none;
           background: rgb(var(--card));
           transition: border-color 0.2s;
+        }
+        textarea.admin-input {
+          min-height: 5rem;
         }
         .admin-input:focus {
           border-color: rgb(var(--brand));
@@ -370,15 +406,26 @@ export default function AdminPage() {
 function DishRow({ item, categoryId, expanded, onToggle, onDelete, onChange }) {
   return (
     <li className="rounded-xl border border-edge/70">
-      <div className="flex items-center gap-3 px-3 py-2.5">
+      {/* min-w-0 on every level of this row: a flex item defaults to
+          min-width:auto (its content's width), so without it a long dish
+          name refused to shrink and pushed the price/weight/delete button
+          off the right edge of the phone screen instead of truncating. */}
+      <div className="flex min-w-0 items-center gap-3 px-3 py-2.5">
         {item.imgSrc ? (
-          <img src={item.imgSrc} alt="" className="h-9 w-9 shrink-0 rounded-lg object-cover" />
+          <img src={item.imgSrc} alt="" className="h-11 w-11 shrink-0 rounded-lg object-cover" />
         ) : (
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-paper text-sm text-muted/40">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-paper text-sm text-muted/40">
             🍽️
           </div>
         )}
-        <button onClick={onToggle} className="flex flex-1 items-center gap-3 text-left">
+        {/* self-stretch: the parent centers the image/delete button on the
+            cross-axis (items-center), which otherwise left this button only
+            as tall as its own text — a tap just above or below the label
+            landed on the row's div instead, which has no handler. */}
+        <button
+          onClick={onToggle}
+          className="flex min-w-0 flex-1 items-center gap-3 self-stretch text-left"
+        >
           <span className="min-w-0 flex-1 truncate text-sm font-medium text-body">
             {item.featured && <span className="mr-1" title="В популярных">⭐</span>}
             {item.name.ru || <em className="text-muted">без названия</em>}
@@ -388,7 +435,11 @@ function DishRow({ item, categoryId, expanded, onToggle, onDelete, onChange }) {
             <span className="shrink-0 text-xs text-muted">{item.weight}</span>
           )}
         </button>
-        <button onClick={onDelete} className="shrink-0 text-muted/60 hover:text-red-500">
+        <button
+          onClick={onDelete}
+          aria-label="Удалить блюдо"
+          className="flex h-11 w-11 shrink-0 items-center justify-center text-muted/60 hover:text-red-500"
+        >
           ✕
         </button>
       </div>

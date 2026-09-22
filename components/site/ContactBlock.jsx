@@ -21,7 +21,7 @@ export default function ContactBlock() {
 
         <a
           href={`tel:${RESTAURANT_PHONE_TEL}`}
-          className="flex items-center gap-3 text-[0.9rem] text-body transition-colors hover:text-brand"
+          className="-my-2.5 flex items-center gap-3 py-2.5 text-[0.9rem] text-body transition-colors hover:text-brand"
         >
           <Phone size={18} className="shrink-0 text-brand" />
           {RESTAURANT_PHONE_DISPLAY}

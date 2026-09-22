@@ -102,7 +102,7 @@ export default function AdminPromosPage() {
           <button
             onClick={savePromos}
             disabled={saving || !promos}
-            className="rounded-full bg-brand px-5 py-2 text-sm font-semibold text-white disabled:opacity-50"
+            className="min-h-[44px] rounded-full bg-brand px-5 text-sm font-semibold text-white disabled:opacity-50"
           >
             {saving ? "Сохраняем…" : saved ? "Сохранено ✓" : "Сохранить"}
           </button>
@@ -127,9 +127,10 @@ export default function AdminPromosPage() {
                       </option>
                     ))}
                   </select>
-                  <label className="flex items-center gap-1.5 text-xs text-muted">
+                  <label className="flex min-h-[44px] items-center gap-1.5 py-2 text-xs text-muted">
                     <input
                       type="checkbox"
+                      className="h-4 w-4"
                       checked={p.is_active}
                       onChange={(e) => patchPromo(p.id, { is_active: e.target.checked })}
                     />
@@ -227,7 +228,7 @@ export default function AdminPromosPage() {
           />
           <button
             type="submit"
-            className="rounded-xl bg-brand px-4 py-2 text-sm font-semibold text-white"
+            className="min-h-[44px] rounded-xl bg-brand px-4 text-sm font-semibold text-white"
           >
             Добавить
           </button>
@@ -253,7 +254,7 @@ export default function AdminPromosPage() {
                 {!c.is_active && <span className="text-brand">выключен</span>}
                 <button
                   onClick={() => removeCode(c.code)}
-                  className="ml-auto text-xs text-brand hover:underline"
+                  className="-my-2.5 ml-auto min-h-[44px] px-2 py-2.5 text-xs text-brand hover:underline"
                 >
                   Удалить
                 </button>

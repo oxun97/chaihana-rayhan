@@ -58,7 +58,7 @@ export default function Footer() {
             </span>
             <a
               href={`tel:${RESTAURANT_PHONE_TEL}`}
-              className="flex items-center gap-2.5 transition-colors hover:text-saffron"
+              className="-my-2.5 flex items-center gap-2.5 py-2.5 transition-colors hover:text-saffron"
             >
               <Phone size={16} className="shrink-0 text-saffron" />
               {RESTAURANT_PHONE_DISPLAY}
@@ -89,7 +89,7 @@ export default function Footer() {
                       behavior: "smooth",
                     });
                 }}
-                className="text-left transition-colors hover:text-saffron"
+                className="py-2.5 text-left transition-colors hover:text-saffron"
               >
                 {t(l.key)}
               </button>

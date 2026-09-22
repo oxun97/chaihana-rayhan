@@ -32,11 +32,11 @@ export default function AdminShell({ title, active, actions, children }) {
           <h1 className="font-serif text-lg font-bold text-body">{title}</h1>
           <div className="ml-auto flex items-center gap-2">
             {actions}
-            <ThemeToggle />
+            <ThemeToggle size="h-11 w-11" />
             <Link
               href="/"
               title="Открыть сайт"
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-edge text-muted transition-colors hover:border-brand hover:text-brand"
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-edge text-muted transition-colors hover:border-brand hover:text-brand"
             >
               <ExternalLink size={16} />
             </Link>
@@ -50,7 +50,7 @@ export default function AdminShell({ title, active, actions, children }) {
               <Link
                 key={key}
                 href={href}
-                className={`flex shrink-0 items-center gap-1.5 rounded-full px-3.5 py-2 text-[0.82rem] font-medium transition-colors ${
+                className={`flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full px-3.5 py-2.5 text-[0.82rem] font-medium transition-colors ${
                   isActive
                     ? "bg-brand text-white"
                     : "border border-edge text-muted hover:border-brand hover:text-brand"
@@ -69,6 +69,7 @@ export default function AdminShell({ title, active, actions, children }) {
       <style jsx global>{`
         .admin-field {
           width: 100%;
+          min-height: 44px;
           border-radius: 0.65rem;
           border: 1px solid rgb(var(--edge));
           background: rgb(var(--card));
@@ -77,6 +78,9 @@ export default function AdminShell({ title, active, actions, children }) {
           font-size: 0.85rem;
           outline: none;
           transition: border-color 0.2s;
+        }
+        textarea.admin-field {
+          min-height: 5.5rem;
         }
         .admin-field::placeholder {
           color: rgb(var(--muted));

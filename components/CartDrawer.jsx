@@ -7,9 +7,15 @@ import { useLang } from "@/context/LangContext";
 import { useCart } from "@/context/CartContext";
 import { localized } from "@/lib/menu";
 import { useVisualViewportHeight } from "@/lib/useVisualViewportHeight";
+import { useOverlay } from "@/lib/useOverlay";
 
-// The mobile/tablet cart — a slide-up sheet. Hidden at lg+, where
-// CartSidebar shows the cart permanently in the page layout instead.
+// The cart, at every width: a full slide-up sheet on a phone, a compact
+// flyout anchored bottom-right from `sm:` up. It used to hide itself at
+// `lg:` on the assumption that CartSidebar would take over as a permanent
+// column there — CartSidebar was never wired into the page, so the cart
+// icon in the desktop header opened nothing, and checkout was unreachable
+// above 1024px. This is the one place `setCheckoutOpen(true)` was still
+// reachable from, so it now renders everywhere instead.
 export default function CartDrawer() {
   const { lang, t } = useLang();
   const viewportHeight = useVisualViewportHeight();
@@ -25,6 +31,8 @@ export default function CartDrawer() {
     setCartOpen,
     setCheckoutOpen,
   } = useCart();
+
+  useOverlay(isCartOpen, () => setCartOpen(false));
 
   const headerRef = useRef(null);
   const footerRef = useRef(null);
@@ -57,7 +65,7 @@ export default function CartDrawer() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setCartOpen(false)}
-            className="fixed inset-0 z-50 bg-cocoa/60 backdrop-blur-sm lg:hidden"
+            className="fixed inset-0 z-50 bg-cocoa/60 backdrop-blur-sm"
           />,
           <motion.div
             key="panel"
@@ -65,7 +73,7 @@ export default function CartDrawer() {
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
             transition={{ type: "spring", damping: 32, stiffness: 320 }}
-            className="cart-drawer-panel fixed inset-x-0 bottom-0 z-50 flex flex-col rounded-t-2xl border border-edge bg-card shadow-lift sm:inset-x-auto sm:right-4 sm:bottom-4 sm:w-[380px] sm:rounded-2xl lg:hidden"
+            className="cart-drawer-panel fixed inset-x-0 bottom-0 z-50 flex flex-col rounded-t-2xl border border-edge bg-card shadow-lift sm:inset-x-auto sm:right-4 sm:bottom-4 sm:w-[380px] sm:rounded-2xl"
             style={viewportHeight ? { maxHeight: Math.round(viewportHeight * 0.85) } : undefined}
           >
             <div

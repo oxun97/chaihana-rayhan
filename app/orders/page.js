@@ -61,14 +61,14 @@ export default function OrdersPage() {
         <div className="mb-6 flex items-center justify-between">
           <Link
             href="/"
-            className="flex items-center gap-1.5 text-sm font-medium text-muted hover:text-brand"
+            className="-ml-2 flex items-center gap-1.5 px-2 py-3 text-sm font-medium text-muted hover:text-brand"
           >
             <ArrowLeft size={16} /> {t("hero_title")}
           </Link>
           {client && (
             <button
               onClick={logout}
-              className="flex items-center gap-1.5 text-sm font-medium text-muted hover:text-brand"
+              className="-mr-2 flex items-center gap-1.5 px-2 py-3 text-sm font-medium text-muted hover:text-brand"
             >
               <LogOut size={16} /> {t("nav_logout")}
             </button>
@@ -228,7 +228,7 @@ function TelegramCard() {
         <button
           onClick={linked ? disconnect : connect}
           disabled={busy}
-          className={`shrink-0 rounded-full px-5 py-2 text-xs font-semibold transition-transform hover:scale-[1.02] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 ${
+          className={`min-h-[44px] shrink-0 rounded-full px-5 py-2 text-xs font-semibold transition-transform hover:scale-[1.02] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 ${
             linked
               ? "border border-edge text-muted hover:text-brand"
               : "bg-brand text-white"
@@ -315,7 +315,7 @@ function OrderCard({ order }) {
         <span className="text-xs text-muted">{repeatNote}</span>
         <button
           onClick={repeat}
-          className="flex shrink-0 items-center gap-1.5 rounded-full border border-edge px-4 py-2 text-xs font-semibold text-body transition-colors hover:border-brand hover:text-brand"
+          className="flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full border border-edge px-4 py-2 text-xs font-semibold text-body transition-colors hover:border-brand hover:text-brand"
         >
           <RotateCcw size={14} />
           {t("repeat_order")}

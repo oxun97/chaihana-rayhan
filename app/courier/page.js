@@ -173,7 +173,7 @@ function OrdersBoard({ courier, onLoggedOut }) {
       <div className="mx-auto flex max-w-xl flex-col gap-6">
         <div className="flex items-center justify-between">
           <h1 className="font-serif text-lg font-bold text-body">Привет, {courier.name}</h1>
-          <button onClick={logout} className="text-xs text-muted underline hover:text-brand">
+          <button onClick={logout} className="-mr-2 flex min-h-[44px] items-center px-2 text-xs text-muted underline hover:text-brand">
             Выйти
           </button>
         </div>
@@ -193,7 +193,7 @@ function OrdersBoard({ courier, onLoggedOut }) {
                   <button
                     disabled={busyId === order.id}
                     onClick={() => complete(order.id)}
-                    className="w-full rounded-full bg-brand py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+                    className="min-h-[48px] w-full rounded-full bg-brand py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
                   >
                     Доставлено
                   </button>
@@ -214,7 +214,7 @@ function OrdersBoard({ courier, onLoggedOut }) {
                   <button
                     disabled={busyId === order.id}
                     onClick={() => take(order.id)}
-                    className="w-full rounded-full border-2 border-edge py-2 text-sm font-semibold text-brand hover:bg-brand hover:text-body disabled:opacity-50"
+                    className="min-h-[48px] w-full rounded-full border-2 border-edge py-2 text-sm font-semibold text-brand hover:bg-brand hover:text-white disabled:opacity-50"
                   >
                     Взять в доставку
                   </button>
@@ -236,7 +236,10 @@ function OrderCard({ order, children }) {
         <span className="text-sm font-semibold text-brand">{order.total} ₽</span>
       </div>
       <p className="mt-1 text-sm text-body">{order.customer_name}</p>
-      <a href={`tel:${order.customer_phone}`} className="text-sm text-brand hover:underline">
+      <a
+        href={`tel:${order.customer_phone}`}
+        className="-my-2.5 inline-block py-2.5 text-sm text-brand hover:underline"
+      >
         {order.customer_phone}
       </a>
       {order.address && <p className="mt-1 text-sm text-muted">{order.address}</p>}

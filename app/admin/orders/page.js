@@ -134,7 +134,7 @@ export default function AdminOrdersPage() {
             <button
               key={s}
               onClick={() => setFilter(s)}
-              className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+              className={`flex min-h-[44px] shrink-0 items-center rounded-full px-3.5 text-xs font-medium transition-colors ${
                 filter === s ? "bg-brand text-white" : "bg-card text-muted hover:bg-brand/10"
               }`}
             >
@@ -188,7 +188,10 @@ function OrderCard({ order, couriers, busy, onChangeStatus, onAssignCourier }) {
         </div>
         <div className="text-right text-sm">
           <p className="font-semibold text-body">{order.customer_name}</p>
-          <a href={`tel:${order.customer_phone}`} className="text-brand hover:underline">
+          <a
+            href={`tel:${order.customer_phone}`}
+            className="-my-2.5 inline-block py-2.5 text-brand hover:underline"
+          >
             {order.customer_phone}
           </a>
         </div>
@@ -222,7 +225,7 @@ function OrderCard({ order, couriers, busy, onChangeStatus, onAssignCourier }) {
             key={status}
             disabled={busy}
             onClick={() => onChangeStatus(status)}
-            className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors disabled:opacity-50 ${
+            className={`min-h-[44px] rounded-full px-3.5 text-xs font-semibold transition-colors disabled:opacity-50 ${
               status === "cancelled"
                 ? "border border-red-300 text-red-500 hover:bg-red-50"
                 : "bg-brand text-white transition-opacity hover:opacity-90"
@@ -251,6 +254,7 @@ function OrderCard({ order, couriers, busy, onChangeStatus, onAssignCourier }) {
 
       <style jsx global>{`
         .admin-input {
+          min-height: 44px;
           border-radius: 0.5rem;
           border: 1px solid rgb(var(--edge));
           padding: 0.4rem 0.65rem;
@@ -301,7 +305,7 @@ function CourierManager({ couriers, onCreated }) {
         <h2 className="font-serif text-base font-bold text-body">Курьеры</h2>
         <button
           onClick={() => setOpen((v) => !v)}
-          className="rounded-full border border-edge/40 px-3 py-1.5 text-xs font-medium text-muted hover:border-brand hover:text-brand"
+          className="min-h-[44px] rounded-full border border-edge/40 px-3.5 text-xs font-medium text-muted hover:border-brand hover:text-brand"
         >
           {open ? "Отмена" : "+ Курьер"}
         </button>

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useLang } from "@/context/LangContext";
 import { useAuth } from "@/context/AuthContext";
+import { useOverlay } from "@/lib/useOverlay";
 
 export default function AuthModal() {
   const { t } = useLang();
@@ -20,6 +21,8 @@ export default function AuthModal() {
     setError("");
     setSubmitting(false);
   };
+
+  useOverlay(authModalOpen, close);
 
   const switchTab = (next) => {
     setTab(next);
