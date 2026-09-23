@@ -47,17 +47,30 @@ export default function AdminOrdersPage() {
   // — a fast double-tap can fire two requests before that happens. This ref
   // is a synchronous lock that closes that race window immediately.
   const requestInFlight = useRef(false);
+  // The 15s poll below and the explicit reload after changeStatus()/
+  // assignCourier() race each other: nothing stopped an older poll
+  // response, still in flight when an admin clicked "Отменён", from
+  // landing after the newer one and silently overwriting the order back
+  // to its pre-click status — the list looked like the click hadn't
+  // happened even though it had. This ticket makes a response apply only
+  // if it's still the most recent request.
+  const loadTicket = useRef(0);
 
   const loadOrders = () => {
+    const ticket = ++loadTicket.current;
     const qs = filter === "all" ? "" : `?status=${filter}`;
     fetch(`/api/admin/orders${qs}`)
       .then((res) => res.json())
       .then((data) => {
+        if (ticket !== loadTicket.current) return;
         if (data.error) throw new Error(data.error);
         setOrders(data.orders);
         setLoadError("");
       })
-      .catch((e) => setLoadError(e.message || "Не удалось загрузить заказы."));
+      .catch((e) => {
+        if (ticket !== loadTicket.current) return;
+        setLoadError(e.message || "Не удалось загрузить заказы.");
+      });
   };
 
   const loadCouriers = () => {

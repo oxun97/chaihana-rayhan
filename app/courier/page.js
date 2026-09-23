@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function CourierPage() {
   const [courier, setCourier] = useState(undefined); // undefined = loading, null = logged out
@@ -109,16 +109,25 @@ function OrdersBoard({ courier, onLoggedOut }) {
   const [data, setData] = useState(null);
   const [error, setError] = useState("");
   const [busyId, setBusyId] = useState(null);
+  // Same race as /admin/orders: the 12s poll and the reload after take()/
+  // complete() can resolve out of order and silently undo the courier's
+  // own action on screen. See the comment there.
+  const loadTicket = useRef(0);
 
   const load = () => {
+    const ticket = ++loadTicket.current;
     fetch("/api/courier/orders")
       .then((res) => res.json())
       .then((d) => {
+        if (ticket !== loadTicket.current) return;
         if (d.error) throw new Error(d.error);
         setData(d);
         setError("");
       })
-      .catch((e) => setError(e.message || "Не удалось загрузить заказы."));
+      .catch((e) => {
+        if (ticket !== loadTicket.current) return;
+        setError(e.message || "Не удалось загрузить заказы.");
+      });
   };
 
   useEffect(() => {
