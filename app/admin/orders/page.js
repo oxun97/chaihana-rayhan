@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import AdminShell from "@/components/admin/AdminShell";
+import { fetchFresh } from "@/lib/fetchFresh";
 
 const STATUS_LABELS = {
   new: "Новый",
@@ -59,7 +60,7 @@ export default function AdminOrdersPage() {
   const loadOrders = () => {
     const ticket = ++loadTicket.current;
     const qs = filter === "all" ? "" : `?status=${filter}`;
-    fetch(`/api/admin/orders${qs}`)
+    fetchFresh(`/api/admin/orders${qs}`)
       .then((res) => res.json())
       .then((data) => {
         if (ticket !== loadTicket.current) return;
@@ -74,7 +75,7 @@ export default function AdminOrdersPage() {
   };
 
   const loadCouriers = () => {
-    fetch("/api/admin/couriers")
+    fetchFresh("/api/admin/couriers")
       .then((res) => res.json())
       .then((data) => setCouriers(data.couriers || []))
       .catch(() => {});

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import AdminShell from "@/components/admin/AdminShell";
+import { fetchFresh } from "@/lib/fetchFresh";
 
 const STATUS_LABELS = {
   new: "Новый",
@@ -16,7 +17,7 @@ export default function AdminDashboardPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch("/api/admin/dashboard")
+    fetchFresh("/api/admin/dashboard")
       .then((res) => res.json())
       .then((data) => {
         if (data.error) throw new Error(data.error);

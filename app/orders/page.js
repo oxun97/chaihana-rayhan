@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, LogOut, PackageOpen, Send, Check, RotateCcw } from "lucide-react";
+import { fetchFresh } from "@/lib/fetchFresh";
 import { useLang } from "@/context/LangContext";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
@@ -46,7 +47,7 @@ export default function OrdersPage() {
       setOrders(null);
       return;
     }
-    fetch("/api/auth/orders")
+    fetchFresh("/api/auth/orders")
       .then((res) => res.json())
       .then((data) => {
         if (data.orders) setOrders(data.orders);

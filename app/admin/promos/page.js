@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import AdminShell from "@/components/admin/AdminShell";
+import { fetchFresh } from "@/lib/fetchFresh";
 
 const TONES = [
   { value: "red", label: "Красная" },
@@ -28,7 +29,7 @@ export default function AdminPromosPage() {
   const [saved, setSaved] = useState(false);
 
   const load = () => {
-    fetch("/api/admin/promos")
+    fetchFresh("/api/admin/promos")
       .then((res) => res.json())
       .then((data) => {
         if (data.error) throw new Error(data.error);

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Phone, Users, Clock } from "lucide-react";
 import AdminShell from "@/components/admin/AdminShell";
+import { fetchFresh } from "@/lib/fetchFresh";
 
 const STATUS_LABELS = {
   new: "Новая",
@@ -30,7 +31,7 @@ export default function AdminBookingsPage() {
 
   const load = (f = filter) => {
     const qs = f === "all" ? "" : `?status=${f}`;
-    fetch(`/api/admin/bookings${qs}`)
+    fetchFresh(`/api/admin/bookings${qs}`)
       .then((res) => res.json())
       .then((data) => {
         if (data.error) throw new Error(data.error);

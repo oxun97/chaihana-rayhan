@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { fetchFresh } from "@/lib/fetchFresh";
 
 export default function CourierPage() {
   const [courier, setCourier] = useState(undefined); // undefined = loading, null = logged out
 
   const loadMe = () => {
-    fetch("/api/courier/me")
+    fetchFresh("/api/courier/me")
       .then((res) => res.json())
       .then((data) => setCourier(data.courier))
       .catch(() => setCourier(null));
@@ -116,7 +117,7 @@ function OrdersBoard({ courier, onLoggedOut }) {
 
   const load = () => {
     const ticket = ++loadTicket.current;
-    fetch("/api/courier/orders")
+    fetchFresh("/api/courier/orders")
       .then((res) => res.json())
       .then((d) => {
         if (ticket !== loadTicket.current) return;

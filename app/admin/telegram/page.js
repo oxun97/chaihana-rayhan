@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import AdminShell from "@/components/admin/AdminShell";
+import { fetchFresh } from "@/lib/fetchFresh";
 
 export default function AdminTelegramPage() {
   const [subscribers, setSubscribers] = useState(null);
@@ -17,7 +18,7 @@ export default function AdminTelegramPage() {
   const loadStatus = () => {
     setStatusBusy(true);
     setStatusError("");
-    fetch("/api/admin/telegram/status")
+    fetchFresh("/api/admin/telegram/status")
       .then((res) => res.json().then((data) => ({ ok: res.ok, data })))
       .then(({ ok, data }) => {
         if (!ok) throw new Error(data.error);
@@ -28,7 +29,7 @@ export default function AdminTelegramPage() {
   };
 
   const loadSubscribers = () => {
-    fetch("/api/admin/telegram/subscribers")
+    fetchFresh("/api/admin/telegram/subscribers")
       .then((res) => res.json())
       .then((data) => {
         if (data.error) throw new Error(data.error);

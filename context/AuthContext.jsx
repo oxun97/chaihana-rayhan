@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
+import { fetchFresh } from "@/lib/fetchFresh";
 
 const AuthContext = createContext(null);
 
@@ -9,7 +10,7 @@ export function AuthProvider({ children }) {
   const [authModalOpen, setAuthModalOpen] = useState(false);
 
   const refresh = () => {
-    fetch("/api/auth/me")
+    fetchFresh("/api/auth/me")
       .then((res) => res.json())
       .then((data) => setClient(data.client))
       .catch(() => setClient(null));

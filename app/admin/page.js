@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import i18n from "@/data/i18n.json";
 import AdminShell from "@/components/admin/AdminShell";
+import { fetchFresh } from "@/lib/fetchFresh";
 
 const LANGS = ["ru", "uz"];
 const ICONS = ["spicy", "beef", "chicken", "lamb", "veg", "fish", "dairy"];
@@ -53,7 +54,7 @@ export default function AdminPage() {
 
   useEffect(() => {
     let cancelled = false;
-    fetch("/api/admin/menu")
+    fetchFresh("/api/admin/menu")
       .then((res) => {
         if (!res.ok) throw new Error("load-failed");
         return res.json();
