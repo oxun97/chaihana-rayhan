@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowLeft, ArrowRight, Minus, Plus, Trash2, Wallet, CreditCard, Lock } from "lucide-react";
+import { ArrowLeft, ArrowRight, Minus, Plus, Trash2, Wallet, CreditCard, ShieldCheck, Lock } from "lucide-react";
 import { useLang } from "@/context/LangContext";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
@@ -146,6 +146,37 @@ export default function CheckoutModal() {
     setSubmitting(true);
 
     const customer = { name, phone, method, address, comment };
+
+    // Online card payment takes a different path entirely: no order
+    // exists yet (see lib/payments-server.js — it's only created once
+    // YooKassa confirms the charge), so there is nothing to send to
+    // WhatsApp and the cart must survive an abandoned or failed payment.
+    if (payment === "card_online") {
+      try {
+        const res = await fetch("/api/payments/yookassa/create", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            customer,
+            items,
+            lang,
+            promoCode: promo?.code || null,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok || !data.confirmationUrl) {
+          throw new Error(data.error || t("checkout_payment_error"));
+        }
+        // Full navigation, not clearCart()/close(): the guest is leaving
+        // for YooKassa's own page and coming back to /order/payment-result
+        // — the cart stays intact until payment is actually confirmed.
+        window.location.href = data.confirmationUrl;
+      } catch (e) {
+        setError(e.message || t("checkout_payment_error"));
+        setSubmitting(false);
+      }
+      return;
+    }
 
     // Persisting the order is best-effort: WhatsApp is the guaranteed
     // channel to the restaurant, so a database hiccup must never block the
@@ -420,6 +451,7 @@ export default function CheckoutModal() {
                   {[
                     { key: "cash", label: t("pay_cash"), icon: Wallet },
                     { key: "card_courier", label: t("pay_card_courier"), icon: CreditCard },
+                    { key: "card_online", label: t("pay_card_online"), icon: ShieldCheck },
                   ].map(({ key, label, icon: Icon }) => (
                     <button
                       type="button"
@@ -479,7 +511,13 @@ export default function CheckoutModal() {
                     disabled={submitting}
                     className="flex w-full items-center justify-center gap-2 rounded-full bg-brand py-3.5 text-[0.92rem] font-semibold text-white transition-transform hover:scale-[1.01] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    {submitting ? t("checkout_submitting") : t("checkout_submit")}
+                    {submitting
+                      ? payment === "card_online"
+                        ? t("checkout_redirecting")
+                        : t("checkout_submitting")
+                      : payment === "card_online"
+                        ? t("checkout_pay_online")
+                        : t("checkout_submit")}
                     {!submitting && <ArrowRight size={17} />}
                   </button>
                   <p className="mt-2.5 flex items-center justify-center gap-1.5 text-center text-[0.72rem] text-muted">

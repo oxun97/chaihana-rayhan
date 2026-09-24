@@ -180,7 +180,11 @@
       "install_lead": "Чайхана Райхан на домашнем экране — заказ в два тапа, без браузера.",
       "install_action": "Установить",
       "install_ios_lead": "Нажмите «Поделиться», затем «На экран „Домой“» — и чайхана будет под рукой.",
-      "install_dismiss": "Скрыть"
+      "install_dismiss": "Скрыть",
+      "pay_card_online": "Картой онлайн",
+      "checkout_pay_online": "Перейти к оплате",
+      "checkout_redirecting": "Переходим к оплате…",
+      "checkout_payment_error": "Не удалось начать оплату. Попробуйте ещё раз."
     },
     "uz": {
       "code": "uz",
@@ -362,7 +366,11 @@
       "install_lead": "Chayxona Rayhon asosiy ekranda — ikki bosishda buyurtma, brauzersiz.",
       "install_action": "O'rnatish",
       "install_ios_lead": "«Ulashish» tugmasini bosing, so'ng «Uy ekraniga» ni tanlang — chayxona doim yoningizda.",
-      "install_dismiss": "Yopish"
+      "install_dismiss": "Yopish",
+      "pay_card_online": "Onlayn karta bilan",
+      "checkout_pay_online": "To'lovga o'tish",
+      "checkout_redirecting": "To'lovga o'tilmoqda…",
+      "checkout_payment_error": "To'lovni boshlab bo'lmadi. Qayta urinib ko'ring."
     }
   },
   "icons": {
