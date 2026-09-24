@@ -316,7 +316,7 @@ function TelegramCard() {
               {linked ? t("tg_notify_connected") : t("tg_notify_title")}
             </p>
             <p className="mt-0.5 text-xs text-muted">
-              {waiting ? t("tg_notify_waiting") : linked ? "" : t("tg_notify_hint")}
+              {waiting ? t("tg_notify_waiting") : linked ? t("tg_notify_linked_hint") : t("tg_notify_hint")}
             </p>
           </div>
         </div>
