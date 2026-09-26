@@ -23,6 +23,7 @@ export default function CheckoutModal() {
     subtotal,
     deliveryFee,
     total,
+    minDeliveryOrder,
     setQty,
     removeItem,
     isCheckoutOpen,
@@ -53,8 +54,18 @@ export default function CheckoutModal() {
 
   // Preview only: create_order() re-prices the code, so nothing charged
   // depends on these numbers.
+  // CartContext's own deliveryFee always assumes delivery (it has no
+  // notion of pickup vs. delivery) — correct for the mini-cart preview
+  // before checkout starts, but wrong once "Самовывоз" is picked here.
+  const effectiveDeliveryFee = method === "pickup" ? 0 : deliveryFee;
+  const effectiveTotal = subtotal + effectiveDeliveryFee;
   const discount = promo?.discount || 0;
-  const payable = Math.max(0, total - discount);
+  const payable = Math.max(0, effectiveTotal - discount);
+
+  // A courier trip costs the restaurant money regardless of what's in the
+  // bag, so delivery (not pickup) carries a minimum — mirrors the same
+  // rule enforced in create_order(), which is the real guard.
+  const belowMinDelivery = method === "delivery" && subtotal < minDeliveryOrder;
 
   // Flex's flex-1/min-h-0 shrink math did not reliably constrain height on
   // every mobile browser we tested — the footer ended up clipped with no
@@ -137,6 +148,10 @@ export default function CheckoutModal() {
         setError(t("checkout_required"));
         return;
       }
+      if (belowMinDelivery) {
+        setError(`${t("checkout_min_order")} — ${minDeliveryOrder} ₽`);
+        return;
+      }
       setStep(STEP_PAYMENT);
     }
   }
@@ -182,7 +197,7 @@ export default function CheckoutModal() {
     // channel to the restaurant, so a database hiccup must never block the
     // order — it just won't carry an order number.
     let orderNumber = null;
-    let priced = { subtotal, deliveryFee, discount: 0, total };
+    let priced = { subtotal, deliveryFee: effectiveDeliveryFee, discount: 0, total: effectiveTotal };
     try {
       const res = await fetch("/api/orders", {
         method: "POST",
@@ -401,6 +416,13 @@ export default function CheckoutModal() {
                     ))}
                   </div>
 
+                  {belowMinDelivery && (
+                    <p className="rounded-xl bg-saffron/10 px-3.5 py-2.5 text-[0.8rem] text-cocoa">
+                      {t("checkout_min_order")} — {minDeliveryOrder} ₽. {t("checkout_min_order_add")}{" "}
+                      <span className="font-semibold">{minDeliveryOrder - subtotal} ₽</span>
+                    </p>
+                  )}
+
                   <Field label={t("checkout_name")}>
                     <input
                       value={name}
@@ -480,7 +502,7 @@ export default function CheckoutModal() {
                     )}
                     <Row
                       label={t("cart_delivery")}
-                      value={deliveryFee === 0 ? "—" : `${deliveryFee} ₽`}
+                      value={effectiveDeliveryFee === 0 ? "—" : `${effectiveDeliveryFee} ₽`}
                     />
                   </dl>
                 </>

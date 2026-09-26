@@ -8,6 +8,7 @@ const CartContext = createContext(null);
 const STORAGE_KEY = "chaihana_cart_v1";
 const FREE_DELIVERY_FROM = 2000;
 const DELIVERY_FEE = 100;
+const MIN_DELIVERY_ORDER = 1000;
 
 // The cart is a flat { [dishId]: qty } map. A stored `null`, an array, or
 // quantities left over from an older shape used to crash the page instead
@@ -90,6 +91,7 @@ export function CartProvider({ children }) {
     deliveryFee,
     total,
     freeDeliveryFrom: FREE_DELIVERY_FROM,
+    minDeliveryOrder: MIN_DELIVERY_ORDER,
     addItem,
     setQty,
     removeItem,
