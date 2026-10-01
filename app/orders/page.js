@@ -26,6 +26,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
 import { useMenu } from "@/context/MenuContext";
 import { CATEGORY_EMOJI } from "@/lib/menu";
+import { readJson } from "@/lib/readJson";
 
 const STATUS_KEYS = {
   new: "status_new",
@@ -77,7 +78,7 @@ export default function OrdersPage() {
       return;
     }
     fetchFresh("/api/auth/orders")
-      .then((res) => res.json())
+      .then(readJson)
       .then((data) => {
         if (data.orders) setOrders(data.orders);
         else setError(data.error || "Не удалось загрузить заказы.");
@@ -257,7 +258,7 @@ function TelegramCard() {
     setBusy(true);
     try {
       const res = await fetch("/api/auth/telegram-link", { method: "POST" });
-      const data = await res.json();
+      const data = await readJson(res);
       if (!res.ok) throw new Error(data.error || t("tg_notify_unavailable"));
 
       window.open(data.url, "_blank", "noopener,noreferrer");
@@ -285,7 +286,7 @@ function TelegramCard() {
     try {
       const res = await fetch("/api/auth/telegram-link", { method: "DELETE" });
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
+        const data = await readJson(res);
         throw new Error(data.error || t("tg_notify_unavailable"));
       }
       refresh();

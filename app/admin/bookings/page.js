@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Phone, Users, Clock } from "lucide-react";
 import AdminShell from "@/components/admin/AdminShell";
 import { fetchFresh } from "@/lib/fetchFresh";
+import { readJson } from "@/lib/readJson";
 
 const STATUS_LABELS = {
   new: "Новая",
@@ -32,7 +33,7 @@ export default function AdminBookingsPage() {
   const load = (f = filter) => {
     const qs = f === "all" ? "" : `?status=${f}`;
     fetchFresh(`/api/admin/bookings${qs}`)
-      .then((res) => res.json())
+      .then(readJson)
       .then((data) => {
         if (data.error) throw new Error(data.error);
         setBookings(data.bookings);
@@ -54,7 +55,7 @@ export default function AdminBookingsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id, status }),
       });
-      const data = await res.json();
+      const data = await readJson(res);
       if (!res.ok) throw new Error(data.error);
       load(filter);
     } catch (e) {

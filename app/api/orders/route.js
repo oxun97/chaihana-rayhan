@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createOrder } from "@/lib/orders-server";
 import { getClientSession, CLIENT_COOKIE } from "@/lib/auth-server";
+import { notifyOrderSaveFailed } from "@/lib/telegram";
 
 export const dynamic = "force-dynamic";
 
@@ -59,6 +60,13 @@ export async function POST(request) {
     return NextResponse.json({ ok: true, order });
   } catch (e) {
     console.error("Failed to create order:", e);
+    // The checkout still hands the order to WhatsApp, so the guest is not
+    // stuck — but staff must hear that the site stopped storing orders.
+    try {
+      await notifyOrderSaveFailed({ customer: body.customer, items: body.items, reason: e?.message });
+    } catch (alertErr) {
+      console.error("Failed to send the order-save alert:", alertErr);
+    }
     return NextResponse.json({ error: "Не удалось сохранить заказ." }, { status: 500 });
   }
 }

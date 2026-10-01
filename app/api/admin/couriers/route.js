@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { hashPassword } from "@/lib/password";
+import { normalizePhone } from "@/lib/phone";
 
 // Gated by middleware.js (Basic Auth on /api/admin/:path*).
 export const dynamic = "force-dynamic";
@@ -28,11 +29,11 @@ export async function POST(request) {
   }
 
   const name = (body?.name || "").trim();
-  const phone = (body?.phone || "").trim();
+  const phone = normalizePhone(body?.phone);
   const password = body?.password || "";
 
   if (!name) return NextResponse.json({ error: "Укажите имя курьера." }, { status: 400 });
-  if (!phone) return NextResponse.json({ error: "Укажите телефон курьера." }, { status: 400 });
+  if (!phone) return NextResponse.json({ error: "Укажите телефон курьера полностью, например +7 900 123-45-67." }, { status: 400 });
   if (password.length < 6) {
     return NextResponse.json({ error: "Пароль должен быть не короче 6 символов." }, { status: 400 });
   }

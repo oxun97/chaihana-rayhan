@@ -2,13 +2,14 @@
 
 import { useEffect, useRef, useState } from "react";
 import { fetchFresh } from "@/lib/fetchFresh";
+import { readJson } from "@/lib/readJson";
 
 export default function CourierPage() {
   const [courier, setCourier] = useState(undefined); // undefined = loading, null = logged out
 
   const loadMe = () => {
     fetchFresh("/api/courier/me")
-      .then((res) => res.json())
+      .then(readJson)
       .then((data) => setCourier(data.courier))
       .catch(() => setCourier(null));
   };
@@ -44,7 +45,7 @@ function LoginForm({ onLoggedIn }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone, password }),
       });
-      const data = await res.json();
+      const data = await readJson(res);
       if (!res.ok) throw new Error(data.error);
       onLoggedIn(data.courier);
     } catch (e) {
@@ -118,7 +119,7 @@ function OrdersBoard({ courier, onLoggedOut }) {
   const load = () => {
     const ticket = ++loadTicket.current;
     fetchFresh("/api/courier/orders")
-      .then((res) => res.json())
+      .then(readJson)
       .then((d) => {
         if (ticket !== loadTicket.current) return;
         if (d.error) throw new Error(d.error);
@@ -145,7 +146,7 @@ function OrdersBoard({ courier, onLoggedOut }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: "on_delivery" }),
       });
-      const d = await res.json();
+      const d = await readJson(res);
       if (!res.ok) throw new Error(d.error);
       load();
     } catch (e) {
@@ -163,7 +164,7 @@ function OrdersBoard({ courier, onLoggedOut }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: "delivered" }),
       });
-      const d = await res.json();
+      const d = await readJson(res);
       if (!res.ok) throw new Error(d.error);
       load();
     } catch (e) {

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import AdminShell from "@/components/admin/AdminShell";
 import { fetchFresh } from "@/lib/fetchFresh";
+import { readJson } from "@/lib/readJson";
 
 export default function AdminTelegramPage() {
   const [subscribers, setSubscribers] = useState(null);
@@ -19,7 +20,7 @@ export default function AdminTelegramPage() {
     setStatusBusy(true);
     setStatusError("");
     fetchFresh("/api/admin/telegram/status")
-      .then((res) => res.json().then((data) => ({ ok: res.ok, data })))
+      .then((res) => readJson(res).then((data) => ({ ok: res.ok, data })))
       .then(({ ok, data }) => {
         if (!ok) throw new Error(data.error);
         setStatus(data);
@@ -30,7 +31,7 @@ export default function AdminTelegramPage() {
 
   const loadSubscribers = () => {
     fetchFresh("/api/admin/telegram/subscribers")
-      .then((res) => res.json())
+      .then(readJson)
       .then((data) => {
         if (data.error) throw new Error(data.error);
         setSubscribers(data.subscribers);
@@ -48,7 +49,7 @@ export default function AdminTelegramPage() {
     setSetupError("");
     try {
       const res = await fetch("/api/admin/telegram/setup", { method: "POST" });
-      const data = await res.json();
+      const data = await readJson(res);
       if (!res.ok) throw new Error(data.error);
       setBotUsername(data.username);
     } catch (e) {
@@ -62,7 +63,7 @@ export default function AdminTelegramPage() {
     if (!window.confirm("Отписать этот чат от уведомлений?")) return;
     try {
       const res = await fetch(`/api/admin/telegram/subscribers?chatId=${chatId}`, { method: "DELETE" });
-      const data = await res.json();
+      const data = await readJson(res);
       if (!res.ok) throw new Error(data.error);
       loadSubscribers();
     } catch (e) {
@@ -70,7 +71,20 @@ export default function AdminTelegramPage() {
     }
   }
 
+  async function approve(chatId) {
+    try {
+      const res = await fetch(`/api/admin/telegram/subscribers?chatId=${chatId}`, { method: "PATCH" });
+      const data = await readJson(res);
+      if (!res.ok) throw new Error(data.error);
+      loadSubscribers();
+    } catch (e) {
+      alert(e.message || "Не удалось подтвердить чат.");
+    }
+  }
+
   const activeSubscribers = (subscribers || []).filter((s) => s.is_active);
+  const approvedSubscribers = activeSubscribers.filter((s) => s.approved);
+  const pendingSubscribers = activeSubscribers.filter((s) => !s.approved);
 
   return (
     <AdminShell title="Telegram" active="telegram">
@@ -192,20 +206,56 @@ export default function AdminTelegramPage() {
           )}
         </div>
 
+        {pendingSubscribers.length > 0 && (
+          <div className="rounded-2xl border border-saffron/40 bg-saffron/10 p-4">
+            <h2 className="font-serif text-base font-bold text-body">
+              Ждут подтверждения ({pendingSubscribers.length})
+            </h2>
+            <p className="mt-1 text-xs text-muted">
+              Эти чаты написали боту /start. Подтверждайте только своих сотрудников: в уведомлениях
+              имена, телефоны и адреса гостей.
+            </p>
+            <ul className="mt-3 flex flex-col gap-2">
+              {pendingSubscribers.map((s) => (
+                <li key={s.chat_id} className="flex items-center justify-between gap-3 text-sm">
+                  <span className="min-w-0 truncate text-body">
+                    {s.first_name || "Без имени"}
+                    {s.username && <span className="ml-1 text-muted">@{s.username}</span>}
+                  </span>
+                  <span className="flex shrink-0 items-center gap-1">
+                    <button
+                      onClick={() => approve(s.chat_id)}
+                      className="min-h-[40px] rounded-full bg-brand px-4 text-xs font-semibold text-white"
+                    >
+                      Подтвердить
+                    </button>
+                    <button
+                      onClick={() => unsubscribe(s.chat_id)}
+                      className="min-h-[40px] px-2 text-xs text-red-400 hover:text-red-600"
+                    >
+                      Отклонить
+                    </button>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         <div className="rounded-2xl bg-card p-4 shadow-soft">
           <h2 className="font-serif text-base font-bold text-body">
-            Подписанные чаты {subscribers && `(${activeSubscribers.length})`}
+            Подписанные чаты {subscribers && `(${approvedSubscribers.length})`}
           </h2>
           {loadError && <p className="mt-2 text-sm text-red-500">{loadError}</p>}
           {subscribers === null ? (
             <p className="mt-3 text-sm text-muted">Загрузка…</p>
-          ) : activeSubscribers.length === 0 ? (
+          ) : approvedSubscribers.length === 0 ? (
             <p className="mt-3 text-sm text-muted">
-              Пока никто не подписан. Настройте бота выше и отправьте ему /start.
+              Пока никто не подписан. Настройте бота выше, отправьте ему /start и подтвердите чат здесь.
             </p>
           ) : (
             <ul className="mt-3 flex flex-col gap-2">
-              {activeSubscribers.map((s) => (
+              {approvedSubscribers.map((s) => (
                 <li key={s.chat_id} className="flex items-center justify-between text-sm">
                   <span className="text-body">
                     {s.first_name || "Без имени"}
@@ -213,7 +263,7 @@ export default function AdminTelegramPage() {
                   </span>
                   <button
                     onClick={() => unsubscribe(s.chat_id)}
-                    className="text-xs text-red-400 hover:text-red-600"
+                    className="min-h-[40px] px-2 text-xs text-red-400 hover:text-red-600"
                   >
                     Отписать
                   </button>

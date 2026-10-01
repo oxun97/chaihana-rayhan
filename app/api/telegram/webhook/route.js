@@ -4,17 +4,24 @@ import {
   sendTelegramMessage,
   linkClientTelegram,
   unlinkTelegramByChatId,
+  verifyWebhookRequest,
   escapeHtml,
 } from "@/lib/telegram";
 
 // Telegram posts updates here (see setWebhook in /api/admin/telegram/setup).
-// No secret token check on this route since Telegram doesn't sign
-// requests by default; the worst a stranger who finds this URL can do is
-// insert junk subscriber rows, which only ever receive order
-// notifications — no data is read back out through this endpoint.
+// Two kinds of chat use this bot:
+//   - customers, who arrive through a personal "/start <token>" link from
+//     the site and get updates about their own orders only;
+//   - restaurant staff, who send a bare "/start" and get every new order —
+//     names, phones, addresses. Anyone can message a bot, so a staff chat
+//     only receives those once an admin approves it in /admin/telegram.
 export const dynamic = "force-dynamic";
 
 export async function POST(request) {
+  if (!(await verifyWebhookRequest(request))) {
+    return NextResponse.json({ ok: false }, { status: 401 });
+  }
+
   let update;
   try {
     update = await request.json();
@@ -32,14 +39,10 @@ export async function POST(request) {
   if (text === "/stop") {
     await supabase.from("telegram_subscribers").update({ is_active: false }).eq("chat_id", chat.id);
     await unlinkTelegramByChatId(chat.id);
-    await sendTelegramMessage(chat.id, "Вы отписаны от уведомлений о заказах.");
+    await sendTelegramMessage(chat.id, "Вы отписаны от уведомлений.");
     return NextResponse.json({ ok: true });
   }
 
-  // "/start <token>" comes from the personal deep link a signed-in customer
-  // generated on the site: it ties this chat to their account so they get
-  // their own order-status updates. A bare "/start" (below) is the
-  // restaurant staff subscribing to new-order alerts instead.
   const startPayload = text.startsWith("/start ") ? text.slice("/start ".length).trim() : "";
   if (startPayload) {
     const result = await linkClientTelegram({ token: startPayload, chatId: chat.id });
@@ -56,6 +59,33 @@ export async function POST(request) {
     return NextResponse.json({ ok: true });
   }
 
+  // A customer's own notification chat writing to the bot is not a staff
+  // sign-up request.
+  const { data: customer } = await supabase
+    .from("users")
+    .select("id")
+    .eq("telegram_chat_id", chat.id)
+    .maybeSingle();
+  if (customer) {
+    await sendTelegramMessage(
+      chat.id,
+      "Здесь приходят уведомления о ваших заказах в Чайхане Райхан. Чтобы отписаться, отправьте /stop."
+    );
+    return NextResponse.json({ ok: true });
+  }
+
+  if (text !== "/start") {
+    // Anything else from an unknown chat: say what the bot does and stop.
+    await sendTelegramMessage(
+      chat.id,
+      "Это служебный бот Чайханы Райхан. Чтобы получать статус своего заказа, нажмите «Подключить Telegram» в разделе «Мои заказы» на сайте."
+    );
+    return NextResponse.json({ ok: true });
+  }
+
+  // Staff sign-up request. `approved` is deliberately absent from the
+  // upsert: a new chat starts unapproved (column default), and a re-sent
+  // /start never changes an existing chat's approval either way.
   await supabase.from("telegram_subscribers").upsert(
     {
       chat_id: chat.id,
@@ -65,10 +95,17 @@ export async function POST(request) {
     },
     { onConflict: "chat_id" }
   );
+  const { data: sub } = await supabase
+    .from("telegram_subscribers")
+    .select("approved")
+    .eq("chat_id", chat.id)
+    .maybeSingle();
 
   await sendTelegramMessage(
     chat.id,
-    "✅ Вы подписаны на уведомления о новых заказах — Чайхана Райхан.\n\nЧтобы отписаться, отправьте /stop."
+    sub?.approved
+      ? "✅ Вы подписаны на уведомления о новых заказах — Чайхана Райхан.\n\nЧтобы отписаться, отправьте /stop."
+      : "Заявка принята. Уведомления о заказах начнут приходить, как только администратор подтвердит этот чат в панели управления сайта."
   );
 
   return NextResponse.json({ ok: true });

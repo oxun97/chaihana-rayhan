@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import AdminShell from "@/components/admin/AdminShell";
 import { fetchFresh } from "@/lib/fetchFresh";
+import { readJson } from "@/lib/readJson";
 
 const STATUS_LABELS = {
   new: "Новый",
@@ -61,7 +62,7 @@ export default function AdminOrdersPage() {
     const ticket = ++loadTicket.current;
     const qs = filter === "all" ? "" : `?status=${filter}`;
     fetchFresh(`/api/admin/orders${qs}`)
-      .then((res) => res.json())
+      .then(readJson)
       .then((data) => {
         if (ticket !== loadTicket.current) return;
         if (data.error) throw new Error(data.error);
@@ -76,7 +77,7 @@ export default function AdminOrdersPage() {
 
   const loadCouriers = () => {
     fetchFresh("/api/admin/couriers")
-      .then((res) => res.json())
+      .then(readJson)
       .then((data) => setCouriers(data.couriers || []))
       .catch(() => {});
   };
@@ -102,7 +103,7 @@ export default function AdminOrdersPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status }),
       });
-      const data = await res.json();
+      const data = await readJson(res);
       if (!res.ok) {
         // A "cannot move from X to X" error means this order already
         // reached that status via an earlier click (or another tab/admin) —
@@ -130,7 +131,7 @@ export default function AdminOrdersPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ courierId: courierId || null }),
       });
-      const data = await res.json();
+      const data = await readJson(res);
       if (!res.ok) throw new Error(data.error);
     } catch (e) {
       alert(e.message || "Не удалось назначить курьера.");
@@ -299,7 +300,7 @@ function CourierManager({ couriers, onCreated }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, phone, password }),
       });
-      const data = await res.json();
+      const data = await readJson(res);
       if (!res.ok) throw new Error(data.error);
       setName("");
       setPhone("");

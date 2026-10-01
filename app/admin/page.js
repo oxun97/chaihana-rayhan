@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import i18n from "@/data/i18n.json";
 import AdminShell from "@/components/admin/AdminShell";
 import { fetchFresh } from "@/lib/fetchFresh";
+import { readJson } from "@/lib/readJson";
 
 const LANGS = ["ru", "uz"];
 const ICONS = ["spicy", "beef", "chicken", "lamb", "veg", "fish", "dairy"];
@@ -57,7 +58,7 @@ export default function AdminPage() {
     fetchFresh("/api/admin/menu")
       .then((res) => {
         if (!res.ok) throw new Error("load-failed");
-        return res.json();
+        return readJson(res);
       })
       .then((data) => {
         if (cancelled) return;
@@ -112,7 +113,7 @@ export default function AdminPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ categories }),
       });
-      const data = await res.json();
+      const data = await readJson(res);
       if (!res.ok) {
         setSaveError(data.error || "Не удалось сохранить меню.");
         return;
@@ -579,7 +580,7 @@ function PhotoUpload({ label, currentSrc, target, categoryId, itemId, onUploaded
       form.append("categoryId", categoryId);
       if (itemId) form.append("itemId", itemId);
       const res = await fetch("/api/admin/upload", { method: "POST", body: form });
-      const data = await res.json();
+      const data = await readJson(res);
       if (!res.ok) throw new Error(data.error || "Ошибка загрузки");
       onUploaded(data.path, data.url);
     } catch (err) {

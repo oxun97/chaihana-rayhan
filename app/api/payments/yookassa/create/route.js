@@ -66,6 +66,11 @@ export async function POST(request) {
     return NextResponse.json({ ok: true, confirmationUrl, pendingId });
   } catch (e) {
     console.error("Failed to start card payment:", e);
-    return NextResponse.json({ error: e.message || "Не удалось начать оплату." }, { status: 500 });
+    // The internal reason (a Postgres or YooKassa message) stays in the
+    // logs; the guest gets something they can act on.
+    return NextResponse.json(
+      { error: "Не удалось начать оплату. Попробуйте ещё раз или выберите другой способ оплаты." },
+      { status: 500 }
+    );
   }
 }

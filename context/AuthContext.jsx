@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { fetchFresh } from "@/lib/fetchFresh";
+import { readJson } from "@/lib/readJson";
 
 const AuthContext = createContext(null);
 
@@ -11,7 +12,7 @@ export function AuthProvider({ children }) {
 
   const refresh = () => {
     fetchFresh("/api/auth/me")
-      .then((res) => res.json())
+      .then(readJson)
       .then((data) => setClient(data.client))
       .catch(() => setClient(null));
   };
@@ -26,7 +27,7 @@ export function AuthProvider({ children }) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ phone, password }),
     });
-    const data = await res.json();
+    const data = await readJson(res);
     if (!res.ok) throw new Error(data.error || "Не удалось войти.");
     setClient(data.client);
     return data.client;
@@ -38,7 +39,7 @@ export function AuthProvider({ children }) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, phone, password }),
     });
-    const data = await res.json();
+    const data = await readJson(res);
     if (!res.ok) throw new Error(data.error || "Не удалось зарегистрироваться.");
     setClient(data.client);
     return data.client;

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { CalendarDays, Clock, Users, Check } from "lucide-react";
 import { useLang } from "@/context/LangContext";
 import { useAuth } from "@/context/AuthContext";
+import { readJson } from "@/lib/readJson";
 
 function todayISO() {
   const now = new Date();
@@ -40,7 +41,7 @@ export default function BookingForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, phone, guests, date, time }),
       });
-      const data = await res.json();
+      const data = await readJson(res);
       if (!res.ok) throw new Error(data.error || t("booking_submit"));
       setDone(true);
     } catch (err) {

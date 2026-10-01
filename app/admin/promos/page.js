@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import AdminShell from "@/components/admin/AdminShell";
 import { fetchFresh } from "@/lib/fetchFresh";
+import { readJson } from "@/lib/readJson";
 
 const TONES = [
   { value: "red", label: "Красная" },
@@ -30,7 +31,7 @@ export default function AdminPromosPage() {
 
   const load = () => {
     fetchFresh("/api/admin/promos")
-      .then((res) => res.json())
+      .then(readJson)
       .then((data) => {
         if (data.error) throw new Error(data.error);
         setPromos(data.promos);
@@ -55,7 +56,7 @@ export default function AdminPromosPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ promos }),
       });
-      const data = await res.json();
+      const data = await readJson(res);
       if (!res.ok) throw new Error(data.error);
       setSaved(true);
     } catch (e) {
@@ -74,7 +75,7 @@ export default function AdminPromosPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(draft),
       });
-      const data = await res.json();
+      const data = await readJson(res);
       if (!res.ok) throw new Error(data.error);
       setDraft(emptyCode);
       load();

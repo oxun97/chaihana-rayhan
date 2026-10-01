@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Loader2, CheckCircle2, XCircle, Clock } from "lucide-react";
 import { useLang } from "@/context/LangContext";
 import { useCart } from "@/context/CartContext";
+import { readJson } from "@/lib/readJson";
 
 // Where YooKassa sends the guest back after the hosted payment page. The
 // webhook is what actually confirms the payment server-side; this page
@@ -38,7 +39,7 @@ function PaymentResultContent() {
         const res = await fetch(`/api/payments/yookassa/status?pending=${encodeURIComponent(pendingId)}`, {
           cache: "no-store",
         });
-        const data = await res.json();
+        const data = await readJson(res);
         if (cancelled) return;
 
         if (data.status === "completed") {
@@ -47,6 +48,10 @@ function PaymentResultContent() {
         }
         if (data.status === "failed") {
           setState({ phase: "failed" });
+          return;
+        }
+        if (data.status === "paid_no_order") {
+          setState({ phase: "paid_no_order" });
           return;
         }
         if (attempts >= MAX_ATTEMPTS) {
@@ -120,6 +125,23 @@ function PaymentResultContent() {
             >
               Вернуться на сайт
             </Link>
+          </>
+        )}
+
+        {state.phase === "paid_no_order" && (
+          <>
+            <Clock size={44} className="mx-auto text-saffron" />
+            <h1 className="mt-4 font-serif text-xl font-bold text-body">Оплата прошла</h1>
+            <p className="mt-2 text-sm text-muted">
+              Деньги получены, но заказ не оформился автоматически. Мы уже знаем об этом и свяжемся с
+              вами в ближайшие минуты — либо позвоните нам сами.
+            </p>
+            <a
+              href="tel:+79015165789"
+              className="mt-5 inline-flex items-center justify-center rounded-full bg-brand px-6 py-3 text-sm font-semibold text-white transition-transform active:scale-95"
+            >
+              Позвонить: +7 (901) 516-57-89
+            </a>
           </>
         )}
 
