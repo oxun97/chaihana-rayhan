@@ -2,16 +2,20 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowLeft, ArrowRight, Minus, Plus, Trash2, Wallet, CreditCard, ShieldCheck, Lock } from "lucide-react";
+import { ArrowLeft, ArrowRight, Wallet, CreditCard, ShieldCheck, Lock, X } from "lucide-react";
 import { useLang } from "@/context/LangContext";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
-import { localized } from "@/lib/menu";
 import { buildWhatsAppOrderUrl } from "@/lib/whatsapp";
+import { readJson } from "@/lib/readJson";
 import { useVisualViewportHeight } from "@/lib/useVisualViewportHeight";
 import { useOverlay } from "@/lib/useOverlay";
 import StepIndicator from "@/components/site/StepIndicator";
+import { ORDER_PLACED_EVENT } from "@/components/site/InstallPrompt";
 
+// Step 1 ("Корзина") is the cart drawer itself — this modal only ever
+// opens from there, so it starts at delivery and the basket is not shown
+// a second time. Going back to step 1 returns to the drawer.
 const STEP_CART = 0;
 const STEP_DELIVERY = 1;
 const STEP_PAYMENT = 2;
@@ -22,12 +26,12 @@ export default function CheckoutModal() {
     items,
     subtotal,
     deliveryFee,
-    total,
     minDeliveryOrder,
-    setQty,
-    removeItem,
+    promo,
+    discount,
     isCheckoutOpen,
     setCheckoutOpen,
+    setCartOpen,
     clearCart,
   } = useCart();
   const { client } = useAuth();
@@ -37,7 +41,7 @@ export default function CheckoutModal() {
   const footerRef = useRef(null);
   const [bodyMaxHeight, setBodyMaxHeight] = useState(null);
 
-  const [step, setStep] = useState(STEP_CART);
+  const [step, setStep] = useState(STEP_DELIVERY);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [method, setMethod] = useState("delivery");
@@ -47,11 +51,6 @@ export default function CheckoutModal() {
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  const [promoInput, setPromoInput] = useState("");
-  const [promo, setPromo] = useState(null);
-  const [promoError, setPromoError] = useState("");
-  const [promoChecking, setPromoChecking] = useState(false);
-
   // Preview only: create_order() re-prices the code, so nothing charged
   // depends on these numbers.
   // CartContext's own deliveryFee always assumes delivery (it has no
@@ -59,7 +58,6 @@ export default function CheckoutModal() {
   // before checkout starts, but wrong once "Самовывоз" is picked here.
   const effectiveDeliveryFee = method === "pickup" ? 0 : deliveryFee;
   const effectiveTotal = subtotal + effectiveDeliveryFee;
-  const discount = promo?.discount || 0;
   const payable = Math.max(0, effectiveTotal - discount);
 
   // A courier trip costs the restaurant money regardless of what's in the
@@ -92,57 +90,29 @@ export default function CheckoutModal() {
     setPhone((prev) => prev || client.phone || "");
   }, [isCheckoutOpen, client]);
 
-  // An emptied cart cannot be on a later step.
-  useEffect(() => {
-    if (items.length === 0 && step !== STEP_CART) setStep(STEP_CART);
-  }, [items.length, step]);
-
   const close = () => {
     setCheckoutOpen(false);
-    setStep(STEP_CART);
+    setStep(STEP_DELIVERY);
     setError("");
   };
 
+  const backToCart = () => {
+    close();
+    setCartOpen(true);
+  };
+
+  // Nothing left to check out — hand the guest back to the (empty) cart.
+  useEffect(() => {
+    if (isCheckoutOpen && items.length === 0) backToCart();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isCheckoutOpen, items.length]);
+
   useOverlay(isCheckoutOpen, close);
 
-  async function applyPromo() {
-    setPromoError("");
-    setPromoChecking(true);
-    try {
-      const res = await fetch("/api/promo-codes/validate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code: promoInput, subtotal }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || t("promo_invalid"));
-
-      if (data.valid) {
-        setPromo(data);
-      } else {
-        setPromo(null);
-        const reasons = {
-          expired: t("promo_expired"),
-          exhausted: t("promo_exhausted"),
-          min_subtotal: `${t("promo_min_subtotal")} ${data.min_subtotal} ₽`,
-        };
-        setPromoError(reasons[data.reason] || t("promo_invalid"));
-      }
-    } catch (e) {
-      setPromo(null);
-      setPromoError(e.message || t("promo_invalid"));
-    } finally {
-      setPromoChecking(false);
-    }
-  }
+  const goToStep = (i) => (i === STEP_CART ? backToCart() : setStep(i));
 
   function goNext() {
     setError("");
-    if (step === STEP_CART) {
-      if (items.length === 0) return;
-      setStep(STEP_DELIVERY);
-      return;
-    }
     if (step === STEP_DELIVERY) {
       if (!name.trim() || !phone.trim()) {
         setError(t("checkout_required"));
@@ -178,7 +148,7 @@ export default function CheckoutModal() {
             promoCode: promo?.code || null,
           }),
         });
-        const data = await res.json();
+        const data = await readJson(res);
         if (!res.ok || !data.confirmationUrl) {
           throw new Error(data.error || t("checkout_payment_error"));
         }
@@ -211,7 +181,7 @@ export default function CheckoutModal() {
         }),
       });
       if (res.ok) {
-        const data = await res.json();
+        const data = await readJson(res);
         orderNumber = data.order?.order_number ?? null;
         if (data.order) {
           priced = {
@@ -247,8 +217,7 @@ export default function CheckoutModal() {
     setPhone("");
     setAddress("");
     setComment("");
-    setPromoInput("");
-    setPromo(null);
+    window.dispatchEvent(new Event(ORDER_PLACED_EVENT));
   }
 
   return (
@@ -284,25 +253,22 @@ export default function CheckoutModal() {
           >
             <div ref={headerRef} className="shrink-0 px-5 pb-4 pt-5">
               <div className="mb-4 flex items-center justify-between">
-                {step > STEP_CART ? (
-                  <button
-                    onClick={() => setStep(step - 1)}
-                    className="flex items-center gap-1.5 text-sm font-medium text-muted hover:text-brand"
-                  >
-                    <ArrowLeft size={16} /> {t("step_back")}
-                  </button>
-                ) : (
-                  <h3 className="font-serif text-lg font-bold text-body">{t("checkout_title")}</h3>
-                )}
+                <button
+                  onClick={() => goToStep(step - 1)}
+                  className="-ml-2 flex min-h-[40px] items-center gap-1.5 rounded-full px-2 text-sm font-medium text-muted hover:text-brand"
+                >
+                  <ArrowLeft size={16} /> {step === STEP_DELIVERY ? t("step_back_to_cart") : t("step_back")}
+                </button>
                 <button
                   onClick={close}
-                  className="flex h-8 w-8 items-center justify-center rounded-full text-muted hover:bg-card-sunken"
+                  aria-label={t("close")}
+                  className="-mr-2 flex h-10 w-10 items-center justify-center rounded-full text-muted hover:bg-card-sunken"
                 >
-                  ✕
+                  <X size={18} />
                 </button>
               </div>
 
-              <StepIndicator step={step} onStepClick={setStep} />
+              <StepIndicator step={step} onStepClick={goToStep} />
             </div>
 
             {/* Only this section scrolls; the footer stays pinned so the
@@ -311,91 +277,6 @@ export default function CheckoutModal() {
               className="checkout-body flex flex-col gap-3.5 overflow-y-auto px-5"
               style={bodyMaxHeight ? { maxHeight: bodyMaxHeight } : undefined}
             >
-              {step === STEP_CART && (
-                <>
-                  {items.length === 0 ? (
-                    <p className="py-8 text-center text-sm text-muted">{t("cart_step_empty")}</p>
-                  ) : (
-                    <ul className="flex flex-col gap-2.5">
-                      {items.map((it) => (
-                        <li
-                          key={it.id}
-                          className="flex items-center gap-3 rounded-2xl bg-card-sunken/60 p-2.5"
-                        >
-                          <div className="min-w-0 flex-1">
-                            <p className="truncate text-[0.88rem] font-medium text-body">
-                              {localized(it.name, lang)}
-                            </p>
-                            <p className="text-[0.8rem] font-semibold text-body">
-                              {it.price * it.qty} ₽
-                            </p>
-                          </div>
-
-                          <div className="flex shrink-0 items-center gap-1 rounded-full border border-edge bg-card p-1">
-                            <button
-                              onClick={() => setQty(it.id, it.qty - 1)}
-                              aria-label="−"
-                              className="flex h-7 w-7 items-center justify-center rounded-full text-body hover:text-brand"
-                            >
-                              <Minus size={14} />
-                            </button>
-                            <span className="min-w-[1.1rem] text-center text-sm font-semibold text-body">
-                              {it.qty}
-                            </span>
-                            <button
-                              onClick={() => setQty(it.id, it.qty + 1)}
-                              aria-label="+"
-                              className="flex h-7 w-7 items-center justify-center rounded-full text-body hover:text-brand"
-                            >
-                              <Plus size={14} />
-                            </button>
-                          </div>
-
-                          <button
-                            onClick={() => removeItem(it.id)}
-                            aria-label="delete"
-                            className="shrink-0 text-muted hover:text-brand"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-
-                  {items.length > 0 && (
-                    <>
-                      <div className="flex gap-2">
-                        <input
-                          value={promoInput}
-                          onChange={(e) => {
-                            setPromoInput(e.target.value);
-                            setPromo(null);
-                            setPromoError("");
-                          }}
-                          placeholder={t("promo_placeholder")}
-                          className="input uppercase"
-                        />
-                        <button
-                          type="button"
-                          onClick={applyPromo}
-                          disabled={promoChecking || !promoInput.trim()}
-                          className="shrink-0 rounded-xl bg-card-sunken px-4 text-[0.8rem] font-semibold text-body transition-colors hover:text-brand disabled:opacity-50"
-                        >
-                          {t("promo_apply")}
-                        </button>
-                      </div>
-                      {promo && (
-                        <p className="text-sm font-medium text-herb">
-                          {t("promo_applied")}: −{promo.discount} ₽
-                        </p>
-                      )}
-                      {promoError && <p className="text-sm text-brand">{promoError}</p>}
-                    </>
-                  )}
-                </>
-              )}
-
               {step === STEP_DELIVERY && (
                 <>
                   <div className="flex gap-2 rounded-full bg-card-sunken p-1">

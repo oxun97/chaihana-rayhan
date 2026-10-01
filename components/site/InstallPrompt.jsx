@@ -7,10 +7,13 @@ import { useLang } from "@/context/LangContext";
 import { LogoMark } from "@/components/site/Logo";
 
 const DISMISSED_KEY = "chaihana_install_hint";
+const VISITS_KEY = "chaihana_visits";
+const VISIT_COUNTED_KEY = "chaihana_visit_counted";
+// Fired by the checkout once an order has gone out.
+export const ORDER_PLACED_EVENT = "chaihana:order-placed";
 // A guest who said "not now" is not asked again for a fortnight.
 const SNOOZE_MS = 14 * 24 * 60 * 60 * 1000;
-// Long enough that the banner never competes with the hero for attention.
-const APPEAR_DELAY_MS = 6000;
+const APPEAR_DELAY_MS = 4000;
 
 function isStandalone() {
   if (typeof window === "undefined") return false;
@@ -41,13 +44,30 @@ function snoozed() {
   }
 }
 
+// Counts distinct sessions, so a reload in the same tab is not a "return".
+function countVisit() {
+  try {
+    const seen = Number(window.localStorage.getItem(VISITS_KEY)) || 0;
+    if (window.sessionStorage.getItem(VISIT_COUNTED_KEY)) return Math.max(seen, 1);
+    window.sessionStorage.setItem(VISIT_COUNTED_KEY, "1");
+    window.localStorage.setItem(VISITS_KEY, String(seen + 1));
+    return seen + 1;
+  } catch (e) {
+    return 1;
+  }
+}
+
 /**
  * Invitation to install the site as an app.
  *
- * Two different platforms, two different flows: Chrome hands us a
- * `beforeinstallprompt` event we can fire on demand, while iOS Safari has no
- * such API and can only be told where the Share menu is. Anything already
- * running standalone sees nothing at all.
+ * Only offered to guests who have shown they will be back — a returning
+ * visit, or right after placing an order — never to someone who arrived
+ * seconds ago to look at the menu. Kept to one compact row so it can never
+ * cover the page's own buttons.
+ *
+ * Two platforms, two flows: Chrome hands us a `beforeinstallprompt` event
+ * we can fire on demand, while iOS Safari can only be told where the Share
+ * menu is. Anything already running standalone sees nothing at all.
  */
 export default function InstallPrompt() {
   const { t } = useLang();
@@ -58,8 +78,12 @@ export default function InstallPrompt() {
   useEffect(() => {
     if (isStandalone() || snoozed()) return;
 
-    const show = (next) => {
-      timer.current = window.setTimeout(() => setMode(next), APPEAR_DELAY_MS);
+    let engaged = countVisit() >= 2;
+    let available = isIos() ? "ios" : null;
+
+    const reveal = () => {
+      if (!engaged || !available || timer.current) return;
+      timer.current = window.setTimeout(() => setMode(available), APPEAR_DELAY_MS);
     };
 
     const onBeforeInstallPrompt = (event) => {
@@ -67,7 +91,13 @@ export default function InstallPrompt() {
       // place the invitation where it fits the design.
       event.preventDefault();
       promptEvent.current = event;
-      show("prompt");
+      available = "prompt";
+      reveal();
+    };
+
+    const onOrderPlaced = () => {
+      engaged = true;
+      reveal();
     };
 
     const onInstalled = () => {
@@ -81,13 +111,15 @@ export default function InstallPrompt() {
 
     window.addEventListener("beforeinstallprompt", onBeforeInstallPrompt);
     window.addEventListener("appinstalled", onInstalled);
-
-    if (isIos()) show("ios");
+    window.addEventListener(ORDER_PLACED_EVENT, onOrderPlaced);
+    reveal();
 
     return () => {
       window.removeEventListener("beforeinstallprompt", onBeforeInstallPrompt);
       window.removeEventListener("appinstalled", onInstalled);
+      window.removeEventListener(ORDER_PLACED_EVENT, onOrderPlaced);
       if (timer.current) window.clearTimeout(timer.current);
+      timer.current = null;
     };
   }, []);
 
@@ -116,46 +148,44 @@ export default function InstallPrompt() {
     <AnimatePresence>
       {mode && (
         <motion.div
-          initial={{ opacity: 0, y: 24 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 24 }}
+          exit={{ opacity: 0, y: 16 }}
           transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
           // Clears the mobile tab bar, plus the home indicator below it.
-          className="fixed inset-x-3 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-40 lg:hidden"
+          className="fixed inset-x-3 bottom-[calc(4.6rem+env(safe-area-inset-bottom))] z-40 lg:hidden"
+          role="dialog"
+          aria-label={t("install_title")}
         >
-          <div className="flex items-start gap-3 rounded-[20px] border border-edge bg-card/95 p-3.5 shadow-[0_18px_40px_-18px_rgba(36,20,13,0.45)] backdrop-blur-md">
-            <span className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-cocoa text-saffron">
+          <div className="flex items-center gap-3 rounded-2xl border border-edge bg-card/95 py-2 pl-2 pr-1.5 shadow-[0_14px_32px_-16px_rgba(36,20,13,0.45)] backdrop-blur-md">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-cocoa text-saffron">
               <LogoMark className="h-6 w-6" />
             </span>
 
             <div className="min-w-0 flex-1">
-              <p className="font-serif text-[0.95rem] font-semibold leading-snug">
-                {t("install_title")}
-              </p>
-              <p className="mt-1 text-[0.76rem] leading-relaxed text-muted">
-                {mode === "ios" ? t("install_ios_lead") : t("install_lead")}
-              </p>
-
-              {mode === "prompt" ? (
-                <button
-                  onClick={install}
-                  className="mt-2.5 inline-flex items-center gap-1.5 rounded-full bg-brand px-4 py-2 text-[0.78rem] font-semibold text-white transition-transform active:scale-95"
-                >
-                  <Download size={14} />
-                  {t("install_action")}
-                </button>
-              ) : (
-                <span className="mt-2.5 inline-flex items-center gap-1.5 rounded-full bg-card-sunken px-3 py-1.5 text-[0.74rem] font-medium text-muted">
-                  <Share size={13} />
-                  {t("install_action")}
-                </span>
+              <p className="text-[0.84rem] font-semibold leading-tight text-body">{t("install_title")}</p>
+              {mode === "ios" && (
+                <p className="mt-0.5 flex items-center gap-1 text-[0.72rem] leading-snug text-muted">
+                  <Share size={12} className="shrink-0" />
+                  <span className="truncate">{t("install_ios_lead")}</span>
+                </p>
               )}
             </div>
+
+            {mode === "prompt" && (
+              <button
+                onClick={install}
+                className="flex min-h-[40px] shrink-0 items-center gap-1.5 rounded-full bg-brand px-3.5 text-[0.78rem] font-semibold text-white transition-transform active:scale-95"
+              >
+                <Download size={14} />
+                {t("install_action")}
+              </button>
+            )}
 
             <button
               onClick={dismiss}
               aria-label={t("install_dismiss")}
-              className="-mr-0.5 -mt-0.5 shrink-0 rounded-full p-1.5 text-muted transition-colors active:text-brand"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-muted transition-colors active:text-brand"
             >
               <X size={16} />
             </button>

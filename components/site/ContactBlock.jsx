@@ -1,13 +1,21 @@
 "use client";
 
-import { MapPin, Phone, Clock, Navigation } from "lucide-react";
+import { useState } from "react";
+import { MapPin, Phone, Clock, Navigation, Map } from "lucide-react";
 import { useLang } from "@/context/LangContext";
 import { RESTAURANT_PHONE_DISPLAY, RESTAURANT_PHONE_TEL } from "@/lib/whatsapp";
 
 const MAP_QUERY = "Москва, 2-я Магистральная улица, 1/3с1";
+const ROUTE_URL = `https://yandex.ru/maps/?text=${encodeURIComponent(MAP_QUERY)}`;
+// Yandex's keyless embeddable widget, centred on a search for the address.
+const WIDGET_URL = `https://yandex.ru/map-widget/v1/?mode=search&z=16&text=${encodeURIComponent(MAP_QUERY)}`;
 
 export default function ContactBlock() {
   const { t } = useLang();
+  // The embedded map is a third-party page with its own cookies and a few
+  // hundred KB of script — it only loads once the guest asks for it, not on
+  // every visit to the menu.
+  const [showMap, setShowMap] = useState(false);
 
   return (
     <div className="grid overflow-hidden rounded-[22px] border border-edge/70 bg-card lg:grid-cols-[1fr_1.1fr]">
@@ -33,35 +41,45 @@ export default function ContactBlock() {
         </span>
 
         <a
-          href={`https://yandex.ru/maps/?text=${encodeURIComponent(MAP_QUERY)}`}
+          href={ROUTE_URL}
           target="_blank"
           rel="noreferrer"
-          className="mt-1 flex w-fit items-center gap-2 rounded-full border border-edge px-4 py-2.5 text-[0.82rem] font-semibold text-body transition-colors hover:border-brand hover:text-brand"
+          className="mt-1 flex min-h-[44px] w-fit items-center gap-2 rounded-full border border-edge px-4 text-[0.82rem] font-semibold text-body transition-colors hover:border-brand hover:text-brand"
         >
           <Navigation size={15} />
           {t("contacts_route")}
         </a>
       </div>
 
-      {/* Static map surrogate: an embedded provider map needs a key and a
-          cookie banner, so the block links out to maps instead. */}
-      <a
-        href={`https://yandex.ru/maps/?text=${encodeURIComponent(MAP_QUERY)}`}
-        target="_blank"
-        rel="noreferrer"
-        className="relative flex min-h-[13rem] items-center justify-center bg-card-sunken"
-      >
-        <div className="pattern-lattice-soft absolute inset-0 opacity-70" aria-hidden="true" />
-        <span className="relative flex flex-col items-center gap-2 text-center">
-          <span className="flex h-11 w-11 items-center justify-center rounded-full bg-brand text-white shadow-lg">
-            <MapPin size={20} />
-          </span>
-          <span className="font-serif text-[1.05rem] font-bold text-body">
-            {t("restaurant_name")}
-          </span>
-          <span className="text-[0.75rem] text-muted">{t("city_moscow")}</span>
-        </span>
-      </a>
+      <div className="relative min-h-[15rem] bg-card-sunken lg:min-h-full">
+        {showMap ? (
+          <iframe
+            src={WIDGET_URL}
+            title={t("contacts_map_title")}
+            loading="lazy"
+            allowFullScreen
+            referrerPolicy="no-referrer-when-downgrade"
+            className="absolute inset-0 h-full w-full border-0"
+          />
+        ) : (
+          <button
+            onClick={() => setShowMap(true)}
+            className="group absolute inset-0 flex items-center justify-center"
+          >
+            <div className="pattern-lattice-soft absolute inset-0 opacity-70" aria-hidden="true" />
+            <span className="relative flex flex-col items-center gap-2.5 text-center">
+              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-brand text-white shadow-lg transition-transform group-hover:scale-110">
+                <MapPin size={21} />
+              </span>
+              <span className="font-serif text-[1.05rem] font-bold text-body">{t("restaurant_name")}</span>
+              <span className="flex items-center gap-1.5 rounded-full border border-edge bg-card px-4 py-2 text-[0.8rem] font-semibold text-body transition-colors group-hover:border-brand group-hover:text-brand">
+                <Map size={14} />
+                {t("contacts_show_map")}
+              </span>
+            </span>
+          </button>
+        )}
+      </div>
     </div>
   );
 }

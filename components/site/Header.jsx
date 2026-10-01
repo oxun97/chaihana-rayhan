@@ -78,7 +78,9 @@ export default function Header() {
         </Link>
 
         <nav className="flex flex-1 items-center justify-center gap-6">
-          {LINKS.map((l) => (
+          {/* "Бронирование" is the outlined button on the right — listing it
+              here as well just said the same thing twice. */}
+          {LINKS.filter((l) => l.id !== "booking").map((l) => (
             <button
               key={l.id}
               onClick={() => scrollToId(l.id)}
@@ -131,10 +133,16 @@ export default function Header() {
             className="flex items-center gap-2.5 rounded-full bg-brand px-4 py-2.5 text-[0.85rem] font-semibold text-white transition-transform hover:scale-[1.02] active:scale-[0.98]"
           >
             <ShoppingCart size={16} />
-            {itemCount > 0 && <span>{total} ₽</span>}
-            <span className="flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-white/25 px-1 text-[0.7rem]">
-              {itemCount}
-            </span>
+            {itemCount > 0 ? (
+              <>
+                <span>{total} ₽</span>
+                <span className="flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-white/25 px-1 text-[0.7rem]">
+                  {itemCount}
+                </span>
+              </>
+            ) : (
+              <span>{t("cart_title")}</span>
+            )}
           </button>
         </div>
       </div>

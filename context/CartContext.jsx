@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useMenu } from "@/context/MenuContext";
 import { readStored, writeStored } from "@/lib/persisted-state";
+import { readJson } from "@/lib/readJson";
 
 const CartContext = createContext(null);
 const STORAGE_KEY = "chaihana_cart_v1";
@@ -22,6 +23,17 @@ function coerceLines(parsed) {
     if (id && Number.isFinite(n) && n > 0) lines[id] = n;
   }
   return lines;
+}
+
+async function validatePromo(code, subtotal) {
+  const res = await fetch("/api/promo-codes/validate", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ code, subtotal }),
+  });
+  const data = await readJson(res);
+  if (!res.ok) throw new Error(data.error || "");
+  return data;
 }
 
 export function CartProvider({ children }) {
@@ -61,7 +73,10 @@ export function CartProvider({ children }) {
 
   const removeItem = (id) => setQty(id, 0);
 
-  const clearCart = () => setLines({});
+  const clearCart = () => {
+    setLines({});
+    setPromo(null);
+  };
 
   const items = useMemo(() => {
     return Object.entries(lines)
@@ -83,6 +98,36 @@ export function CartProvider({ children }) {
   const deliveryFee = subtotal === 0 || subtotal >= FREE_DELIVERY_FROM ? 0 : DELIVERY_FEE;
   const total = subtotal + deliveryFee;
 
+  // The applied promo code, as priced by the server for `promo.subtotal`.
+  // Preview only — create_order() re-prices the code when the order is
+  // placed, so nothing charged depends on this.
+  const [promo, setPromo] = useState(null);
+
+  async function applyPromo(code) {
+    const data = await validatePromo(code, subtotal);
+    setPromo(data.valid ? { ...data, subtotal } : null);
+    return data;
+  }
+
+  // A percent code's discount moves with the basket, and a minimum can stop
+  // being met — re-price whenever the subtotal changes.
+  useEffect(() => {
+    if (!promo || promo.subtotal === subtotal) return;
+    if (subtotal === 0) {
+      setPromo(null);
+      return;
+    }
+    let cancelled = false;
+    validatePromo(promo.code, subtotal)
+      .then((data) => {
+        if (!cancelled) setPromo(data.valid ? { ...data, subtotal } : null);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [subtotal, promo]);
+
   const value = {
     lines,
     items,
@@ -92,6 +137,10 @@ export function CartProvider({ children }) {
     total,
     freeDeliveryFrom: FREE_DELIVERY_FROM,
     minDeliveryOrder: MIN_DELIVERY_ORDER,
+    promo,
+    discount: promo?.discount || 0,
+    applyPromo,
+    removePromo: () => setPromo(null),
     addItem,
     setQty,
     removeItem,

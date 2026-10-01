@@ -30,7 +30,7 @@ export default function Storefront({ featured, promos }) {
 
   return (
     <main className="pb-24 lg:pb-0">
-      <Hero />
+      <Hero featured={featured} />
       <QuickActions />
 
       {/* Popular — only real dishes flagged in the admin panel */}
@@ -45,7 +45,7 @@ export default function Storefront({ featured, promos }) {
             </div>
             <button
               onClick={() => scrollToId("menu")}
-              className="flex shrink-0 items-center gap-1.5 text-[0.85rem] font-semibold text-brand hover:underline"
+              className="-my-3 flex shrink-0 items-center gap-1.5 py-3 text-[0.85rem] font-semibold text-brand hover:underline"
             >
               {t("see_all")}
               <ArrowRight size={15} />

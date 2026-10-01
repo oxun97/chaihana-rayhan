@@ -94,12 +94,18 @@ module.exports = {
           "0%": { backgroundPosition: "0 0" },
           "100%": { backgroundPosition: "120px 120px" },
         },
+        float: {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-8px)" },
+        },
       },
       animation: {
         heroZoom: "heroZoom 20s ease-in-out infinite alternate",
         fadeUp: "fadeUp 0.7s cubic-bezier(0.16,1,0.3,1) forwards",
         shimmer: "shimmer 2.5s linear infinite",
         drift: "drift 60s linear infinite",
+        float: "float 6s ease-in-out infinite",
+        spinSlow: "spin 140s linear infinite",
       },
     },
   },

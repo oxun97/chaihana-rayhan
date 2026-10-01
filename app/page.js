@@ -41,12 +41,9 @@ const jsonLd = {
       closes: "23:00",
     },
   ],
-  aggregateRating: {
-    "@type": "AggregateRating",
-    ratingValue: "4.8",
-    bestRating: "5",
-    ratingCount: "156",
-  },
+  // No aggregateRating here on purpose: Google treats a rating a business
+  // publishes about itself as self-serving and can penalise the listing.
+  // Ratings belong on Yandex Maps / 2GIS, where guests leave them.
 };
 
 export default async function HomePage() {
