@@ -91,7 +91,7 @@ function PaymentResultContent() {
         {(state.phase === "checking") && (
           <>
             <Loader2 size={40} className="mx-auto animate-spin text-brand" />
-            <h1 className="mt-4 font-serif text-xl font-bold text-body">Проверяем оплату…</h1>
+            <h1 className="mt-4 font-display text-xl font-bold text-body">Проверяем оплату…</h1>
             <p className="mt-2 text-sm text-muted">Обычно это занимает несколько секунд.</p>
           </>
         )}
@@ -99,7 +99,7 @@ function PaymentResultContent() {
         {state.phase === "completed" && (
           <>
             <CheckCircle2 size={44} className="mx-auto text-herb" />
-            <h1 className="mt-4 font-serif text-xl font-bold text-body">Оплата прошла успешно</h1>
+            <h1 className="mt-4 font-display text-xl font-bold text-body">Оплата прошла успешно</h1>
             <p className="mt-2 text-sm text-muted">
               {state.orderNumber ? `Заказ №${state.orderNumber} принят, мы уже готовим.` : "Заказ принят, мы уже готовим."}
             </p>
@@ -115,7 +115,7 @@ function PaymentResultContent() {
         {state.phase === "failed" && (
           <>
             <XCircle size={44} className="mx-auto text-brand" />
-            <h1 className="mt-4 font-serif text-xl font-bold text-body">Оплата не прошла</h1>
+            <h1 className="mt-4 font-display text-xl font-bold text-body">Оплата не прошла</h1>
             <p className="mt-2 text-sm text-muted">
               Деньги не списаны, заказ не создан. Можно попробовать оформить его ещё раз.
             </p>
@@ -131,7 +131,7 @@ function PaymentResultContent() {
         {state.phase === "paid_no_order" && (
           <>
             <Clock size={44} className="mx-auto text-saffron" />
-            <h1 className="mt-4 font-serif text-xl font-bold text-body">Оплата прошла</h1>
+            <h1 className="mt-4 font-display text-xl font-bold text-body">Оплата прошла</h1>
             <p className="mt-2 text-sm text-muted">
               Деньги получены, но заказ не оформился автоматически. Мы уже знаем об этом и свяжемся с
               вами в ближайшие минуты — либо позвоните нам сами.
@@ -148,7 +148,7 @@ function PaymentResultContent() {
         {(state.phase === "timeout" || state.phase === "error") && (
           <>
             <Clock size={44} className="mx-auto text-saffron" />
-            <h1 className="mt-4 font-serif text-xl font-bold text-body">Проверка занимает больше времени</h1>
+            <h1 className="mt-4 font-display text-xl font-bold text-body">Проверка занимает больше времени</h1>
             <p className="mt-2 text-sm text-muted">
               Если оплата прошла, заказ появится в разделе «Мои заказы» в течение пары минут. Если
               сомневаетесь — позвоните нам.

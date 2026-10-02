@@ -79,7 +79,7 @@ export default function AuthModal() {
             className="flex max-h-[88vh] w-full max-w-sm flex-col overflow-hidden rounded-2xl border border-edge bg-card shadow-lift sm:max-h-[85vh]"
           >
             <div className="flex shrink-0 items-center justify-between px-6 pb-4 pt-6">
-              <h3 className="font-serif text-xl font-bold text-body">
+              <h3 className="font-display text-xl font-bold text-body">
                 {tab === "login" ? t("auth_login_tab") : t("auth_register_tab")}
               </h3>
               <button

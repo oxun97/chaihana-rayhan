@@ -45,7 +45,7 @@ export default function AdminDashboardPage() {
 
             <div className="grid gap-4 lg:grid-cols-2">
               <div className="rounded-2xl bg-card p-4 shadow-soft">
-                <h2 className="font-serif text-base font-bold text-body">Активные заказы по статусам</h2>
+                <h2 className="font-display text-base font-bold text-body">Активные заказы по статусам</h2>
                 {Object.keys(stats.activeStatusCounts).length === 0 ? (
                   <p className="mt-3 text-sm text-muted">Сейчас нет активных заказов.</p>
                 ) : (
@@ -61,7 +61,7 @@ export default function AdminDashboardPage() {
               </div>
 
               <div className="rounded-2xl bg-card p-4 shadow-soft">
-                <h2 className="font-serif text-base font-bold text-body">
+                <h2 className="font-display text-base font-bold text-body">
                   Популярные блюда <span className="text-xs font-normal text-muted">(30 дней)</span>
                 </h2>
                 {stats.topDishes.length === 0 ? (
@@ -91,7 +91,7 @@ function StatTile({ label, value }) {
   return (
     <div className="rounded-2xl bg-card p-4 shadow-soft">
       <p className="text-xs text-muted">{label}</p>
-      <p className="mt-1 font-serif text-2xl font-bold text-body">{value}</p>
+      <p className="mt-1 font-display text-2xl font-bold text-body">{value}</p>
     </div>
   );
 }

@@ -194,7 +194,7 @@ function OrderCard({ order, couriers, busy, onChangeStatus, onAssignCourier }) {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
-            <span className="font-serif text-base font-bold text-body">№{order.order_number}</span>
+            <span className="font-display text-base font-bold text-body">№{order.order_number}</span>
             <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_COLORS[order.status]}`}>
               {STATUS_LABELS[order.status]}
             </span>
@@ -317,7 +317,7 @@ function CourierManager({ couriers, onCreated }) {
   return (
     <div className="rounded-2xl bg-card p-4 shadow-soft">
       <div className="flex items-center justify-between">
-        <h2 className="font-serif text-base font-bold text-body">Курьеры</h2>
+        <h2 className="font-display text-base font-bold text-body">Курьеры</h2>
         <button
           onClick={() => setOpen((v) => !v)}
           className="min-h-[44px] rounded-full border border-edge/40 px-3.5 text-xs font-medium text-muted hover:border-brand hover:text-brand"

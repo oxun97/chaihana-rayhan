@@ -3,37 +3,37 @@
 @tailwind utilities;
 
 /* --- Theme tokens -------------------------------------------------------
-   The palette from the brief, exposed as space-separated RGB channels so
-   Tailwind's `rgb(var(--x) / <alpha-value>)` keeps opacity modifiers
-   (bg-brand/10) working. Day is the default — the brief's reference
-   screens are all cream — and night is the paired dark set, picked to hold
-   the same contrast rather than being a naive inversion. */
+   Exposed as space-separated RGB channels so Tailwind's
+   `rgb(var(--x) / <alpha-value>)` keeps opacity modifiers (bg-brand/10)
+   working. A light, neutral delivery-app palette: white page and panels,
+   a soft warm grey for tiles and inputs, near-black text, the brand red
+   kept for actions only. Night is the matching neutral dark set. */
 :root {
-  --paper: 247 240 229; /* #F7F0E5 cream — page ground */
-  --card: 255 252 246; /* near-white, elevated surfaces */
-  --card-sunken: 240 232 218; /* inputs, quiet fills */
-  --edge: 232 213 186; /* #E8D5BA warm beige — borders */
-  --body: 36 20 13; /* #24140D dark chocolate — text */
-  --muted: 122 99 84; /* secondary text, ~4.8:1 on cream */
-  --brand: 181 31 36; /* #B51F24 red accent */
-  --saffron: 199 154 69; /* #C79A45 gold */
-  --herb: 23 74 50; /* #174A32 eastern green */
-  --cocoa: 36 20 13; /* #24140D — hero/footer grounds in both themes */
-  --sand: 232 213 186; /* #E8D5BA */
+  --paper: 255 255 255; /* page ground */
+  --card: 255 255 255; /* panels, sheets, modals */
+  --card-sunken: 245 244 242; /* dish tiles, inputs, quiet fills */
+  --edge: 234 231 227; /* hairlines */
+  --body: 33 32 31; /* text */
+  --muted: 117 113 108; /* secondary text, ~4.8:1 on white */
+  --brand: 200 32 38; /* actions */
+  --saffron: 214 160 50; /* "hit" badges, highlights */
+  --herb: 30 132 80; /* success, free delivery */
+  --cocoa: 33 32 31; /* dark grounds */
+  --sand: 234 231 227;
 }
 
 :root[data-theme="night"] {
-  --paper: 26 14 9;
-  --card: 45 26 18;
-  --card-sunken: 34 19 13;
-  --edge: 74 48 33;
-  --body: 247 240 229;
-  --muted: 186 165 143;
-  --brand: 217 58 63; /* lifted off #B51F24 so it stays legible on cocoa */
-  --saffron: 214 173 95;
-  --herb: 46 122 86;
-  --cocoa: 18 10 6;
-  --sand: 122 99 84;
+  --paper: 17 17 17;
+  --card: 28 28 28;
+  --card-sunken: 38 38 38;
+  --edge: 52 52 52;
+  --body: 242 241 240;
+  --muted: 165 161 157;
+  --brand: 232 72 76; /* lifted so it stays legible on dark */
+  --saffron: 222 176 82;
+  --herb: 70 176 116;
+  --cocoa: 10 10 10;
+  --sand: 52 52 52;
 }
 
 @layer base {

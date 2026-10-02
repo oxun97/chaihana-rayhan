@@ -1,43 +1,46 @@
 "use client";
 
-import { ArrowRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { useLang } from "@/context/LangContext";
 import { localized } from "@/lib/menu";
 
-// Promo tiles, edited from /admin and stored in the promos table.
+// Promo tiles, edited from /admin and stored in the promos table. Light,
+// tinted tiles in a horizontal row, as delivery apps show restaurant offers.
 const TONES = {
-  red: "from-brand to-[#7c1418] text-[#F7F0E5]",
-  green: "from-herb to-[#0d2c1e] text-[#F7F0E5]",
-  gold: "from-saffron to-[#a06f22] text-cocoa",
+  red: { tile: "bg-brand/[0.09]", accent: "text-brand", dot: "bg-brand" },
+  green: { tile: "bg-herb/[0.1]", accent: "text-herb", dot: "bg-herb" },
+  gold: { tile: "bg-saffron/[0.16]", accent: "text-[#9a6b12] [[data-theme=night]_&]:text-saffron", dot: "bg-saffron" },
 };
 
 export default function PromoCard({ promo, onAction }) {
   const { lang } = useLang();
   const tone = TONES[promo.tone] || TONES.red;
   const action = promo.action ? localized(promo.action, lang) : null;
+  const Tag = action ? "button" : "div";
 
   return (
-    <div
-      className={`relative flex min-h-[10.5rem] flex-1 flex-col justify-between overflow-hidden rounded-[20px] bg-gradient-to-br p-5 ${tone}`}
+    <Tag
+      {...(action ? { onClick: onAction, type: "button" } : {})}
+      className={`group relative flex min-h-[8.5rem] w-[16.5rem] shrink-0 lg:w-auto flex-col justify-between overflow-hidden rounded-[24px] p-4 text-left transition-transform sm:w-[18rem] ${
+        tone.tile
+      } ${action ? "active:scale-[0.98]" : ""}`}
     >
-      <div
-        className="pattern-lattice absolute inset-0 opacity-[0.14]"
-        aria-hidden="true"
-      />
-      <div className="relative">
-        <p className="font-serif text-[1.35rem] font-bold leading-tight">{localized(promo.title, lang)}</p>
-        <p className="mt-1.5 max-w-[15rem] text-[0.82rem] opacity-85">{localized(promo.body, lang)}</p>
-      </div>
+      <span className={`absolute -right-6 -top-6 h-24 w-24 rounded-full opacity-[0.12] ${tone.dot}`} aria-hidden="true" />
+      <span className="relative">
+        <span className="block font-display text-[1.12rem] font-extrabold leading-tight tracking-tight text-body">
+          {localized(promo.title, lang)}
+        </span>
+        <span className="mt-1 line-clamp-2 block text-[0.82rem] leading-snug text-muted">
+          {localized(promo.body, lang)}
+        </span>
+      </span>
 
       {action && (
-        <button
-          onClick={onAction}
-          className="relative mt-4 flex min-h-[44px] w-fit items-center gap-2 rounded-full bg-[#F7F0E5] px-5 py-2 text-[0.78rem] font-semibold text-cocoa transition-transform hover:scale-[1.03] active:scale-95"
-        >
+        <span className={`relative mt-3 flex items-center gap-0.5 text-[0.84rem] font-semibold ${tone.accent}`}>
           {action}
-          <ArrowRight size={14} />
-        </button>
+          <ChevronRight size={16} className="transition-transform group-hover:translate-x-0.5" />
+        </span>
       )}
-    </div>
+    </Tag>
   );
 }

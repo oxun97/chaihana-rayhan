@@ -66,7 +66,7 @@ export default function DishCard({ item, categoryId, index, domId }) {
 
       <div className="flex flex-1 flex-col gap-1">
         <div className="flex flex-wrap items-center gap-1.5">
-          <h3 className="font-serif text-[0.92rem] font-semibold leading-snug text-parchment">{name}</h3>
+          <h3 className="font-display text-[0.92rem] font-semibold leading-snug text-parchment">{name}</h3>
           <div className="flex gap-1">
             {(item.icons || []).map((ic) => (
               <IconBadge key={ic} icon={ic} />

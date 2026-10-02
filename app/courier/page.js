@@ -61,7 +61,7 @@ function LoginForm({ onLoggedIn }) {
         onSubmit={handleSubmit}
         className="flex w-full max-w-xs flex-col gap-3 rounded-2xl bg-card p-6 shadow-soft"
       >
-        <h1 className="mb-1 text-center font-serif text-xl font-bold text-body">
+        <h1 className="mb-1 text-center font-display text-xl font-bold text-body">
           Вход для курьера
         </h1>
         <label className="flex flex-col gap-1 text-xs text-muted">
@@ -183,7 +183,7 @@ function OrdersBoard({ courier, onLoggedOut }) {
     <div className="min-h-screen bg-paper px-4 py-6 sm:px-6">
       <div className="mx-auto flex max-w-xl flex-col gap-6">
         <div className="flex items-center justify-between">
-          <h1 className="font-serif text-lg font-bold text-body">Привет, {courier.name}</h1>
+          <h1 className="font-display text-lg font-bold text-body">Привет, {courier.name}</h1>
           <button onClick={logout} className="-mr-2 flex min-h-[44px] items-center px-2 text-xs text-muted underline hover:text-brand">
             Выйти
           </button>
@@ -243,7 +243,7 @@ function OrderCard({ order, children }) {
   return (
     <li className="rounded-2xl bg-card p-4 shadow-soft">
       <div className="flex items-center justify-between">
-        <span className="font-serif text-base font-bold text-body">№{order.order_number}</span>
+        <span className="font-display text-base font-bold text-body">№{order.order_number}</span>
         <span className="text-sm font-semibold text-brand">{order.total} ₽</span>
       </div>
       <p className="mt-1 text-sm text-body">{order.customer_name}</p>

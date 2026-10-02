@@ -93,7 +93,7 @@ export default function Nav() {
         <a href="#top" className="flex shrink-0 items-center gap-2.5">
           <LogoMark className="h-8 w-8 sm:h-9 sm:w-9" />
           <span className="leading-tight">
-            <span className="block font-serif text-base font-bold text-parchment sm:text-lg">
+            <span className="block font-display text-base font-bold text-parchment sm:text-lg">
               {t("hero_title")}
             </span>
             <span className="hidden text-[0.62rem] uppercase tracking-[0.2em] text-gold sm:block">

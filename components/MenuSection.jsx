@@ -37,7 +37,7 @@ export default function MenuSection({ category }) {
         )}
         <div className="pattern-lattice absolute inset-0 opacity-[0.12]" />
         <div className="relative px-4 py-8 sm:px-6 sm:py-10">
-          <h2 className="inline-block font-serif text-2xl font-bold text-parchment sm:text-3xl">
+          <h2 className="inline-block font-display text-2xl font-bold text-parchment sm:text-3xl">
             {title}
           </h2>
           <div className="mt-1.5 h-[3px] w-11 rounded-full bg-gold" />

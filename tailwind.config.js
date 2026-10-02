@@ -66,7 +66,9 @@ module.exports = {
         },
       },
       fontFamily: {
-        serif: ["'Playfair Display'", "Georgia", "serif"],
+        // One typeface across the site since the light redesign; headings
+        // are Inter at heavier weights (`font-display`).
+        display: ["Inter", "system-ui", "sans-serif"],
         sans: ["Inter", "system-ui", "sans-serif"],
       },
       boxShadow: {

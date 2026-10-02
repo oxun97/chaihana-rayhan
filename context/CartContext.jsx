@@ -136,6 +136,7 @@ export function CartProvider({ children }) {
     deliveryFee,
     total,
     freeDeliveryFrom: FREE_DELIVERY_FROM,
+    deliveryFeeBase: DELIVERY_FEE,
     minDeliveryOrder: MIN_DELIVERY_ORDER,
     promo,
     discount: promo?.discount || 0,

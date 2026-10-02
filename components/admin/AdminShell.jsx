@@ -29,7 +29,7 @@ export default function AdminShell({ title, active, actions, children }) {
     <div className="min-h-screen bg-paper">
       <header className="sticky top-0 z-30 border-b border-edge/70 bg-paper/95 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-3 px-4 py-3 sm:px-6">
-          <h1 className="font-serif text-lg font-bold text-body">{title}</h1>
+          <h1 className="font-display text-lg font-bold text-body">{title}</h1>
           <div className="ml-auto flex items-center gap-2">
             {actions}
             <ThemeToggle size="h-11 w-11" />

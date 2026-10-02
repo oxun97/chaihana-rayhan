@@ -100,7 +100,7 @@ export default function AdminPromosPage() {
 
       <section className="rounded-2xl border border-edge/70 bg-card p-4 sm:p-5">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-          <h2 className="font-serif text-lg font-bold text-body">Акции на главной</h2>
+          <h2 className="font-display text-lg font-bold text-body">Акции на главной</h2>
           <button
             onClick={savePromos}
             disabled={saving || !promos}
@@ -185,7 +185,7 @@ export default function AdminPromosPage() {
       </section>
 
       <section className="rounded-2xl border border-edge/70 bg-card p-4 sm:p-5">
-        <h2 className="mb-4 font-serif text-lg font-bold text-body">Промокоды</h2>
+        <h2 className="mb-4 font-display text-lg font-bold text-body">Промокоды</h2>
 
         <form onSubmit={saveCode} className="mb-5 grid gap-2 sm:grid-cols-3 lg:grid-cols-6">
           <input

@@ -37,7 +37,7 @@ export default function Footer() {
         className="pattern-lattice-lg relative scroll-mt-20 overflow-hidden bg-gradient-to-br from-night via-night to-teal-dark px-6 py-16 text-center"
       >
         <div className="relative">
-          <h2 className="font-serif text-2xl font-bold text-gold-light sm:text-3xl">
+          <h2 className="font-display text-2xl font-bold text-gold-light sm:text-3xl">
             {t("phone_delivery")}
           </h2>
           <p className="mt-1 text-sm text-parchment-soft">{t("phone_call")}</p>

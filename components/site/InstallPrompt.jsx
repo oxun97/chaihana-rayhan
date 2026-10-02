@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Download, Share, X } from "lucide-react";
 import { useLang } from "@/context/LangContext";
+import { useCart } from "@/context/CartContext";
 import { LogoMark } from "@/components/site/Logo";
 
 const DISMISSED_KEY = "chaihana_install_hint";
@@ -71,6 +72,7 @@ function countVisit() {
  */
 export default function InstallPrompt() {
   const { t } = useLang();
+  const { itemCount } = useCart();
   const [mode, setMode] = useState(null); // "prompt" | "ios" | null
   const promptEvent = useRef(null);
   const timer = useRef(null);
@@ -152,8 +154,13 @@ export default function InstallPrompt() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 16 }}
           transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-          // Clears the mobile tab bar, plus the home indicator below it.
-          className="fixed inset-x-3 bottom-[calc(4.6rem+env(safe-area-inset-bottom))] z-40 lg:hidden"
+          // Rides above the floating cart bar when there is one, otherwise
+          // just above the home indicator.
+          className={`fixed inset-x-3 z-40 transition-[bottom] duration-300 lg:hidden ${
+            itemCount > 0
+              ? "bottom-[calc(5rem+env(safe-area-inset-bottom))]"
+              : "bottom-[max(0.75rem,env(safe-area-inset-bottom))]"
+          }`}
           role="dialog"
           aria-label={t("install_title")}
         >

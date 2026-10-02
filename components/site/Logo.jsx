@@ -24,7 +24,7 @@ export default function Logo({ compact = false, className = "" }) {
     <div className={`flex items-center gap-2.5 ${className}`}>
       <LogoMark className={compact ? "h-8 w-8 text-brand" : "h-9 w-9 text-brand"} />
       <span className="leading-tight">
-        <span className="block font-serif text-[1.15rem] font-bold tracking-tight text-body sm:text-[1.3rem]">
+        <span className="block font-display text-[1.15rem] font-bold tracking-tight text-body sm:text-[1.3rem]">
           {t("restaurant_name")}
         </span>
         {!compact && (

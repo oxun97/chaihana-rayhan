@@ -119,7 +119,7 @@ const S = {
   mark: { width: 52, height: 52, margin: "0 auto 18px", color: "#b51f24", display: "block" },
   title: {
     margin: "0 0 10px",
-    fontFamily: '"Playfair Display", Georgia, serif',
+    fontFamily: 'Inter, system-ui, sans-serif',
     fontSize: "1.55rem",
     fontWeight: 700,
     lineHeight: 1.2,

@@ -37,7 +37,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-            className="mt-3 font-serif text-4xl font-bold leading-tight text-parchment sm:text-5xl lg:text-6xl"
+            className="mt-3 font-display text-4xl font-bold leading-tight text-parchment sm:text-5xl lg:text-6xl"
           >
             {t("hero_title")}
           </motion.h1>
@@ -46,7 +46,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.2 }}
-            className="mt-2 font-serif text-xl text-gold-light sm:text-2xl"
+            className="mt-2 font-display text-xl text-gold-light sm:text-2xl"
           >
             {t("hero_subtitle")}
           </motion.p>

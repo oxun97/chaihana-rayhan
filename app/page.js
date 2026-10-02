@@ -1,7 +1,8 @@
 import Header from "@/components/site/Header";
 import Storefront from "@/components/site/Storefront";
 import Footer from "@/components/site/Footer";
-import MobileBottomNav from "@/components/site/MobileBottomNav";
+import FloatingCartBar from "@/components/site/FloatingCartBar";
+import { DishModalProvider } from "@/components/site/DishModal";
 import InstallPrompt from "@/components/site/InstallPrompt";
 import CartDrawer from "@/components/CartDrawer";
 import CheckoutModal from "@/components/CheckoutModal";
@@ -69,15 +70,17 @@ export default async function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <Header />
-      <Toast />
-      <Storefront featured={featured} promos={promos} />
-      <Footer />
-      <CartDrawer />
-      <CheckoutModal />
-      <AuthModal />
-      <MobileBottomNav />
-      <InstallPrompt />
+      <DishModalProvider>
+        <Header />
+        <Toast />
+        <Storefront featured={featured} promos={promos} />
+        <Footer />
+        <FloatingCartBar />
+        <CartDrawer />
+        <CheckoutModal />
+        <AuthModal />
+        <InstallPrompt />
+      </DishModalProvider>
     </>
   );
 }

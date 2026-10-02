@@ -12,7 +12,7 @@ export default function PopularDishes({ dishes }) {
 
   return (
     <section className="py-10">
-      <h2 className="font-serif text-2xl font-bold text-parchment sm:text-3xl">
+      <h2 className="font-display text-2xl font-bold text-parchment sm:text-3xl">
         {t("popular_title")}
       </h2>
       <p className="mt-1 text-sm text-parchment-soft">{t("popular_subtitle")}</p>

@@ -25,7 +25,7 @@ export default function CartSidebar() {
       id="cart-sidebar"
       className="sticky top-24 hidden h-fit w-[320px] shrink-0 scroll-mt-24 rounded-2xl border border-gold/15 bg-surface/90 p-5 shadow-lift backdrop-blur-md lg:block"
     >
-      <h3 className="flex items-center gap-2 font-serif text-lg font-bold text-parchment">
+      <h3 className="flex items-center gap-2 font-display text-lg font-bold text-parchment">
         <ShoppingBag size={18} className="text-gold" /> {t("cart_title")}
         {itemCount > 0 && (
           <span className="text-sm font-normal text-parchment-soft">

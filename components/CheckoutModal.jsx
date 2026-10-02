@@ -348,7 +348,7 @@ export default function CheckoutModal() {
 
               {step === STEP_PAYMENT && (
                 <>
-                  <p className="text-[0.72rem] font-medium uppercase tracking-[0.1em] text-muted">
+                  <p className="text-[0.8rem] font-medium text-muted">
                     {t("pay_method")}
                   </p>
                   {[
@@ -396,7 +396,7 @@ export default function CheckoutModal() {
             <div ref={footerRef} className="shrink-0 border-t border-edge/70 px-5 pb-5 pt-3.5">
               <div className="mb-3 flex items-center justify-between">
                 <span className="text-sm text-muted">{t("cart_total")}</span>
-                <span className="font-serif text-xl font-bold text-body">{payable} ₽</span>
+                <span className="font-display text-xl font-bold text-body">{payable} ₽</span>
               </div>
 
               {step < STEP_PAYMENT ? (
@@ -479,7 +479,7 @@ export default function CheckoutModal() {
 function Field({ label, children }) {
   return (
     <label className="flex flex-col gap-1.5">
-      <span className="text-[0.72rem] font-medium uppercase tracking-[0.08em] text-muted">
+      <span className="text-[0.8rem] font-medium text-muted">
         {label}
       </span>
       {children}

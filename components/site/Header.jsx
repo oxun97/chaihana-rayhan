@@ -2,30 +2,62 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { Search, ShoppingCart, X, Menu as MenuIcon, MapPin, User, CalendarDays } from "lucide-react";
+import Image from "next/image";
+import { Search, ShoppingBag, X, Menu as MenuIcon, User, Clock } from "lucide-react";
 import { useLang } from "@/context/LangContext";
 import { useCart } from "@/context/CartContext";
 import { useMenu } from "@/context/MenuContext";
 import { useAuth } from "@/context/AuthContext";
-import { localized } from "@/lib/menu";
-import Logo from "@/components/site/Logo";
+import { localized, CATEGORY_EMOJI } from "@/lib/menu";
+import { LogoMark } from "@/components/site/Logo";
+import { useDishModal } from "@/components/site/DishModal";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useOverlay } from "@/lib/useOverlay";
 
 const LINKS = [
   { id: "menu", key: "nav_menu" },
-  { id: "delivery", key: "nav_delivery" },
   { id: "promos", key: "nav_promos" },
   { id: "booking", key: "nav_booking" },
-  { id: "about", key: "nav_about" },
   { id: "contacts", key: "nav_contacts" },
+  { id: "about", key: "nav_about" },
 ];
 
 function scrollToId(id) {
   const el = document.getElementById(id);
   if (!el) return;
-  window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 88, behavior: "smooth" });
+  window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 72, behavior: "smooth" });
+}
+
+function SearchResults({ results, query, onPick }) {
+  const { t, lang } = useLang();
+  if (!query.trim()) return null;
+  return (
+    <ul className="absolute inset-x-0 top-full z-50 mt-2 max-h-80 overflow-y-auto rounded-2xl border border-edge bg-card p-1.5 shadow-[0_16px_40px_-12px_rgba(0,0,0,0.25)]">
+      {results.length === 0 ? (
+        <li className="px-3 py-3 text-sm text-muted">{t("search_no_results")}</li>
+      ) : (
+        results.map((item) => (
+          <li key={item.id}>
+            <button
+              onClick={() => onPick(item.id)}
+              className="flex w-full items-center gap-3 rounded-xl px-2.5 py-2 text-left transition-colors hover:bg-card-sunken"
+            >
+              <span className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-card-sunken text-lg">
+                {item.imgSrc ? (
+                  <Image src={item.imgSrc} alt="" fill sizes="40px" className="object-cover" />
+                ) : (
+                  CATEGORY_EMOJI[item.categoryId] || "🍽️"
+                )}
+              </span>
+              <span className="min-w-0 flex-1 truncate text-[0.9rem] text-body">{localized(item.name, lang)}</span>
+              <span className="shrink-0 text-[0.9rem] font-semibold text-body">{item.price} ₽</span>
+            </button>
+          </li>
+        ))
+      )}
+    </ul>
+  );
 }
 
 export default function Header() {
@@ -33,18 +65,16 @@ export default function Header() {
   const { itemCount, total, setCartOpen } = useCart();
   const { categories } = useMenu();
   const { client, setAuthModalOpen } = useAuth();
+  const { openDish } = useDishModal();
   const [searchOpen, setSearchOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const inputRef = useRef(null);
+  const mobileInputRef = useRef(null);
 
   useEffect(() => {
-    if (searchOpen) inputRef.current?.focus();
+    if (searchOpen) mobileInputRef.current?.focus();
   }, [searchOpen]);
 
-  // Escape closes both. The search bar keeps the page scrollable — its
-  // results are read against the menu behind it — while the mobile menu
-  // covers the screen and locks it.
   useOverlay(searchOpen, () => setSearchOpen(false), { lockScroll: false });
   useOverlay(mobileOpen, () => setMobileOpen(false));
 
@@ -55,7 +85,7 @@ export default function Header() {
     for (const cat of categories) {
       for (const item of cat.items) {
         if (localized(item.name, lang).toLowerCase().includes(q)) {
-          found.push(item);
+          found.push({ ...item, categoryId: cat.id });
           if (found.length >= 8) return found;
         }
       }
@@ -63,92 +93,82 @@ export default function Header() {
     return found;
   }, [query, categories, lang]);
 
-  function goToDish(id) {
+  function pick(id) {
     setSearchOpen(false);
     setQuery("");
-    setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "center" }), 50);
+    openDish(id);
   }
 
+  const profileButton = client ? (
+    <Link
+      href="/orders"
+      aria-label={t("nav_my_orders")}
+      className="flex h-11 w-11 items-center justify-center rounded-full text-body transition-colors hover:bg-card-sunken"
+    >
+      <User size={20} />
+    </Link>
+  ) : (
+    <button
+      onClick={() => setAuthModalOpen(true)}
+      aria-label={t("nav_login")}
+      className="flex h-11 w-11 items-center justify-center rounded-full text-body transition-colors hover:bg-card-sunken"
+    >
+      <User size={20} />
+    </button>
+  );
+
   return (
-    <header className="sticky top-0 z-40 border-b border-edge/60 bg-paper/95 backdrop-blur-md">
+    <header className="sticky top-0 z-40 border-b border-edge bg-paper/95 backdrop-blur-md">
       {/* Desktop */}
-      <div className="mx-auto hidden h-20 max-w-7xl items-center gap-6 px-6 lg:flex">
-        <Link href="/" className="shrink-0">
-          <Logo />
+      <div className="mx-auto hidden h-[4.5rem] max-w-[90rem] items-center gap-5 px-6 lg:flex xl:px-8">
+        <Link href="/" className="flex shrink-0 items-center gap-2.5">
+          <LogoMark className="h-8 w-8 text-brand" />
+          <span className="font-display text-[1.15rem] font-extrabold tracking-tight text-body">
+            {t("restaurant_name")}
+          </span>
         </Link>
 
-        <nav className="flex flex-1 items-center justify-center gap-6">
-          {/* "Бронирование" is the outlined button on the right — listing it
-              here as well just said the same thing twice. */}
-          {LINKS.filter((l) => l.id !== "booking").map((l) => (
-            <button
-              key={l.id}
-              onClick={() => scrollToId(l.id)}
-              className="whitespace-nowrap text-[0.9rem] font-medium text-muted transition-colors hover:text-brand"
-            >
-              {t(l.key)}
-            </button>
-          ))}
-        </nav>
+        <span className="hidden shrink-0 items-center gap-1.5 rounded-full bg-card-sunken px-3.5 py-2 text-[0.82rem] font-medium text-body xl:flex">
+          <Clock size={15} className="text-muted" />
+          {t("info_delivery_time")}
+        </span>
 
-        <div className="flex shrink-0 items-center gap-2.5">
-          <button
-            onClick={() => setSearchOpen((v) => !v)}
-            aria-label={t("search_placeholder")}
-            className="flex h-9 w-9 items-center justify-center rounded-full text-muted transition-colors hover:text-brand"
-          >
-            {searchOpen ? <X size={18} /> : <Search size={18} />}
-          </button>
-          <ThemeToggle />
+        <div className="relative mx-auto w-full max-w-xl">
+          <label className="flex h-11 items-center gap-2.5 rounded-full bg-card-sunken px-4 transition-shadow focus-within:ring-2 focus-within:ring-brand/30">
+            <Search size={18} className="shrink-0 text-muted" />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => e.key === "Escape" && setQuery("")}
+              placeholder={t("search_placeholder")}
+              className="w-full bg-transparent text-[0.92rem] text-body placeholder:text-muted focus:outline-none"
+            />
+            {query && (
+              <button onClick={() => setQuery("")} aria-label={t("close")} className="text-muted hover:text-body">
+                <X size={16} />
+              </button>
+            )}
+          </label>
+          <SearchResults results={results} query={query} onPick={pick} />
+        </div>
+
+        <div className="flex shrink-0 items-center gap-1">
           <LanguageSwitcher />
-          {client ? (
-            <Link
-              href="/orders"
-              aria-label={t("nav_my_orders")}
-              className="flex h-9 w-9 items-center justify-center rounded-full text-muted transition-colors hover:text-brand"
-            >
-              <User size={18} />
-            </Link>
-          ) : (
-            <button
-              onClick={() => setAuthModalOpen(true)}
-              aria-label={t("nav_login")}
-              className="flex h-9 w-9 items-center justify-center rounded-full text-muted transition-colors hover:text-brand"
-            >
-              <User size={18} />
-            </button>
-          )}
-
-          <button
-            onClick={() => scrollToId("booking")}
-            className="flex items-center gap-2 rounded-full border border-edge px-4 py-2.5 text-[0.82rem] font-semibold text-body transition-colors hover:border-brand hover:text-brand"
-          >
-            <CalendarDays size={15} />
-            {t("book_table")}
-          </button>
-
+          <ThemeToggle size="h-11 w-11" />
+          {profileButton}
           <button
             onClick={() => setCartOpen(true)}
             aria-label={t("cart_title")}
-            className="flex items-center gap-2.5 rounded-full bg-brand px-4 py-2.5 text-[0.85rem] font-semibold text-white transition-transform hover:scale-[1.02] active:scale-[0.98]"
+            className="ml-2 flex h-11 items-center gap-2 rounded-full bg-brand px-5 text-[0.9rem] font-semibold text-white transition-transform hover:scale-[1.02] active:scale-[0.98]"
           >
-            <ShoppingCart size={16} />
-            {itemCount > 0 ? (
-              <>
-                <span>{total} ₽</span>
-                <span className="flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-white/25 px-1 text-[0.7rem]">
-                  {itemCount}
-                </span>
-              </>
-            ) : (
-              <span>{t("cart_title")}</span>
-            )}
+            <ShoppingBag size={18} />
+            {itemCount > 0 ? <span>{total} ₽</span> : <span>{t("cart_title")}</span>}
           </button>
         </div>
       </div>
 
       {/* Mobile */}
-      <div className="flex items-center gap-3 px-4 py-3 lg:hidden">
+      <div className="flex h-14 items-center gap-1 px-2 lg:hidden">
         <button
           onClick={() => setMobileOpen((v) => !v)}
           aria-label={t("nav_menu")}
@@ -157,21 +177,10 @@ export default function Header() {
           {mobileOpen ? <X size={22} /> : <MenuIcon size={22} />}
         </button>
 
-        <Link href="/" className="mx-auto flex flex-col items-center">
-          <div className="flex items-center gap-2">
-            <span className="text-brand">
-              <svg viewBox="0 0 48 48" className="h-7 w-7" aria-hidden="true">
-                <g fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinejoin="round">
-                  <rect x="11" y="11" width="26" height="26" rx="3" />
-                  <rect x="11" y="11" width="26" height="26" rx="3" transform="rotate(45 24 24)" />
-                </g>
-                <circle cx="24" cy="24" r="5.2" fill="currentColor" />
-              </svg>
-            </span>
-            <span className="font-serif text-[1.2rem] font-bold text-body">{t("restaurant_name")}</span>
-          </div>
-          <span className="flex items-center gap-1 text-[0.72rem] text-muted">
-            <MapPin size={11} className="text-brand" /> {t("city_moscow")}
+        <Link href="/" className="flex min-w-0 flex-1 items-center gap-2">
+          <LogoMark className="h-7 w-7 shrink-0 text-brand" />
+          <span className="truncate font-display text-[1.05rem] font-extrabold tracking-tight text-body">
+            {t("restaurant_name")}
           </span>
         </Link>
 
@@ -182,46 +191,29 @@ export default function Header() {
         >
           {searchOpen ? <X size={20} /> : <Search size={20} />}
         </button>
+        {profileButton}
       </div>
 
       {searchOpen && (
-        <div className="border-t border-edge/60 px-4 py-3 sm:px-6">
-          <div className="mx-auto max-w-xl">
-            <div className="flex items-center gap-2 rounded-full border border-edge bg-card px-4 py-2.5">
-              <Search size={16} className="shrink-0 text-brand" />
+        <div className="border-t border-edge px-4 py-3 lg:hidden">
+          <div className="relative">
+            <label className="flex h-11 items-center gap-2.5 rounded-full bg-card-sunken px-4">
+              <Search size={17} className="shrink-0 text-muted" />
               <input
-                ref={inputRef}
+                ref={mobileInputRef}
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder={t("search_placeholder")}
-                className="w-full bg-transparent text-sm text-body placeholder:text-muted focus:outline-none"
+                className="w-full bg-transparent text-[0.95rem] text-body placeholder:text-muted focus:outline-none"
               />
-            </div>
-            {query.trim() && (
-              <ul className="mt-2 max-h-72 overflow-y-auto rounded-2xl border border-edge bg-card">
-                {results.length === 0 ? (
-                  <li className="px-4 py-3 text-sm text-muted">{t("search_no_results")}</li>
-                ) : (
-                  results.map((item) => (
-                    <li key={item.id}>
-                      <button
-                        onClick={() => goToDish(item.id)}
-                        className="flex w-full items-center justify-between gap-3 px-4 py-2.5 text-left text-sm text-body hover:bg-card-sunken"
-                      >
-                        <span className="truncate">{localized(item.name, lang)}</span>
-                        <span className="shrink-0 font-semibold text-brand">{item.price} ₽</span>
-                      </button>
-                    </li>
-                  ))
-                )}
-              </ul>
-            )}
+            </label>
+            <SearchResults results={results} query={query} onPick={pick} />
           </div>
         </div>
       )}
 
       {mobileOpen && (
-        <div className="border-t border-edge/60 bg-paper px-4 pb-4 lg:hidden">
+        <div className="border-t border-edge bg-paper px-4 pb-5 lg:hidden">
           <nav className="flex flex-col">
             {LINKS.map((l) => (
               <button
@@ -230,15 +222,15 @@ export default function Header() {
                   setMobileOpen(false);
                   scrollToId(l.id);
                 }}
-                className="border-b border-edge/50 py-3 text-left text-[0.95rem] font-medium text-body"
+                className="border-b border-edge py-3.5 text-left text-[1rem] font-medium text-body"
               >
                 {t(l.key)}
               </button>
             ))}
           </nav>
-          <div className="mt-3 flex items-center justify-between">
+          <div className="mt-4 flex items-center justify-between">
             <LanguageSwitcher />
-            <ThemeToggle />
+            <ThemeToggle size="h-11 w-11" />
           </div>
         </div>
       )}

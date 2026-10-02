@@ -114,13 +114,13 @@ export default function OrdersPage() {
           )}
         </div>
 
-        <h1 className="mb-1 font-serif text-2xl font-bold text-body sm:text-3xl">
+        <h1 className="mb-1 font-display text-2xl font-bold text-body sm:text-3xl">
           {t("my_orders_title")}
         </h1>
 
         {client && orders !== null && (
           <div className="mb-6 mt-4 flex items-center gap-3">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand to-cocoa font-serif text-sm font-bold text-white shadow-soft">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand to-cocoa font-display text-sm font-bold text-white shadow-soft">
               {initials}
             </div>
             <div className="min-w-0">
@@ -385,7 +385,7 @@ function OrderCard({ order, index }) {
       <div className="p-4 sm:p-5">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <div>
-            <span className="font-serif text-base font-semibold text-body">
+            <span className="font-display text-base font-semibold text-body">
               №{order.order_number}
             </span>
             <span className="ml-2 text-xs text-muted">{date}</span>
@@ -441,7 +441,7 @@ function OrderCard({ order, index }) {
               {order.address ? ` · ${order.address}` : ""}
             </span>
           </span>
-          <span className="shrink-0 font-serif text-base font-bold text-brand">{order.total} ₽</span>
+          <span className="shrink-0 font-display text-base font-bold text-brand">{order.total} ₽</span>
         </div>
       </div>
 

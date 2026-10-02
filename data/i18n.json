@@ -198,7 +198,19 @@
       "promo_remove": "Убрать промокод",
       "step_back_to_cart": "Корзина",
       "contacts_show_map": "Показать на карте",
-      "contacts_map_title": "Чайхана Райхан на карте"
+      "contacts_map_title": "Чайхана Райхан на карте",
+      "info_delivery_time": "Доставка 30–60 мин",
+      "info_free_from": "бесплатно от",
+      "restaurant_cuisine": "Узбекская и восточная кухня",
+      "dish_add": "Добавить",
+      "dish_done": "Готово",
+      "cart_clear": "Очистить корзину",
+      "info_time_label": "Доставка",
+      "info_time_value": "30–60 мин",
+      "info_fee_label": "Стоимость доставки",
+      "info_min_label": "Мин. заказ",
+      "info_pickup_label": "Самовывоз",
+      "info_pickup_value": "без минимума"
     },
     "uz": {
       "code": "uz",
@@ -398,7 +410,19 @@
       "promo_remove": "Promokodni olib tashlash",
       "step_back_to_cart": "Savat",
       "contacts_show_map": "Xaritada ko'rsatish",
-      "contacts_map_title": "Choyxona Rayhon xaritada"
+      "contacts_map_title": "Choyxona Rayhon xaritada",
+      "info_delivery_time": "Yetkazish 30–60 daqiqa",
+      "info_free_from": "bepul:",
+      "restaurant_cuisine": "O‘zbek va sharq taomlari",
+      "dish_add": "Qo‘shish",
+      "dish_done": "Tayyor",
+      "cart_clear": "Savatni tozalash",
+      "info_time_label": "Yetkazish",
+      "info_time_value": "30–60 daqiqa",
+      "info_fee_label": "Yetkazish narxi",
+      "info_min_label": "Min. buyurtma",
+      "info_pickup_label": "Olib ketish",
+      "info_pickup_value": "cheklovsiz"
     }
   },
   "icons": {

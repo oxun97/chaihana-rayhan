@@ -89,7 +89,7 @@ export default function AdminTelegramPage() {
   return (
     <AdminShell title="Telegram" active="telegram">
         <div className="rounded-2xl bg-card p-4 shadow-soft">
-          <h2 className="font-serif text-base font-bold text-body">Настройка бота</h2>
+          <h2 className="font-display text-base font-bold text-body">Настройка бота</h2>
           <p className="mt-2 text-sm text-muted">
             1. Создайте бота через{" "}
             <a
@@ -137,7 +137,7 @@ export default function AdminTelegramPage() {
 
         <div className="rounded-2xl bg-card p-4 shadow-soft">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2 className="font-serif text-base font-bold text-body">Диагностика</h2>
+            <h2 className="font-display text-base font-bold text-body">Диагностика</h2>
             <button
               onClick={loadStatus}
               disabled={statusBusy}
@@ -208,7 +208,7 @@ export default function AdminTelegramPage() {
 
         {pendingSubscribers.length > 0 && (
           <div className="rounded-2xl border border-saffron/40 bg-saffron/10 p-4">
-            <h2 className="font-serif text-base font-bold text-body">
+            <h2 className="font-display text-base font-bold text-body">
               Ждут подтверждения ({pendingSubscribers.length})
             </h2>
             <p className="mt-1 text-xs text-muted">
@@ -243,7 +243,7 @@ export default function AdminTelegramPage() {
         )}
 
         <div className="rounded-2xl bg-card p-4 shadow-soft">
-          <h2 className="font-serif text-base font-bold text-body">
+          <h2 className="font-display text-base font-bold text-body">
             Подписанные чаты {subscribers && `(${approvedSubscribers.length})`}
           </h2>
           {loadError && <p className="mt-2 text-sm text-red-500">{loadError}</p>}

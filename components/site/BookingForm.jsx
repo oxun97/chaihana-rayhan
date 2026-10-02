@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CalendarDays, Clock, Users, Check } from "lucide-react";
+import { Check } from "lucide-react";
 import { useLang } from "@/context/LangContext";
 import { useAuth } from "@/context/AuthContext";
 import { readJson } from "@/lib/readJson";
@@ -53,11 +53,11 @@ export default function BookingForm() {
 
   if (done) {
     return (
-      <div className="flex flex-col items-center gap-3 rounded-[22px] border border-herb/30 bg-herb/10 px-6 py-12 text-center">
+      <div className="flex flex-col items-center gap-3 rounded-[22px] bg-herb/10 px-6 py-12 text-center">
         <span className="flex h-12 w-12 items-center justify-center rounded-full bg-herb text-white">
           <Check size={24} />
         </span>
-        <p className="font-serif text-xl font-bold text-body">{t("booking_done_title")}</p>
+        <p className="font-display text-xl font-extrabold text-body">{t("booking_done_title")}</p>
         <p className="text-sm text-muted">{t("booking_done_text")}</p>
       </div>
     );
@@ -88,7 +88,7 @@ export default function BookingForm() {
       </div>
 
       <div className="grid gap-3 sm:grid-cols-3">
-        <Field label={t("booking_guests")} icon={Users}>
+        <Field label={t("booking_guests")}>
           <select
             value={guests}
             onChange={(e) => setGuests(Number(e.target.value))}
@@ -101,7 +101,7 @@ export default function BookingForm() {
             ))}
           </select>
         </Field>
-        <Field label={t("booking_date")} icon={CalendarDays}>
+        <Field label={t("booking_date")}>
           <input
             type="date"
             value={date}
@@ -111,7 +111,7 @@ export default function BookingForm() {
             required
           />
         </Field>
-        <Field label={t("booking_time")} icon={Clock}>
+        <Field label={t("booking_time")}>
           <input
             type="time"
             value={time}
@@ -127,7 +127,7 @@ export default function BookingForm() {
       <button
         type="submit"
         disabled={submitting}
-        className="mt-1 rounded-full bg-brand px-7 py-3.5 text-[0.92rem] font-semibold text-white transition-transform hover:scale-[1.01] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+        className="mt-2 h-[3.25rem] rounded-2xl bg-brand px-7 text-[0.96rem] font-semibold text-white transition-transform active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
       >
         {submitting ? t("booking_submitting") : t("booking_submit")}
       </button>
@@ -135,31 +135,32 @@ export default function BookingForm() {
       <style jsx global>{`
         .site-input {
           width: 100%;
-          border-radius: 0.85rem;
-          border: 1px solid rgb(var(--edge));
+          height: 3rem;
+          border-radius: 0.9rem;
+          border: 1px solid transparent;
           background: rgb(var(--card));
           color: rgb(var(--body));
-          padding: 0.7rem 0.9rem;
-          font-size: 0.9rem;
+          padding: 0 0.95rem;
+          font-size: 0.95rem;
           outline: none;
-          transition: border-color 0.2s;
+          transition: border-color 0.2s, box-shadow 0.2s;
         }
         .site-input::placeholder {
           color: rgb(var(--muted));
         }
         .site-input:focus {
           border-color: rgb(var(--brand));
+          box-shadow: 0 0 0 3px rgb(var(--brand) / 0.15);
         }
       `}</style>
     </form>
   );
 }
 
-function Field({ label, icon: Icon, children }) {
+function Field({ label, children }) {
   return (
     <label className="flex flex-col gap-1.5">
-      <span className="flex items-center gap-1.5 text-[0.72rem] font-medium uppercase tracking-[0.1em] text-muted">
-        {Icon && <Icon size={13} className="text-brand" />}
+      <span className="text-[0.8rem] font-medium text-muted">
         {label}
       </span>
       {children}
